@@ -1,6 +1,6 @@
 # Tarhal | ترحال
 
-Mohamed Elshiekh : Team Lead
+Mohamed Elshiekh : Team Leader
 Mohammed Alasad : Backend
 Abdulelah Alshareef : Backend
 Alwaleed Tair : Backend
