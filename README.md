@@ -99,7 +99,7 @@ Core principle: **the frontend never talks to the database directly** — all ac
 ## 📁 Project Structure
 
 ```
-skyway/
+Tarhal/
 ├── app/                  # Next.js pages and routes
 │   ├── (auth)/           # Login / Register
 │   ├── (passenger)/      # Passenger-facing UI
