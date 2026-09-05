@@ -4,22 +4,6 @@
 
 ---
 
-## ✅ Project 1 — submitted today (5/9) ✔️
-
----
-
-## 👤 Mohamed Elshiekh — Team Lead: Architecture & Documentation
-
-| Day | Task | Expected Deliverable |
-|---|---|---|
-| **5/9** | Hold a short kickoff meeting (30 min) to officially assign this plan to the team | Everyone clear on their task |
-| **6/9** | Start drafting Project Overview / Goals / Scope (an expanded version of the Project 1 draft, keeping the same decisions: core scope + conditional features) | Initial Overview/Goals/Scope draft |
-| **7/9** | Ask each member for a short paragraph about their module's scope (due back by 9/9) | Request sent to all members |
-| **8/9** | Write the **Feasibility** section (technical and time feasibility for a 6-person team within the available term) | Feasibility draft |
-| **9/9** | Merge members' paragraphs (as they arrive) + first full-document review | Near-final draft |
-| **10/9** | Full Project 2 draft ready for team review | Complete Proposal file, ready for 9/11 |
-
----
 
 ## 👤 Abdulelah Alshareef — Backend: Database & Flights/Bookings
 
