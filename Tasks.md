@@ -24,7 +24,7 @@
 |---|---|---|
 | **5/9** | Set up environment + read core NextAuth.js documentation | Basic understanding of setup |
 | **6/9** | Sketch the Login/Register flow — even a simple diagram | Auth flow diagram |
-| **7/9** | ⚠️ **Important:** Amadeus (originally planned for hotel/car data) **has been shut down** — decide on an alternative: either a smaller RapidAPI provider with a real free tier, or the safer, simpler option: **seed/mock data** for a limited set of hotels/cars | Final decision on hotel/car data source |
+| **7/9** | decide on an alternative: either a smaller RapidAPI provider with a real free tier, or the safer, simpler option: **seed/mock data** for a limited set of hotels/cars | Final decision on hotel/car data source |
 | **8/9** | Start designing the Hotels/Cars schema tables (coordinate with Abdulelah) | Hotels/Cars tables added to the ERD |
 | **9/9** | Review the final Auth + Hotels/Cars scope with Mohamed | Confirmed scope for this stage |
 | **10/9** | Send Mohamed a short paragraph on the Auth + Hotels/Cars scope | Paragraph ready for the Feasibility section |
