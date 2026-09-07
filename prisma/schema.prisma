@@ -42,13 +42,13 @@ model Flight {
 }
 
 model Seat {
-  id              String            @id @default(uuid())
+  id              String          @id @default(uuid())
   flightId        String
-  flight          Flight            @relation(fields: [flightId], references: [id])
+  flight          Flight          @relation(fields: [flightId], references: [id])
   seatCode        String
   ticketClass     String
-  priceMultiplier Float             @default(1.0)
-  status          SeatStatus        @default(AVAILABLE)
+  priceMultiplier Float           @default(1.0)
+  status          SeatStatus      @default(AVAILABLE)
   traveler        BookingTraveler?
 
   @@unique([flightId, seatCode])
