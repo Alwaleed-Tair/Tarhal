@@ -64,3 +64,73 @@ model BookingTraveler {
   dateOfBirth    DateTime
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String    @id @default(uuid())
+  name     String
+  email    String    @unique
+  password String
+  role     String    @default("traveler")
+  bookings Booking[]
+}
+
+model Flight {
+  id            String    @id @default(uuid())
+  flightNumber  String    @unique
+  from          String
+  to            String
+  departureTime DateTime
+  arrivalTime   DateTime
+  basePrice     Float
+  seats         Seat[]
+  bookings      Booking[]
+}
+
+model Seat {
+  id          String            @id @default(uuid())
+  flightId    String
+  flight      Flight            @relation(fields: [flightId], references: [id])
+  seatCode    String
+  ticketClass String
+  isBooked    Boolean           @default(false)
+  traveler    BookingTraveler?
+
+  @@unique([flightId, seatCode])
+}
+
+model Booking {
+  id          String            @id @default(uuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id])
+  flightId    String
+  flight      Flight            @relation(fields: [flightId], references: [id])
+  totalPrice  Float
+  luggageFee  Float             @default(0)
+  isActive    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  travelers   BookingTraveler[]
+}
+
+model BookingTraveler {
+  id             String   @id @default(uuid())
+  bookingId      String
+  booking        Booking  @relation(fields: [bookingId], references: [id])
+  seatId         String   @unique
+  seat           Seat     @relation(fields: [seatId], references: [id])
+  fullName       String
+  passportNumber String
+  dateOfBirth    DateTime
+}
+
+
+
+
+
