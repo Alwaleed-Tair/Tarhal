@@ -64,3 +64,19 @@ model BookingTraveler {
   dateOfBirth    DateTime
 }
 
+// Mohammed Alasad's MVP catalog: fictional seed data, no live availability.
+model Hotel {
+  id            String  @id @default(uuid())
+  name          String
+  city          String
+  pricePerNight Decimal @db.Decimal(10, 2) // SAR for the listed room type.
+  rating        Float // Sample rating on a 1–5 scale.
+  roomType      String // One representative room type per sample hotel.
+}
+
+model Car {
+  id              String  @id @default(uuid())
+  category        String
+  pricePerDay     Decimal @db.Decimal(10, 2) // SAR, excluding optional insurance.
+  insuranceOption Boolean // Whether optional insurance is offered.
+}
