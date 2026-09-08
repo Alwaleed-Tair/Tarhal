@@ -7,6 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum SeatStatus {
+  AVAILABLE
+  HELD
+  BOOKED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
 model User {
   id       String    @id @default(uuid())
   name     String
@@ -29,28 +42,33 @@ model Flight {
 }
 
 model Seat {
-  id          String            @id @default(uuid())
-  flightId    String
-  flight      Flight            @relation(fields: [flightId], references: [id])
-  seatCode    String
-  ticketClass String
-  isBooked    Boolean           @default(false)
-  traveler    BookingTraveler?
+  id              String          @id @default(uuid())
+  flightId        String
+  flight          Flight          @relation(fields: [flightId], references: [id])
+  seatCode        String
+  ticketClass     String
+  priceMultiplier Float           @default(1.0)
+  status          SeatStatus      @default(AVAILABLE)
+  traveler        BookingTraveler?
 
   @@unique([flightId, seatCode])
 }
 
 model Booking {
-  id          String            @id @default(uuid())
-  userId      String
-  user        User              @relation(fields: [userId], references: [id])
-  flightId    String
-  flight      Flight            @relation(fields: [flightId], references: [id])
-  totalPrice  Float
-  luggageFee  Float             @default(0)
-  isActive    Boolean           @default(true)
-  createdAt   DateTime          @default(now())
-  travelers   BookingTraveler[]
+  id            String            @id @default(uuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id])
+  flightId      String
+  flight        Flight            @relation(fields: [flightId], references: [id])
+  basePrice     Float
+  luggageFee    Float             @default(0)
+  discount      Float             @default(0)
+  totalPrice    Float
+  paymentStatus PaymentStatus     @default(PENDING)
+  isActive      Boolean           @default(true)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  travelers     BookingTraveler[]
 }
 
 model BookingTraveler {
