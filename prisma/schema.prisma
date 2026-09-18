@@ -21,35 +21,48 @@ enum PaymentStatus {
 }
 
 model User {
-  id       String    @id @default(uuid())
-  name     String
-  email    String    @unique
-  password String
-  role     String    @default("traveler")
-  bookings Booking[]
+  id          String    @id @default(uuid())
+  name        String
+  email       String    @unique
+  phoneNumber String    @unique
+  password    String
+  role        String    @default("traveler")
+  
+  bookings    Booking[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Flight {
-  id            String    @id @default(uuid())
-  flightNumber  String    @unique
-  from          String
-  to            String
+  id           String    @id @default(uuid())
+  flightNumber String    @unique
+  from         String
+  to           String
   departureTime DateTime
-  arrivalTime   DateTime
-  basePrice     Float
-  seats         Seat[]
-  bookings      Booking[]
+  arrivalTime  DateTime
+  basePrice    Decimal   @db.Decimal(10, 2)
+  
+  seats        Seat[]
+  bookings     Booking[]
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model Seat {
   id              String          @id @default(uuid())
   flightId        String
-  flight          Flight          @relation(fields: [flightId], references: [id])
+  flight          Flight          @relation(fields: [flightId], references: [id], onDelete: Cascade)
   seatCode        String
   ticketClass     String
-  priceMultiplier Float           @default(1.0)
+  priceMultiplier Decimal         @default(1.0) @db.Decimal(4, 2)
   status          SeatStatus      @default(AVAILABLE)
+  
   traveler        BookingTraveler?
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
   @@unique([flightId, seatCode])
 }
@@ -57,44 +70,48 @@ model Seat {
 model Booking {
   id            String            @id @default(uuid())
   userId        String
-  user          User              @relation(fields: [userId], references: [id])
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   flightId      String
-  flight        Flight            @relation(fields: [flightId], references: [id])
-  basePrice     Float
-  luggageFee    Float             @default(0)
-  discount      Float             @default(0)
-  totalPrice    Float
+  flight        Flight            @relation(fields: [flightId], references: [id], onDelete: Cascade)
+  
+  basePrice     Decimal           @db.Decimal(10, 2)
+  luggageFee    Decimal           @default(0) @db.Decimal(10, 2)
+  discount      Decimal           @default(0) @db.Decimal(10, 2)
+  totalPrice    Decimal           @db.Decimal(10, 2)
   paymentStatus PaymentStatus     @default(PENDING)
   isActive      Boolean           @default(true)
+  
+  travelers     BookingTraveler[]
+
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
-  travelers     BookingTraveler[]
 }
 
 model BookingTraveler {
   id             String   @id @default(uuid())
   bookingId      String
-  booking        Booking  @relation(fields: [bookingId], references: [id])
+  booking        Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   seatId         String   @unique
-  seat           Seat     @relation(fields: [seatId], references: [id])
+  seat           Seat     @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  
   fullName       String
   passportNumber String
   dateOfBirth    DateTime
 }
 
-// Mohammed Alasad's MVP catalog: fictional seed data, no live availability.
+// Mohammed Alasad's MVP catalog
 model Hotel {
   id            String  @id @default(uuid())
   name          String
   city          String
-  pricePerNight Decimal @db.Decimal(10, 2) // SAR for the listed room type.
-  rating        Float // Sample rating on a 1–5 scale.
-  roomType      String // One representative room type per sample hotel.
+  pricePerNight Decimal @db.Decimal(10, 2)
+  rating        Float   
+  roomType      String  
 }
 
 model Car {
   id              String  @id @default(uuid())
   category        String
-  pricePerDay     Decimal @db.Decimal(10, 2) // SAR, excluding optional insurance.
-  insuranceOption Boolean // Whether optional insurance is offered.
+  pricePerDay     Decimal @db.Decimal(10, 2)
+  insuranceOption Boolean 
 }
