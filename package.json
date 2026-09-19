@@ -1,0 +1,32 @@
+{
+  "name": "tarhal",
+  "version": "1.0.0",
+  "description": "| Name | Role | Key Responsibilities |\r |---|---|---|\r | Mohamed Elshiekh | Team Lead — Architecture & Documentation | System architecture, ERD design, writing SPMP/SRS/SDS/STS, coordinating testing |\r | Abdulelah Alshareef | Backend — Database & Flights/Bookings | Prisma schema implementation, search/booking/seat logic |\r | Mohammed Alasad  | Backend — Auth & Hotels/Cars | NextAuth.js, role management, hotels & cars API |\r | Alwaleed Tair | Backend — AI Integration | Chatbot, destination guide, token/cache management |\r | Tariq Alghamdi | Frontend — Passenger UI | Search/booking pages, seat selection, digital ticket |\r | Omar Faraj | Frontend — Admin UI & Design | Admin dashboard & analytics, overall visual design |",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alwaleed-Tair/Tarhal.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Alwaleed-Tair/Tarhal/issues"
+  },
+  "homepage": "https://github.com/Alwaleed-Tair/Tarhal#readme",
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "next": "^16.3.5"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.3"
+  }
+}
