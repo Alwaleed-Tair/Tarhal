@@ -1,30 +1,30 @@
-# 📋 Tarhal — Task Plan (Sept 13 – Sept 17, 2026)
-
-> Goal: submit **Project 2 (Proposal / Process & Feasibility)** on **9/17** — the same day as the weekly meeting (Thursday), so the meeting doubles as the final review right before submission.
+# 📋 Tarhal — Task Plan (Sept 20 – Sept 26, 2026)
 
 ---
 
-## 👤 Abdulelah Alshareef — Backend: Database Design & Flights/Bookings
+## 👤 Abdulelah Alshareef — Backend: Database & Flights/Bookings
 
 | Day | Task | Expected Deliverable |
 |---|---|---|
-| **13/9** | Review the current ERD (Users, Flights, Bookings, Seats) and confirm it's complete, then prepare a simple walkthrough for Saud before he starts | Documented ERD, ready to hand to Saud |
-| **14/9** | Short sync meeting (20 min) with Saud: walk him through the ERD and assign his first concrete task (e.g., write the Users and Flights tables in `schema.prisma`) | Saud has started on a clear task |
-| **15/9** | Review Saud's first Pull Request (even if partial) — confirm the fields match the ERD | Written review comments on the PR |
-| **16/9** | Final review of Saud's work + send Mohamed a paragraph on the booking/seats module scope | Schema fully reviewed + paragraph ready |
-| **17/9** | Attend the weekly/final review meeting | Participated in review |
+| **20/9** | Fully connect the search endpoint with the booking endpoint (complete flow: search → result → booking) | Integrated backend flow |
+| **21/9** | Add validation/error handling to every endpoint (invalid dates, non-existent seats) | Comprehensive error handling |
+| **22/9** | Test edge cases: booking the last available seat, concurrent booking attempts from different users | Confirmed logic integrity under load |
+| **23/9** | Coordinate with Tariq to connect the frontend to all endpoints for real (End-to-End) | Full working flow from the UI |
+| **24/9** | Attend the weekly meeting + progress report | Participated in the meeting |
+| **25-26/9** | Review Saud's work on the Hotels/Cars tables and document the final schema | Fully documented schema |
 
 ---
 
-## 👤 Saud Mohammed — Backend: Database Implementation (under Abdulelah's supervision)
+## 👤 Saud Mohammed — Backend: Database Implementation
 
 | Day | Task | Expected Deliverable |
 |---|---|---|
-| **13/9** | Set up dev environment (Node.js, Git, clone the repo) | Working environment |
-| **14/9** | Attend the sync meeting with Abdulelah + start writing the first two tables in `schema.prisma` (Users, Flights) exactly as explained | Initial partial schema draft |
-| **15/9** | Complete the remaining tables (Bookings, Seats) + open a Pull Request for review | PR ready for Abdulelah's review |
-| **16/9** | Apply Abdulelah's feedback on the PR + run a trial migration (`npx prisma migrate dev`) and confirm no errors | Final schema working error-free |
-| **17/9** | Attend the weekly meeting | Participated in review |
+| **20/9** | Expand seed data (more flights and hotels across different cities for broader test coverage) | Richer sample data |
+| **21/9** | Write the migration for the Hotels/Cars tables (coordinating with Mohammed Alasad) | Migration ready |
+| **22/9** | Test common queries against the database (search, filtering) and confirm acceptable performance | Confirmed acceptable performance |
+| **23/9** | Write a short documentation of the schema structure (each table and its purpose) — useful later for the SRS | Initial documentation |
+| **24/9** | Attend the weekly meeting | Participated in the meeting |
+| **25-26/9** | Fix anything flagged in Abdulelah's review | Final approved schema |
 
 ---
 
@@ -32,11 +32,12 @@
 
 | Day | Task | Expected Deliverable |
 |---|---|---|
-| **13/9** | Sketch the Login/Register flow (Landing → Register form → Validate → Dashboard) | Auth flow diagram |
-| **14/9** | Finalize the hotel/car data source (seed data or a small provider) + prepare `hotels.json`/`cars.json` if going with seed data | Final data source ready |
-| **15/9** | Send the Hotel/Car field list to Saud and Abdulelah so it's added to the schema | Fields sent and confirmed |
-| **16/9** | Send Mohamed a paragraph on the Auth + Hotels/Cars scope | Paragraph ready |
-| **17/9** | Attend the weekly meeting | Participated in review |
+| **20/9** | Add a "forgot password" flow (or simplify it to fit the MVP scope if time is tight) | More complete Auth flow |
+| **21/9** | Add filtering to the hotels endpoint (price, rating, room type) | Working filters |
+| **22/9** | Add similar filtering to the cars endpoint (category, price) | Working filters |
+| **23/9** | Full test of all endpoints (Auth + Hotels + Cars) using Saud's new seed data | Confirmed overall stability |
+| **24/9** | Attend the weekly meeting | Participated in the meeting |
+| **25-26/9** | Write a short paragraph documenting the filtering logic used (useful later for the SRS) | Documentation paragraph ready |
 
 ---
 
@@ -44,11 +45,12 @@
 
 | Day | Task | Expected Deliverable |
 |---|---|---|
-| **13/9** | Update the destination-guide System Prompt to **explicitly include Saudi context** (visa requirements for Saudi passport holders, prayer times/nearby mosques, halal food availability, cultural tips) — top priority due to the professor's feedback | Updated and tested System Prompt |
-| **14/9** | Test the System Prompt on 3 different countries (verify Saudi-visa info accuracy specifically) | 3 tested, documented JSON examples |
-| **15/9** | Set up the initial router (fixed rule: Flash for simple questions/destination guide, Pro for the itinerary generator) | Working initial router logic |
-| **16/9** | Test the itinerary generator + send Mohamed a paragraph on the AI scope (chatbot + Saudi-context destination guide + router) | Paragraph ready |
-| **17/9** | Attend the weekly meeting | Participated in review |
+| **20/9** | Extend Saudi-context testing to 5 more countries (10 total tested) | Broader, documented coverage |
+| **21/9** | Add token-usage logging for every request — so you can actually track real cost | Working cost-tracking mechanism |
+| **22/9** | Improve the router: add a "number of constraints in the request" criterion (as discussed) instead of a fixed rule only | Smarter router |
+| **23/9** | Build a standalone endpoint for the itinerary generator (`/api/itinerary`) | Working itinerary endpoint |
+| **24/9** | Attend the weekly meeting | Participated in the meeting |
+| **25-26/9** | Write documented examples (input/output) for each AI feature — directly useful for the SRS later | Documented examples |
 
 ---
 
@@ -56,11 +58,12 @@
 
 | Day | Task | Expected Deliverable |
 |---|---|---|
-| **13/9** | Wireframes for the search page + seat selection | 2 wireframes |
-| **14/9** | Wireframes for the booking page + "My Bookings" + digital ticket | 3 more wireframes |
-| **15/9** | Wireframe for the destination guide page (showing Saudi context: visa, halal food, prayer times) | Destination guide page wireframe |
-| **16/9** | Coordinate with Omar on shared design values (colors/fonts) + send his paragraph to Mohamed | Confirmed consistency + paragraph ready |
-| **17/9** | Attend the weekly meeting | Participated in review |
+| **20/9** | Connect the full booking flow to the real backend (search → seat → booking → ticket) | Working End-to-End flow |
+| **21/9** | Add loading and error states to every page | More complete user experience |
+| **22/9** | Build the destination guide page and connect it to Alwaleed's endpoint | Working destination guide page |
+| **23/9** | Full flow testing together with Abdulelah (joint session) | Integration bugs found and fixed |
+| **24/9** | Attend the weekly meeting | Participated in the meeting |
+| **25-26/9** | Visual polish across all passenger pages | Polished passenger UI |
 
 ---
 
@@ -68,20 +71,20 @@
 
 | Day | Task | Expected Deliverable |
 |---|---|---|
-| **13/9** | Decide the visual identity (colors, fonts) + prepare an initial Tailwind theme | Initial theme |
-| **14/9** | Wireframe for the admin dashboard (overview + flights table) | Admin wireframe |
-| **15/9** | Wireframe for the analytics section (3 charts: revenue, top destinations, cancellation rate) | Analytics wireframe |
-| **16/9** | Coordinate with Tariq + send his paragraph to Mohamed | Confirmed consistency + paragraph ready |
-| **17/9** | Attend the weekly meeting | Participated in review |
+| **20/9** | Finish bilingual support (Arabic/English) across all admin pages and confirm RTL works correctly | Fully stable bilingual support |
+| **21/9** | Integrate the chatbot widget into the passenger UI, coordinating with Tariq | Chatbot widget integrated |
+| **22/9** | Implement the senior-accessibility mode (larger text + high contrast) as a real, working option | Working accessibility mode |
+| **23/9** | Test responsiveness across different screen sizes (mobile/tablet/desktop) | Confirmed responsive design |
+| **24/9** | Attend the weekly meeting | Participated in the meeting |
+| **25-26/9** | Visual polish across the entire admin dashboard | Polished admin dashboard |
 
 ---
 
-## 🔗 Key Dependencies
+## 🔗 Key Dependencies This Week
 
-- **Abdulelah and Saud** sync on 14/9  — Saud does not start real code before fully understanding the ERD from Abdulelah.
-- **Mohammed Alasad** sends the Hotels/Cars fields on 15/9 — timed exactly for when Saud is working on the remaining tables, so there's no blocking delay.
-- **Alwaleed's** top priority this week is the Saudi context in the destination guide — directly tied to the professor's feedback, non-negotiable.
-- **9/17's single meeting serves two purposes:** the regular weekly meeting + the final review right before submission.
+- **Tariq and Abdulelah** hold a joint testing session on 23/9 — this is the first time the full flow runs from UI to database; expect to find integration bugs here, that's exactly the point of the session.
+- **Omar needs the chatbot endpoint from Alwaleed** on 21/9 to integrate the widget — if Alwaleed is delayed, Omar builds the UI with mock data temporarily.
+- **Everyone documents small examples/paragraphs by the end of the week** — this is a direct investment in the upcoming SRS (11/12); documenting as you go saves a lot of time later.
 
 ---
 
@@ -89,6 +92,6 @@
 
 | Day | Main Event |
 |---|---|
-| 13–15/9 | Each member executes their tasks; Saud starts under Abdulelah's supervision |
-| 16/9 | All paragraphs collected and merged into one Proposal document |
-| **17/9 (Thu)** | **Weekly meeting = final review → submit Project 2 before 11:59 PM** |
+| 20-23/9 | Deepen cross-module integration + handle edge cases + continued SPMP work |
+| **24/9 (Thu)** | **Weekly meeting: integration review + SPMP update** |
+| 25-26/9 | Polish and documentation (more flexible, no hard deadline pressure) |
