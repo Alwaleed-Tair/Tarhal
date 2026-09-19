@@ -10,8 +10,7 @@
 | **21/9** | Add validation/error handling to every endpoint (invalid dates, non-existent seats) | Comprehensive error handling |
 | **22/9** | Test edge cases: booking the last available seat, concurrent booking attempts from different users | Confirmed logic integrity under load |
 | **23/9** | Coordinate with Tariq to connect the frontend to all endpoints for real (End-to-End) | Full working flow from the UI |
-| **24/9** | Attend the weekly meeting + progress report | Participated in the meeting |
-| **25-26/9** | Review Saud's work on the Hotels/Cars tables and document the final schema | Fully documented schema |
+| **24-26/9** | Review Saud's work on the Hotels/Cars tables and document the final schema | Fully documented schema |
 
 ---
 
@@ -23,8 +22,7 @@
 | **21/9** | Write the migration for the Hotels/Cars tables (coordinating with Mohammed Alasad) | Migration ready |
 | **22/9** | Test common queries against the database (search, filtering) and confirm acceptable performance | Confirmed acceptable performance |
 | **23/9** | Write a short documentation of the schema structure (each table and its purpose) — useful later for the SRS | Initial documentation |
-| **24/9** | Attend the weekly meeting | Participated in the meeting |
-| **25-26/9** | Fix anything flagged in Abdulelah's review | Final approved schema |
+| **24-26/9** | Fix anything flagged in Abdulelah's review | Final approved schema |
 
 ---
 
@@ -36,8 +34,7 @@
 | **21/9** | Add filtering to the hotels endpoint (price, rating, room type) | Working filters |
 | **22/9** | Add similar filtering to the cars endpoint (category, price) | Working filters |
 | **23/9** | Full test of all endpoints (Auth + Hotels + Cars) using Saud's new seed data | Confirmed overall stability |
-| **24/9** | Attend the weekly meeting | Participated in the meeting |
-| **25-26/9** | Write a short paragraph documenting the filtering logic used (useful later for the SRS) | Documentation paragraph ready |
+| **24-26/9** | Write a short paragraph documenting the filtering logic used (useful later for the SRS) | Documentation paragraph ready |
 
 ---
 
@@ -49,8 +46,7 @@
 | **21/9** | Add token-usage logging for every request — so you can actually track real cost | Working cost-tracking mechanism |
 | **22/9** | Improve the router: add a "number of constraints in the request" criterion (as discussed) instead of a fixed rule only | Smarter router |
 | **23/9** | Build a standalone endpoint for the itinerary generator (`/api/itinerary`) | Working itinerary endpoint |
-| **24/9** | Attend the weekly meeting | Participated in the meeting |
-| **25-26/9** | Write documented examples (input/output) for each AI feature — directly useful for the SRS later | Documented examples |
+| **24-26/9** | Write documented examples (input/output) for each AI feature — directly useful for the SRS later | Documented examples |
 
 ---
 
@@ -62,8 +58,7 @@
 | **21/9** | Add loading and error states to every page | More complete user experience |
 | **22/9** | Build the destination guide page and connect it to Alwaleed's endpoint | Working destination guide page |
 | **23/9** | Full flow testing together with Abdulelah (joint session) | Integration bugs found and fixed |
-| **24/9** | Attend the weekly meeting | Participated in the meeting |
-| **25-26/9** | Visual polish across all passenger pages | Polished passenger UI |
+| **24-26/9** | Visual polish across all passenger pages | Polished passenger UI |
 
 ---
 
@@ -75,8 +70,7 @@
 | **21/9** | Integrate the chatbot widget into the passenger UI, coordinating with Tariq | Chatbot widget integrated |
 | **22/9** | Implement the senior-accessibility mode (larger text + high contrast) as a real, working option | Working accessibility mode |
 | **23/9** | Test responsiveness across different screen sizes (mobile/tablet/desktop) | Confirmed responsive design |
-| **24/9** | Attend the weekly meeting | Participated in the meeting |
-| **25-26/9** | Visual polish across the entire admin dashboard | Polished admin dashboard |
+| **24-26/9** | Visual polish across the entire admin dashboard | Polished admin dashboard |
 
 ---
 
@@ -93,5 +87,4 @@
 | Day | Main Event |
 |---|---|
 | 20-23/9 | Deepen cross-module integration + handle edge cases + continued SPMP work |
-| **24/9 (Thu)** | **Weekly meeting: integration review + SPMP update** |
 | 25-26/9 | Polish and documentation (more flexible, no hard deadline pressure) |
