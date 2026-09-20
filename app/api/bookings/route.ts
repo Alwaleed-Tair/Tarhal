@@ -8,7 +8,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { userId, flightId, travelers, basePrice } = body;
 
-    // 1. Validate the incoming data payload
     if (!userId || !flightId || !travelers || travelers.length === 0) {
       return NextResponse.json(
         { error: "Missing required booking fields" }, 
@@ -16,37 +15,59 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Calculate the total price (simplistic logic for MVP)
-    const calculatedTotal = basePrice * travelers.length;
+    // 1. VALIDATION: Extract the seat IDs the user is trying to book
+    const requestedSeatIds = travelers.map((t: any) => t.seatId);
 
-    // 3. Create the booking and travelers in a single database transaction
-    const booking = await prisma.booking.create({
-      data: {
-        userId: userId,
+    // 2. VALIDATION: Check if those exact seats exist, belong to this flight, and are AVAILABLE
+    const availableSeats = await prisma.seat.findMany({
+      where: {
+        id: { in: requestedSeatIds },
         flightId: flightId,
-        basePrice: basePrice,
-        totalPrice: calculatedTotal,
-        travelers: {
-          create: travelers.map((t: any) => ({
             seatId: t.seatId,
-            fullName: t.fullName,
-            passportNumber: t.passportNumber,
-            dateOfBirth: new Date(t.dateOfBirth),
-          }))
-        }
-      },
-      include: {
-        travelers: true // Return traveler data to confirm success
+        status: 'AVAILABLE'
       }
     });
 
-    return NextResponse.json({ success: true, data: booking }, { status: 201 });
+    // If the database returns fewer seats than requested, someone else booked them or they are invalid
+    if (availableSeats.length !== requestedSeatIds.length) {
+      return NextResponse.json({ 
+        error: "One or more selected seats are invalid or no longer available" 
+      }, { status: 400 });
+    }
+
+    const calculatedTotal = basePrice * travelers.length;
+
+    // 3. TRANSACTION: Safely create the booking AND update the seats to BOOKED simultaneously
+    const result = await prisma.$transaction(async (tx) => {
+      
+      const booking = await tx.booking.create({
+        data: {
+          userId: userId,
+          flightId: flightId,
+          basePrice: basePrice,
+          totalPrice: calculatedTotal,
+          travelers: {
+            create: travelers.map((t: any) => ({
+              seatId: t.seatId,
+              fullName: t.fullName,
+              passportNumber: t.passportNumber,
+              dateOfBirth: new Date(t.dateOfBirth),
+            }))
+          }
+        }
+      });
+
+      await tx.seat.updateMany({
+        where: { id: { in: requestedSeatIds } },
+        data: { status: 'BOOKED' }
+      });
+
+      return booking;
+    });
+
+    return NextResponse.json({ success: true, data: result }, { status: 201 });
 
   } catch (error) {
-    console.error("Booking creation failed:", error);
-    return NextResponse.json(
-      { error: "Failed to create booking. Ensure seats exist and are available." }, 
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to process booking" }, { status: 500 });
   }
 }
