@@ -1,0 +1,4 @@
+﻿# CODEOWNERS
+# هذا الملف يحدد إن أي Pull Request يحتاج موافقة أحد الاسمين التاليين قبل الدمج لـ main
+
+* @Alwaleed-Tair @x0Moh

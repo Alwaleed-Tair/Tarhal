@@ -13,7 +13,8 @@
 | Omar Faraj | Frontend — Admin UI & Design | Admin dashboard & analytics, overall visual design |
 
 
-
+ 
+ 
 # ✈️ Tarhal — Integrated Travel Platform
 
 Software Engineering course project — [IAU], [9/2026].
@@ -132,9 +133,3 @@ All course deliverables are located in [`/docs`](./docs):
 - [SRS — Software Requirements Specification](./docs/SRS.md)
 - [SDS — Software Design Specification](./docs/SDS.md)
 - [STS — Software Test Specification](./docs/STS.md)
-
-
-
-
-
-

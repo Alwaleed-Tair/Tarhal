@@ -1,0 +1,66 @@
+[
+  {
+    "id": "10000000-0000-4000-8000-000000000001",
+    "name": "Tarhal Palm Hotel (Sample)",
+    "city": "Riyadh",
+    "pricePerNight": 320,
+    "rating": 4.2,
+    "roomType": "Single"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000002",
+    "name": "Tarhal Boulevard Hotel (Sample)",
+    "city": "Riyadh",
+    "pricePerNight": 510,
+    "rating": 4.6,
+    "roomType": "Suite"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000003",
+    "name": "Tarhal Coral Hotel (Sample)",
+    "city": "Jeddah",
+    "pricePerNight": 280,
+    "rating": 3.8,
+    "roomType": "Double"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000004",
+    "name": "Tarhal Waterfront Hotel (Sample)",
+    "city": "Dammam",
+    "pricePerNight": 360,
+    "rating": 4.1,
+    "roomType": "Twin"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000005",
+    "name": "Tarhal Garden Hotel (Sample)",
+    "city": "Madinah",
+    "pricePerNight": 450,
+    "rating": 4.5,
+    "roomType": "Family"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000006",
+    "name": "Tarhal Mountain Hotel (Sample)",
+    "city": "Abha",
+    "pricePerNight": 210,
+    "rating": 3.5,
+    "roomType": "Double"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000007",
+    "name": "Tarhal Oasis Hotel (Sample)",
+    "city": "AlUla",
+    "pricePerNight": 680,
+    "rating": 4.8,
+    "roomType": "Suite"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000008",
+    "name": "Tarhal Heritage Hotel (Sample)",
+    "city": "Taif",
+    "pricePerNight": 190,
+    "rating": 3.2,
+    "roomType": "Single"
+  }
+]
