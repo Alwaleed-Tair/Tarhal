@@ -23,7 +23,6 @@ export async function POST(request: Request) {
       where: {
         id: { in: requestedSeatIds },
         flightId: flightId,
-            seatId: t.seatId,
         status: 'AVAILABLE'
       }
     });
