@@ -9,36 +9,28 @@ export async function POST(request: Request) {
     const { userId, flightId, travelers, basePrice } = body;
 
     if (!userId || !flightId || !travelers || travelers.length === 0) {
-      return NextResponse.json(
-        { error: "Missing required booking fields" }, 
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing required booking fields" }, { status: 400 });
     }
 
-    // 1. VALIDATION: Extract the seat IDs the user is trying to book
     const requestedSeatIds = travelers.map((t: any) => t.seatId);
-
-    // 2. VALIDATION: Check if those exact seats exist, belong to this flight, and are AVAILABLE
-    const availableSeats = await prisma.seat.findMany({
-      where: {
-        id: { in: requestedSeatIds },
-        flightId: flightId,
-        status: 'AVAILABLE'
-      }
-    });
-
-    // If the database returns fewer seats than requested, someone else booked them or they are invalid
-    if (availableSeats.length !== requestedSeatIds.length) {
-      return NextResponse.json({ 
-        error: "One or more selected seats are invalid or no longer available" 
-      }, { status: 400 });
-    }
-
     const calculatedTotal = basePrice * travelers.length;
 
-    // 3. TRANSACTION: Safely create the booking AND update the seats to BOOKED simultaneously
     const result = await prisma.$transaction(async (tx) => {
-      
+      // 1. ATOMIC LOCK: Attempt to update the seats ONLY if they are currently AVAILABLE
+      const lockedSeats = await tx.seat.updateMany({
+        where: { 
+          id: { in: requestedSeatIds },
+          status: 'AVAILABLE' 
+        },
+        data: { status: 'BOOKED' }
+      });
+
+      // 2. CONCURRENCY CHECK: If another user locked the seat milliseconds before us, the count will mismatch
+      if (lockedSeats.count !== requestedSeatIds.length) {
+        throw new Error("CONCURRENCY_CONFLICT");
+      }
+
+      // 3. CREATE BOOKING: Safe to proceed
       const booking = await tx.booking.create({
         data: {
           userId: userId,
@@ -56,17 +48,15 @@ export async function POST(request: Request) {
         }
       });
 
-      await tx.seat.updateMany({
-        where: { id: { in: requestedSeatIds } },
-        data: { status: 'BOOKED' }
-      });
-
       return booking;
     });
 
     return NextResponse.json({ success: true, data: result }, { status: 201 });
 
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === "CONCURRENCY_CONFLICT") {
+      return NextResponse.json({ error: "One or more seats were just booked by another user" }, { status: 409 });
+    }
     return NextResponse.json({ error: "Failed to process booking" }, { status: 500 });
   }
 }
