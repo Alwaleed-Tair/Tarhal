@@ -82,7 +82,6 @@
 
 - **Abdulelah is on standby** all week to help Tariq the moment he needs it — this takes priority over any secondary documentation task.
 - **Omar has temporarily taken the destination guide page** — if Tariq recovers faster than expected, he could take it back later, but Omar owns it fully this week.
-- **Don't add any new tasks for Tariq** this week no matter what — full focus stays on recovering the basics only.
 
 ---
 
