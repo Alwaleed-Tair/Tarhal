@@ -1,4 +1,6 @@
-# 📋 Tarhal — Task Plan (Sept 20 – Sept 26, 2026)
+# 📋 Tarhal — Task Plan (Sept 27 – Oct 1, 2026)
+
+> One important change this week: since Tariq is behind on the core pages, the plan splits into "catch-up" (Tariq focuses only on the basics) and "business as usual" (everyone else). The destination guide page has temporarily moved to Omar since it's independent and doesn't need to wait on Tariq.
 
 ---
 
@@ -6,11 +8,11 @@
 
 | Day | Task | Expected Deliverable |
 |---|---|---|
-| **20/9** | Fully connect the search endpoint with the booking endpoint (complete flow: search → result → booking) | Integrated backend flow |
-| **21/9** | Add validation/error handling to every endpoint (invalid dates, non-existent seats) | Comprehensive error handling |
-| **22/9** | Test edge cases: booking the last available seat, concurrent booking attempts from different users | Confirmed logic integrity under load |
-| **23/9** | Coordinate with Tariq to connect the frontend to all endpoints for real (End-to-End) | Full working flow from the UI |
-| **24-26/9** | Review Saud's work on the Hotels/Cars tables and document the final schema | Fully documented schema |
+| **27/9** | Finish any remaining error handling on the booking/search API | Fully stable endpoints |
+| **28/9** | Stay available to help Tariq the moment he starts connecting his pages (standby) | Immediate support available |
+| **29/9** | Write technical documentation for the endpoints (request/response shape for each) — useful later for the SRS | Initial API documentation |
+| **30/9** | Final review of Saud's schema documentation | Documented, approved schema |
+| **1/10** | Attend the weekly meeting | Participated in the meeting |
 
 ---
 
@@ -18,11 +20,11 @@
 
 | Day | Task | Expected Deliverable |
 |---|---|---|
-| **20/9** | Expand seed data (more flights and hotels across different cities for broader test coverage) | Richer sample data |
-| **21/9** | Write the migration for the Hotels/Cars tables (coordinating with Mohammed Alasad) | Migration ready |
-| **22/9** | Test common queries against the database (search, filtering) and confirm acceptable performance | Confirmed acceptable performance |
-| **23/9** | Write a short documentation of the schema structure (each table and its purpose) — useful later for the SRS | Initial documentation |
-| **24-26/9** | Fix anything flagged in Abdulelah's review | Final approved schema |
+| **27/9** | Finish documenting the full schema structure | Complete schema documentation |
+| **28/9** | Add more sample data for varied hotel/car scenarios | Richer test data |
+| **29/9** | Help Abdulelah test the endpoints against the new data | Confirmed stability |
+| **30/9** | Stay available in case Tariq needs extra sample data for his pages | Support ready on request |
+| **1/10** | Attend the weekly meeting | Participated in the meeting |
 
 ---
 
@@ -30,11 +32,11 @@
 
 | Day | Task | Expected Deliverable |
 |---|---|---|
-| **20/9** | Add a "forgot password" flow (or simplify it to fit the MVP scope if time is tight) | More complete Auth flow |
-| **21/9** | Add filtering to the hotels endpoint (price, rating, room type) | Working filters |
-| **22/9** | Add similar filtering to the cars endpoint (category, price) | Working filters |
-| **23/9** | Full test of all endpoints (Auth + Hotels + Cars) using Saud's new seed data | Confirmed overall stability |
-| **24-26/9** | Write a short paragraph documenting the filtering logic used (useful later for the SRS) | Documentation paragraph ready |
+| **27/9** | Add pagination to the hotels and cars endpoints | Paginated results |
+| **28/9** | Write a documentation paragraph on the filtering/pagination logic | Paragraph ready for the SRS |
+| **29/9** | Improve Auth error messages (clearer messages for the user) | More polished Auth |
+| **30/9** | One last full test of all endpoints before the meeting | Confirmed full stability |
+| **1/10** | Attend the weekly meeting | Participated in the meeting |
 
 ---
 
@@ -42,43 +44,45 @@
 
 | Day | Task | Expected Deliverable |
 |---|---|---|
-| **20/9** | Extend Saudi-context testing to 5 more countries (10 total tested) | Broader, documented coverage |
-| **21/9** | Add token-usage logging for every request — so you can actually track real cost | Working cost-tracking mechanism |
-| **22/9** | Improve the router: add a "number of constraints in the request" criterion (as discussed) instead of a fixed rule only | Smarter router |
-| **23/9** | Build a standalone endpoint for the itinerary generator (`/api/itinerary`) | Working itinerary endpoint |
-| **24-26/9** | Write documented examples (input/output) for each AI feature — directly useful for the SRS later | Documented examples |
+| **27/9** | Test edge cases for the itinerary generator (unrealistic budget, very long duration) | Confirmed output stability |
+| **28/9** | Improve the caching mechanism (longer retention, further cost reduction) | Improved caching |
+| **29/9** | Prepare documented examples (input/output) for each AI feature, for later use in the SRS | Complete documented examples |
+| **30/9** | **Support Omar in connecting the destination guide page to the endpoint** (instead of coordinating with Tariq, since the page moved to Omar this week) | Destination guide page connected |
+| **1/10** | Attend the weekly meeting | Participated in the meeting |
 
 ---
 
-## 👤 Tariq Alghamdi — Frontend: Passenger UI
+## 👤 Tariq Alghamdi — Frontend: Passenger UI (Catch-up Week)
+
+> Top priority: core pages only. Nothing extra this week.
 
 | Day | Task | Expected Deliverable |
 |---|---|---|
-| **20/9** | Connect the full booking flow to the real backend (search → seat → booking → ticket) | Working End-to-End flow |
-| **21/9** | Add loading and error states to every page | More complete user experience |
-| **22/9** | Build the destination guide page and connect it to Alwaleed's endpoint | Working destination guide page |
-| **23/9** | Full flow testing together with Abdulelah (joint session) | Integration bugs found and fixed |
-| **24-26/9** | Visual polish across all passenger pages | Polished passenger UI |
+| **27/9** | Build the search page for real (connected directly to Abdulelah's API, not mock data) | Working, real search page |
+| **28/9** | Build the seat-selection page | Working seat-selection page |
+| **29/9** | Build the booking confirmation page | Working booking page |
+| **30/9** | Build the "My Bookings" page + digital ticket (simplified version, basic QR) | Two more working pages |
+| **1/10** | Attend the meeting + give an honest report on actual status (no sugarcoating, no downplaying) | Clear status report for the team |
 
 ---
 
-## 👤 Omar Faraj — Frontend: Admin UI & Design
+## 👤 Omar Faraj — Frontend: Admin UI & Design + Destination Guide (temporary)
 
 | Day | Task | Expected Deliverable |
 |---|---|---|
-| **20/9** | Finish bilingual support (Arabic/English) across all admin pages and confirm RTL works correctly | Fully stable bilingual support |
-| **21/9** | Integrate the chatbot widget into the passenger UI, coordinating with Tariq | Chatbot widget integrated |
-| **22/9** | Implement the senior-accessibility mode (larger text + high contrast) as a real, working option | Working accessibility mode |
-| **23/9** | Test responsiveness across different screen sizes (mobile/tablet/desktop) | Confirmed responsive design |
-| **24-26/9** | Visual polish across the entire admin dashboard | Polished admin dashboard |
+| **27/9** | Build the destination guide page (taking over from Tariq this week) — design + initial structure | Destination guide page (initial structure) |
+| **28/9** | Continue bilingual support work on the admin dashboard | Further RTL/bilingual progress |
+| **29/9** | Improve senior-accessibility mode (contrast, text size) | More mature accessibility mode |
+| **30/9** | Connect the destination guide page, coordinating with Alwaleed (real data from the API) | Fully working destination guide page |
+| **1/10** | Attend the weekly meeting | Participated in the meeting |
 
 ---
 
 ## 🔗 Key Dependencies This Week
 
-- **Tariq and Abdulelah** hold a joint testing session on 23/9 — this is the first time the full flow runs from UI to database; expect to find integration bugs here, that's exactly the point of the session.
-- **Omar needs the chatbot endpoint from Alwaleed** on 21/9 to integrate the widget — if Alwaleed is delayed, Omar builds the UI with mock data temporarily.
-- **Everyone documents small examples/paragraphs by the end of the week** — this is a direct investment in the upcoming SRS (11/12); documenting as you go saves a lot of time later.
+- **Abdulelah is on standby** all week to help Tariq the moment he needs it — this takes priority over any secondary documentation task.
+- **Omar has temporarily taken the destination guide page** — if Tariq recovers faster than expected, he could take it back later, but Omar owns it fully this week.
+- **Don't add any new tasks for Tariq** this week no matter what — full focus stays on recovering the basics only.
 
 ---
 
@@ -86,5 +90,5 @@
 
 | Day | Main Event |
 |---|---|
-| 20-23/9 | Deepen cross-module integration + handle edge cases + continued SPMP work |
-| 25-26/9 | Polish and documentation (more flexible, no hard deadline pressure) |
+| 27–30/9 | Tariq runs a focused catch-up week; everyone else continues normally with support on standby for him |
+| **1/10 (Thu)** | **Weekly meeting: honest assessment of catch-up progress + SPMP update** |
