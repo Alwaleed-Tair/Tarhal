@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hotelFilters, carFilters, FilterError } from '../lib/catalog-filters.ts';
+import { hotelFilters, carFilters, FilterError, catalogPagination, paginationMetadata } from '../lib/catalog-filters.ts';
 import { hashPassword, verifyPassword, validNewPassword } from '../lib/passwords.ts';
 import { issueResetToken, readResetToken, matchesPassword } from '../lib/password-reset.ts';
 
@@ -59,3 +59,20 @@ test('reset tokens expire, detect tampering, reject wrong secret and bind to cur
   assert.equal(readResetToken(token + '.extra', secret, now), null);
   assert.equal(readResetToken('garbage', secret, now), null);
 });
+
+
+test('pagination defaults, bounds, offsets and navigation metadata', () => {
+  assert.deepEqual(catalogPagination(new URLSearchParams()), { page: 1, pageSize: 20, skip: 0, take: 20 });
+  assert.deepEqual(catalogPagination(new URLSearchParams('page=3&pageSize=2')), { page: 3, pageSize: 2, skip: 4, take: 2 });
+  assert.equal(catalogPagination(new URLSearchParams('pageSize=100')).take, 100);
+  assert.deepEqual(paginationMetadata(2, 3, 8), { page: 2, pageSize: 3, total: 8, totalPages: 3, hasNextPage: true, hasPreviousPage: true });
+  assert.deepEqual(paginationMetadata(1, 20, 0), { page: 1, pageSize: 20, total: 0, totalPages: 0, hasNextPage: false, hasPreviousPage: false });
+});
+
+for (const query of ['page=0', 'page=-1', 'page=1.5', 'page=1e2', 'page=', 'page=NaN',
+  'page=1&page=2', 'pageSize=0', 'pageSize=101', 'pageSize=1&pageSize=2',
+  'pageSize=Infinity', 'page=9007199254740992', 'page=2147483647&pageSize=100']) {
+  test(`reject invalid pagination: ${query}`, () => {
+    assert.throws(() => catalogPagination(new URLSearchParams(query)), FilterError);
+  });
+}

@@ -24,3 +24,7 @@ export async function jsonObject(request: Request): Promise<Record<string, unkno
 export function validEmail(value: unknown): value is string {
   return typeof value === 'string' && value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
+
+export function authError(code: string, error: string, status: number, field?: string) {
+  return authResponse({ success: false, error, code, ...(field && { field }) }, status);
+}

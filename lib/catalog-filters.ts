@@ -38,7 +38,7 @@ function textFilter(params: URLSearchParams, key: string) {
 
 function checkKeys(params: URLSearchParams, allowed: string[]) {
   for (const key of params.keys()) {
-    if (!allowed.includes(key)) throw new FilterError(`Unknown filter: ${key}`);
+    if (!allowed.includes(key) && !['page', 'pageSize'].includes(key)) throw new FilterError(`Unknown filter: ${key}`);
   }
 }
 
@@ -60,4 +60,26 @@ export function hotelFilters(params: URLSearchParams): Prisma.HotelWhereInput {
 export function carFilters(params: URLSearchParams): Prisma.CarWhereInput {
   checkKeys(params, ['minPrice', 'maxPrice', 'category']);
   return { pricePerDay: priceRange(params), category: textFilter(params, 'category') };
+}
+
+export function catalogPagination(params: URLSearchParams) {
+  function integer(key: string, fallback: number, maximum: number) {
+    const raw = read(params, key);
+    if (raw === undefined) return fallback;
+    const value = Number(raw);
+    if (!/^[1-9]\d*$/.test(raw) || !Number.isSafeInteger(value) || value > maximum) {
+      throw new FilterError(`${key} must be a whole number between 1 and ${maximum}`);
+    }
+    return value;
+  }
+  const page = integer('page', 1, 2147483647);
+  const pageSize = integer('pageSize', 20, 100);
+  const skip = (page - 1) * pageSize;
+  if (skip > 2147483647) throw new FilterError('Requested page is too large; reduce page or pageSize');
+  return { page, pageSize, skip, take: pageSize };
+}
+
+export function paginationMetadata(page: number, pageSize: number, total: number) {
+  const totalPages = Math.ceil(total / pageSize);
+  return { page, pageSize, total, totalPages, hasNextPage: page < totalPages, hasPreviousPage: page > 1 && totalPages > 0 };
 }
