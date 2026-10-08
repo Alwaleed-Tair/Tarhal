@@ -1,62 +1,43 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../../../lib/prisma.ts';
+import { hashPassword, verifyPassword } from '../../../../lib/passwords.ts';
+import { authOptions, authResponse, authError, jsonObject, validEmail } from '../../../../lib/auth-http.ts';
 
-// Initialize Prisma
-const prisma = new PrismaClient();
+export const OPTIONS = authOptions;
 
-// 1. Keep your existing OPTIONS function right here...
-export async function OPTIONS() {
-  return NextResponse.json({}, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  });
-}
-
-// 2. Updated POST function to check the database
 export async function POST(request: Request) {
+  const body = await jsonObject(request);
+  if (!body) return authError('INVALID_BODY', 'Send a valid JSON object with your sign-in details.', 400);
+  if (body.email !== undefined && body.username !== undefined) {
+    return authError('IDENTITY_CONFLICT', 'Enter either your email or your username, not both.', 400);
+  }
+  if (body.email !== undefined && !validEmail(body.email)) {
+    return authError('INVALID_EMAIL', 'Enter a valid email address, such as name@example.com.', 400, 'email');
+  }
+  if (body.email === undefined && (typeof body.username !== 'string' || !body.username.trim() || body.username.length > 254)) {
+    return authError('INVALID_USERNAME', 'Enter your username (up to 254 characters), or sign in with your email.', 400, 'username');
+  }
+  if (typeof body.password !== 'string' || !body.password.length || body.password.length > 128) {
+    return authError('INVALID_PASSWORD', 'Enter your password (up to 128 characters).', 400, 'password');
+  }
   try {
-    const body = await request.json();
-    const { username, password } = body;
-    
-    // Search the database for a user matching the submitted name
-    const user = await prisma.user.findFirst({
-      where: {
-        name: username, // Matching Tariq's 'username' to your DB's 'name'
-      },
+    // Names are not unique; shared names must sign in using their unique email.
+    const users = await prisma.user.findMany({
+      where: body.email !== undefined ? { email: body.email as string } : { name: (body.username as string).trim() },
+      take: 2,
     });
-
-    // If no user is found with that name
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "User not found" }, 
-        { status: 404, headers: { 'Access-Control-Allow-Origin': '*' } }
-      );
+    const user = users.length === 1 ? users[0] : null;
+    if (!user || !await verifyPassword(body.password, user.password)) {
+      return authError('INVALID_CREDENTIALS', 'We could not sign you in. Check your email or username and password. Try your email if your name is shared, or use password recovery.', 401);
     }
-
-    // If the user is found, but the password doesn't match
-    // Note: For a production app, you would use bcrypt to hash/compare passwords, but plain text is fine for this MVP test
-    if (user.password !== password) {
-      return NextResponse.json(
-        { success: false, error: "Incorrect password" }, 
-        { status: 401, headers: { 'Access-Control-Allow-Origin': '*' } }
-      );
+    if (!user.password.startsWith('scrypt$')) {
+      const upgraded = await prisma.user.updateMany({
+        where: { id: user.id, password: user.password },
+        data: { password: await hashPassword(body.password) },
+      });
+      if (upgraded.count !== 1) return authError('CREDENTIALS_CHANGED', 'Your sign-in details changed during this request. Sign in again with your current password.', 401);
     }
-    
-    // If name and password both match
-    return NextResponse.json(
-      { success: true, message: "Login successful!", user: { id: user.id, name: user.name } }, 
-      { 
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*', 
-        }
-      }
-    );
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to process login" }, { status: 500 });
+    return authResponse({ success: true, message: 'Login successful!', user: { id: user.id, name: user.name } });
+  } catch {
+    return authError('LOGIN_UNAVAILABLE', 'We could not sign you in right now. Please try again later.', 500);
   }
 }
