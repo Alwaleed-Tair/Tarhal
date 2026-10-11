@@ -6,7 +6,7 @@ classDiagram
         +String id PK
         +String name
         +String email UK
-        +String phoneNumber
+        +String phoneNumber UK
         +String password
         +DateTime dateOfBirth
         /Int age (Derived from dateOfBirth)
@@ -46,35 +46,38 @@ classDiagram
     class SeatStatus {
         <<enumeration>>
         AVAILABLE
+        HELD
         BOOKED
-        LOCKED
     }
 
     class Booking {
         +String id PK
         +String userId FK
         +String flightId FK
-        +String hotelId FK (Nullable)
-        +String carId FK (Nullable)
-        +BookingStatus status
+        +Float basePrice
+        +Float luggageFee
+        +Float discount
         +Float totalPrice
+        +PaymentStatus paymentStatus
+        +Boolean isActive
         +DateTime createdAt
         +DateTime updatedAt
         +createAtomicBooking(travelers: BookingTraveler~List~) Booking
         +cancelBooking() void
     }
 
-    class BookingStatus {
+    class PaymentStatus {
         <<enumeration>>
         PENDING
-        CONFIRMED
-        CANCELLED
+        PAID
+        FAILED
+        REFUNDED
     }
 
     class BookingTraveler {
         +String id PK
         +String bookingId FK
-        +String seatId FK
+        +String seatId FK UK
         +String fullName
         +String passportNumber
         +DateTime dateOfBirth
@@ -88,22 +91,15 @@ classDiagram
         +String city
         +Float pricePerNight
         +Float rating
-        +Boolean available
-        +DateTime createdAt
-        +DateTime updatedAt
+        +String roomType
         +filterByCityAndBudget(city: String, maxPrice: Float) Hotel~List~
     }
 
     class Car {
         +String id PK
-        +String model
-        +String brand
-        +String city
+        +String category
         +Float pricePerDay
         +Boolean insuranceOption
-        +Boolean available
-        +DateTime createdAt
-        +DateTime updatedAt
         +filterByInsurance(insured: Boolean) Car~List~
     }
 
@@ -113,8 +109,6 @@ classDiagram
     Flight "1" --> "0..*" Booking : reserved in
     Booking "1" *-- "1..*" BookingTraveler : includes
     Seat "1" --> "0..1" BookingTraveler : assigned to
-    Hotel "0..1" --> "0..*" Booking : included in
-    Car "0..1" --> "0..*" Booking : rented in
     Seat ..> SeatStatus : uses
-    Booking ..> BookingStatus : uses
+    Booking ..> PaymentStatus : uses
 ```

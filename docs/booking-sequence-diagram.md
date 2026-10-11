@@ -50,7 +50,7 @@ sequenceDiagram
         UI-->>Passenger: Alert user that seat was taken & prompt re-selection
     else All selected seats available
         BookingAPI->>DB: Update seat status to BOOKED (Lock Seats)
-        BookingAPI->>DB: Create Booking (CONFIRMED) & BookingTraveler records
+        BookingAPI->>DB: Create Booking (PENDING PaymentStatus) & BookingTraveler records
         DB-->>BookingAPI: Return created booking & traveler records
         BookingAPI->>DB: Commit Transaction
         BookingAPI-->>UI: 201 Created (Booking Confirmation Object)

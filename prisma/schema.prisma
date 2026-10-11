@@ -26,6 +26,7 @@ model User {
   email       String    @unique
   phoneNumber String    @unique
   password    String
+  dateOfBirth DateTime
   role        String    @default("traveler")
   
   bookings    Booking[]
@@ -35,19 +36,19 @@ model User {
 }
 
 model Flight {
-  id           String    @id @default(uuid())
-  flightNumber String    @unique
-  from         String
-  to           String
+  id            String   @id @default(uuid())
+  flightNumber  String   @unique
+  from          String
+  to            String
   departureTime DateTime
-  arrivalTime  DateTime
-  basePrice    Decimal   @db.Decimal(10, 2)
+  arrivalTime   DateTime
+  basePrice     Decimal  @db.Decimal(10, 2)
   
-  seats        Seat[]
-  bookings     Booking[]
+  seats         Seat[]
+  bookings      Booking[]
 
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Seat {
@@ -99,7 +100,6 @@ model BookingTraveler {
   dateOfBirth    DateTime
 }
 
-// Mohammed Alasad's MVP catalog
 model Hotel {
   id            String  @id @default(uuid())
   name          String
