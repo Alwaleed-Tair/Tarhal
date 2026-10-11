@@ -1,0 +1,32 @@
+[
+  {
+    "id": "20000000-0000-4000-8000-000000000001",
+    "category": "Economy",
+    "pricePerDay": 95,
+    "insuranceOption": false
+  },
+  {
+    "id": "20000000-0000-4000-8000-000000000002",
+    "category": "Compact",
+    "pricePerDay": 130,
+    "insuranceOption": true
+  },
+  {
+    "id": "20000000-0000-4000-8000-000000000003",
+    "category": "Sedan",
+    "pricePerDay": 180,
+    "insuranceOption": true
+  },
+  {
+    "id": "20000000-0000-4000-8000-000000000004",
+    "category": "SUV",
+    "pricePerDay": 290,
+    "insuranceOption": true
+  },
+  {
+    "id": "20000000-0000-4000-8000-000000000005",
+    "category": "Luxury",
+    "pricePerDay": 650,
+    "insuranceOption": true
+  }
+]

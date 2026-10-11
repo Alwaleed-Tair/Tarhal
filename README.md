@@ -13,7 +13,8 @@
 | Omar Faraj | Frontend — Admin UI & Design | Admin dashboard & analytics, overall visual design |
 
 
-
+ 
+ 
 # ✈️ Tarhal — Integrated Travel Platform
 
 Software Engineering course project — [IAU], [9/2026].
