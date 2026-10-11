@@ -26,6 +26,7 @@ model User {
   email       String    @unique
   phoneNumber String    @unique
   password    String
+  dateOfBirth DateTime
   role        String    @default("traveler")
   
   bookings    Booking[]
@@ -99,7 +100,6 @@ model BookingTraveler {
   dateOfBirth    DateTime
 }
 
-// Mohammed Alasad's MVP catalog
 model Hotel {
   id            String  @id @default(uuid())
   name          String

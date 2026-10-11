@@ -1,7 +1,3 @@
-# Tarhal Database Layer — Class Diagram v1
-
-This class diagram models the core database entities (`User`, `Flight`, `Seat`, `Booking`, `BookingTraveler`, `Hotel`, and `Car`), their attributes, data types, domain methods, and multiplicities as implemented in `schema.prisma`.
-
 ```mermaid
 classDiagram
     direction TB
@@ -10,13 +6,16 @@ classDiagram
         +String id PK
         +String name
         +String email UK
-        +String phoneNumber
+        +String phoneNumber UK
         +String password
+        +DateTime dateOfBirth
+        /Int age (Derived from dateOfBirth)
         +String role
         +DateTime createdAt
         +DateTime updatedAt
         +authenticate(password: String) Boolean
-        +getBookings() Booking[]
+        +getAge() Int
+        +getBookings() Booking~List~
     }
 
     class Flight {
@@ -29,8 +28,8 @@ classDiagram
         +Float basePrice
         +DateTime createdAt
         +DateTime updatedAt
-        +searchFlights(from: String, to: String, date: DateTime) Flight[]
-        +getAvailableSeats() Seat[]
+        +searchFlights(from: String, to: String, date: DateTime) Flight~List~
+        +getAvailableSeats() Seat~List~
     }
 
     class Seat {
@@ -47,38 +46,43 @@ classDiagram
     class SeatStatus {
         <<enumeration>>
         AVAILABLE
+        HELD
         BOOKED
-        LOCKED
     }
 
     class Booking {
         +String id PK
         +String userId FK
         +String flightId FK
-        +String hotelId FK "Nullable"
-        +String carId FK "Nullable"
-        +BookingStatus status
+        +Float basePrice
+        +Float luggageFee
+        +Float discount
         +Float totalPrice
+        +PaymentStatus paymentStatus
+        +Boolean isActive
         +DateTime createdAt
         +DateTime updatedAt
-        +createAtomicBooking(travelers: BookingTraveler[]) Booking
+        +createAtomicBooking(travelers: BookingTraveler~List~) Booking
         +cancelBooking() void
     }
 
-    class BookingStatus {
+    class PaymentStatus {
         <<enumeration>>
         PENDING
-        CONFIRMED
-        CANCELLED
+        PAID
+        FAILED
+        REFUNDED
     }
 
     class BookingTraveler {
         +String id PK
         +String bookingId FK
-        +String seatId FK
+        +String seatId FK UK
         +String fullName
         +String passportNumber
         +DateTime dateOfBirth
+        /Int age (Derived from dateOfBirth)
+        +getAge() Int
     }
 
     class Hotel {
@@ -87,23 +91,16 @@ classDiagram
         +String city
         +Float pricePerNight
         +Float rating
-        +Boolean available
-        +DateTime createdAt
-        +DateTime updatedAt
-        +filterByCityAndBudget(city: String, maxPrice: Float) Hotel[]
+        +String roomType
+        +filterByCityAndBudget(city: String, maxPrice: Float) Hotel~List~
     }
 
     class Car {
         +String id PK
-        +String model
-        +String brand
-        +String city
+        +String category
         +Float pricePerDay
         +Boolean insuranceOption
-        +Boolean available
-        +DateTime createdAt
-        +DateTime updatedAt
-        +filterByInsurance(insured: Boolean) Car[]
+        +filterByInsurance(insured: Boolean) Car~List~
     }
 
     %% Entity Relationships & Multiplicities
@@ -112,22 +109,6 @@ classDiagram
     Flight "1" --> "0..*" Booking : reserved in
     Booking "1" *-- "1..*" BookingTraveler : includes
     Seat "1" --> "0..1" BookingTraveler : assigned to
-    Hotel "0..1" --> "0..*" Booking : included in
-    Car "0..1" --> "0..*" Booking : rented in
     Seat ..> SeatStatus : uses
-    Booking ..> BookingStatus : uses
+    Booking ..> PaymentStatus : uses
 ```
-
----
-
-## Entity Relationship Summary
-
-| Source Entity | Target Entity | Multiplicity | Relationship Type & Description |
-| :--- | :--- | :--- | :--- |
-| **User** | **Booking** | `1` to `0..*` | **Association:** A registered user can place zero or many bookings; each booking belongs to exactly one user. |
-| **Flight** | **Seat** | `1` to `1..*` | **Composition:** A flight contains multiple seats; seats cannot exist independently without a parent flight. |
-| **Flight** | **Booking** | `1` to `0..*` | **Association:** A flight can be referenced across multiple bookings. |
-| **Booking** | **BookingTraveler** | `1` to `1..*` | **Composition:** A booking consists of one or more passenger records (`BookingTraveler`). |
-| **Seat** | **BookingTraveler** | `1` to `0..1` | **Association:** Each specific seat on a flight is assigned to at most one traveler per active booking. |
-| **Hotel** | **Booking** | `0..1` to `0..*` | **Association:** A booking may optionally include a hotel reservation (and a hotel can be booked many times). |
-| **Car** | **Booking** | `0..1` to `0..*` | **Association:** A booking may optionally include a car rental (and a car can be rented across multiple bookings). |
