@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { scryptSync, timingSafeEqual } from 'node:crypto';
 
 type ResetPayload = { sub: string; exp: number; version: string };
 const TTL_SECONDS = 15 * 60;
@@ -10,7 +10,7 @@ export function resetSecret(): string {
 }
 
 function sign(value: string, secret: string): string {
-  return createHmac('sha256', secret).update(value).digest('base64url');
+  return scryptSync(value, secret, 32).toString('base64url');
 }
 
 function equal(a: string, b: string): boolean {
