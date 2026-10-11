@@ -35,34 +35,34 @@ model User {
 }
 
 model Flight {
-  id           String    @id @default(uuid())
-  flightNumber String    @unique
-  from         String
-  to           String
+  id            String    @id @default(uuid())
+  flightNumber  String    @unique
+  from          String
+  to            String
   departureTime DateTime
-  arrivalTime  DateTime
-  basePrice    Decimal   @db.Decimal(10, 2)
+  arrivalTime   DateTime
+  basePrice     Decimal   @db.Decimal(10, 2)
   
-  seats        Seat[]
-  bookings     Booking[]
+  seats         Seat[]
+  bookings      Booking[]
 
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Seat {
-  id              String          @id @default(uuid())
+  id              String           @id @default(uuid())
   flightId        String
-  flight          Flight          @relation(fields: [flightId], references: [id], onDelete: Cascade)
+  flight          Flight           @relation(fields: [flightId], references: [id], onDelete: Cascade)
   seatCode        String
   ticketClass     String
-  priceMultiplier Decimal         @default(1.0) @db.Decimal(4, 2)
-  status          SeatStatus      @default(AVAILABLE)
+  priceMultiplier Decimal          @default(1.0) @db.Decimal(4, 2)
+  status          SeatStatus       @default(AVAILABLE)
   
   traveler        BookingTraveler?
 
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   @@unique([flightId, seatCode])
 }
