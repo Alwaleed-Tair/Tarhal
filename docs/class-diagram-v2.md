@@ -25,7 +25,7 @@ classDiagram
         +String to
         +DateTime departureTime
         +DateTime arrivalTime
-        +Float basePrice
+        +Decimal basePrice
         +DateTime createdAt
         +DateTime updatedAt
         +searchFlights(from: String, to: String, date: DateTime) Flight~List~
@@ -39,7 +39,7 @@ classDiagram
         +String ticketClass
         +Float priceMultiplier
         +SeatStatus status
-        +calculateSeatPrice(basePrice: Float) Float
+        +calculateSeatPrice(basePrice: Decimal) Decimal
         +lockSeat() Boolean
     }
 
@@ -54,10 +54,10 @@ classDiagram
         +String id PK
         +String userId FK
         +String flightId FK
-        +Float basePrice
-        +Float luggageFee
-        +Float discount
-        +Float totalPrice
+        +Decimal basePrice
+        +Decimal luggageFee
+        +Decimal discount
+        +Decimal totalPrice
         +PaymentStatus paymentStatus
         +Boolean isActive
         +DateTime createdAt
@@ -89,7 +89,7 @@ classDiagram
         +String id PK
         +String name
         +String city
-        +Float pricePerNight
+        +Decimal pricePerNight
         +Float rating
         +String roomType
         +filterByCityAndBudget(city: String, maxPrice: Float) Hotel~List~
@@ -98,7 +98,7 @@ classDiagram
     class Car {
         +String id PK
         +String category
-        +Float pricePerDay
+        +Decimal pricePerDay
         +Boolean insuranceOption
         +filterByInsurance(insured: Boolean) Car~List~
     }

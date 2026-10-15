@@ -37,6 +37,7 @@ async function main() {
       phoneNumber: '+966500000000',
       password: 'hashed_password_123',
       role: 'traveler',
+      dateOfBirth: new Date("1998-05-15")
     },
   });
 
