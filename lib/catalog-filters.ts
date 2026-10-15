@@ -33,7 +33,9 @@ function textFilter(params: URLSearchParams, key: string) {
   const value = read(params, key);
   if (value === undefined) return undefined;
   if (value.length > 100) throw new FilterError(`${key} must be at most 100 characters`);
-  return { equals: value, mode: 'insensitive' as const };
+  if (/[\u0000-\u001f\u007f]/.test(value)) throw new FilterError(`${key} must not contain control characters`);
+  // PostgreSQL case-insensitive equality uses ILIKE; escape its pattern characters.
+  return { equals: value.replace(/[\\%_]/g, '\\$&'), mode: 'insensitive' as const };
 }
 
 function checkKeys(params: URLSearchParams, allowed: string[]) {

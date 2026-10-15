@@ -1,11 +1,11 @@
 # Auth, Hotels and Cars — API and SRS Handoff
 
 Owner: Mohammed Alasad — Auth & Hotels/Cars.
-Week 3 (20–26 September) reviewed and Week 4 (27 September–1 October) implemented and verified on **2 October 2026**, based on `main` commit `e6c0f90`.
+Latest stabilization review: **15 October 2026**, based on `main` commit `b4e6d25`. Previous filtering, recovery and pagination deliverables remain in place. See [October review](auth-hotels-cars-review-oct14.md) and the [Auth](auth-sequence-diagram.md) / [catalog](hotels-cars-sequence-diagram.md) sequence diagrams.
 
 ## Scope and implementation status
 
-Tarhal uses Next.js/TypeScript, PostgreSQL and Prisma. Week 3's support-assisted password recovery, hashed-password login, hotel/car filtering and SRS paragraph were already merged. This update adds pagination, clearer Auth error responses and regression coverage for Mohammed Alasad's endpoints only. No schema, migration, seed data, flight/booking endpoint, frontend or dependency changes are included.
+Tarhal uses Next.js/TypeScript, PostgreSQL and Prisma. Week 3's support-assisted password recovery, hashed-password login, hotel/car filtering and SRS paragraph were already merged. This module includes pagination, clearer Auth error responses and regression coverage for Mohammed Alasad's endpoints only. No schema, migration, seed data, flight/booking endpoint, frontend or dependency changes are included.
 
 README describes planned NextAuth/registration features; the existing login endpoint verifies credentials but does not issue a session. Password recovery remains support-assisted, without automatic email delivery.
 
@@ -18,7 +18,7 @@ Saud's `prisma/seed.ts` is now available and was executed inside the integration
 - `GET /api/hotels?minPrice=200&maxPrice=600&minRating=4&roomType=Suite&city=Riyadh&page=1&pageSize=10`
 - `GET /api/cars?category=SUV&minPrice=100&maxPrice=400&page=1&pageSize=10`
 
-All filters are optional and combined with AND. Prices are SAR per night/day, inclusive, non-negative, at most two decimal places, and limited to `99999999.99` by the existing `Decimal(10,2)` fields. `minPrice` cannot exceed `maxPrice`. `minRating` is an inclusive minimum on the 1–5 scale. Text filters are trimmed, case-insensitive **exact** matches, at most 100 characters. Categories and room types are not hardcoded, so new database values remain searchable. Invalid, empty, duplicate, and unknown filters return HTTP 400.
+All filters are optional and combined with AND. Prices are SAR per night/day, inclusive, non-negative, at most two decimal places, and limited to `99999999.99` by the existing `Decimal(10,2)` fields. `minPrice` cannot exceed `maxPrice`. `minRating` is an inclusive minimum on the 1–5 scale. Text filters are trimmed, case-insensitive **exact** matches, at most 100 characters. `%`, `_` and backslash are escaped as literal pattern characters; control characters are rejected with HTTP 400. Categories and room types are not hardcoded, so new database values remain searchable. Invalid, empty, duplicate, and unknown filters return HTTP 400.
 
 Successful responses preserve `success` and `data`, and add a `pagination` object. Results are sorted by price ascending, then ID.
 
@@ -90,7 +90,7 @@ There is no mail provider or recovery UI in the current project. The task explic
 4. Deliver the printed token privately to the verified owner. Do not put it in tickets, shared logs, Git, or URLs. The operator command is not exposed as a public endpoint.
 5. Client calls `POST /api/auth/reset-password` with `{ "token": "...", "newPassword": "a new password of 12–128 characters" }`. A valid reset returns 200; an invalid, expired, or used token returns 400. Then sign in with the new password.
 
-Tokens are HMAC-signed, expire after 15 minutes, and are bound to the user's current password using a keyed fingerprint. An atomic conditional database update allows exactly one concurrent redemption. Any password change, including legacy-password upgrade at login, invalidates older tokens. No new database columns are required. Responses are not cached. Login/recovery retain the existing unauthenticated JSON CORS contract; these endpoints do not issue cookies. Automatic email delivery, a recovery form, session revocation, and production abuse/rate-limit controls require separate deployment/frontend work and are not claimed here.
+The current main-branch token implementation derives authenticators with scrypt and compares them in constant time. Tokens expire after 15 minutes, and are bound to the user's current password using a keyed fingerprint. An atomic conditional database update allows exactly one concurrent redemption. Any password change, including legacy-password upgrade at login, invalidates older tokens. No new database columns are required. Responses are not cached. Login/recovery retain the existing unauthenticated JSON CORS contract; these endpoints do not issue cookies. Automatic email delivery, a recovery form, session revocation, and production abuse/rate-limit controls require separate deployment/frontend work and are not claimed here.
 
 ## Setup and repeatable verification
 
@@ -119,13 +119,13 @@ TEST_DATABASE_URL='postgresql://postgres:password@127.0.0.1:5432/tarhal_test' np
 
 The suite creates a random schema in that database, applies the existing migration, runs Saud's committed `prisma/seed.ts` and adds temporary pagination/test records, executes route handlers against real Prisma/PostgreSQL, and drops only its own schema afterward. It does not use `DATABASE_URL` from your application or write to the team's existing data. Database failure responses are fault-injected. A stopped/crashed test process can leave its generated `tarhal_test_*` schema; remove only that test schema if needed. The seed loader deletes table contents, so the suite passes only its newly created test schema to it. Do not run that loader against a populated application database. Tests are not a browser E2E session.
 
-Verified on 2 October with Node 24.19, Prisma 6.19.3, Next 16.3.5, and a disposable local PostgreSQL 18.4 instance:
+Verified on 15 October with Node 24.19, Prisma 6.19.3, Next 16.3.5, and a disposable local PostgreSQL 18.4 instance:
 
 - `npm test`: **34 passed** — filtering and pagination validation, offsets/metadata, hashing, expiry, signature tampering and password binding.
-- `npm run test:integration`: **20 passed** — all five Auth/Hotels/Cars routes with the current seed loader, page traversal, defaults/limits, filtered totals, equal-price ordering, empty/out-of-range pages, legacy login upgrade, structured errors, reset/re-login and concurrent reuse.
+- `npm run test:integration`: **24 passed** — all five Auth/Hotels/Cars routes with the current seed loader, page traversal, defaults/limits, filtered totals, equal-price ordering, empty/out-of-range pages, legacy login upgrade, structured errors, reset/re-login and concurrent reuse, literal SQL pattern characters, control-character rejection and invalid support configuration.
 - TypeScript: passed.
 - Production build: passed; Next discovers all five module routes and the existing flight/booking routes.
-- Prisma schema and migration unchanged.
+- Prisma schema and migrations unchanged by this delivery; tests include both existing migrations and the required User.dateOfBirth field.
 
 ## SRS paragraph — ready to copy
 

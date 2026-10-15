@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   if (body.email !== undefined && !validEmail(body.email)) {
     return authError('INVALID_EMAIL', 'Enter a valid email address, such as name@example.com.', 400, 'email');
   }
-  if (body.email === undefined && (typeof body.username !== 'string' || !body.username.trim() || body.username.length > 254)) {
+  if (body.email === undefined && (typeof body.username !== 'string' || !body.username.trim() || body.username.length > 254 || /[\u0000-\u001f\u007f]/.test(body.username))) {
     return authError('INVALID_USERNAME', 'Enter your username (up to 254 characters), or sign in with your email.', 400, 'username');
   }
   if (typeof body.password !== 'string' || !body.password.length || body.password.length > 128) {
