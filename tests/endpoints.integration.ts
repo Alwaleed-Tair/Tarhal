@@ -156,6 +156,35 @@ describe('catalogs against migrated PostgreSQL and committed seed fixtures', () 
       await prisma.car.deleteMany({ where: { id: { in: extraCars.map(row => row.id) } } });
     }
   });
+  it('treats SQL pattern characters literally in case-insensitive text filters', async () => {
+    const hotel = { ...hotelSeeds[0], id: randomUUID(), roomType: 'Suite_%', city: 'City\\Name' };
+    const car = { ...carSeeds[0], id: randomUUID(), category: 'SUV_%' };
+    await prisma.hotel.create({ data: hotel });
+    await prisma.car.create({ data: car });
+    try {
+      for (const [route, query, id] of [
+        [hotels, new URLSearchParams({ roomType: 'suite_%', city: 'city\\name' }), hotel.id],
+        [cars, new URLSearchParams({ category: 'suv_%' }), car.id],
+      ] as const) {
+        const response = await route.GET(get(query.toString()));
+        assert.equal(response.status, 200);
+        assert.deepEqual((await response.json()).data.map((row: any) => row.id), [id]);
+      }
+      for (const [route, field] of [[hotels, 'roomType'], [hotels, 'city'], [cars, 'category']] as const) {
+        const response = await route.GET(get(new URLSearchParams({ [field]: '%' }).toString()));
+        assert.equal(response.status, 200);
+        assert.deepEqual((await response.json()).data, []);
+      }
+    } finally {
+      await prisma.hotel.delete({ where: { id: hotel.id } });
+      await prisma.car.delete({ where: { id: car.id } });
+    }
+  });
+  it('rejects NUL characters in text filters before querying PostgreSQL', async () => {
+    for (const [route, field] of [[hotels, 'city'], [hotels, 'roomType'], [cars, 'category']] as const) {
+      assert.equal((await route.GET(get(`${field}=bad%00value`))).status, 400);
+    }
+  });
   it('handles unavailable database without leaking internals', async () => {
     for (const [model, route] of [[prisma.hotel, hotels], [prisma.car, cars]] as const) {
       const original = model.findMany;
@@ -207,6 +236,27 @@ describe('authentication and support-assisted recovery', () => {
     assert.equal(unknown.status, 401);
     assert.deepEqual(await known.json(), await unknown.json());
   });
+  it('rejects control characters in account identifiers', async () => {
+    for (const route of [login, forgot]) {
+      const response = await route.POST(post({ email: 'bad\u0000@example.test', password: oldPassword }));
+      assert.equal(response.status, 400);
+      assert.equal((await response.json()).code, 'INVALID_EMAIL');
+    }
+    const response = await login.POST(post({ username: 'bad\u0000name', password: oldPassword }));
+    assert.equal(response.status, 400);
+    assert.equal((await response.json()).code, 'INVALID_USERNAME');
+  });
+  it('rejects an invalid support inbox without disclosing account existence', async () => {
+    const saved = process.env.PASSWORD_RESET_SUPPORT_EMAIL;
+    process.env.PASSWORD_RESET_SUPPORT_EMAIL = 'invalid';
+    try {
+      for (const email of ['traveler@tarhal.com', 'missing@example.test']) {
+        const response = await forgot.POST(post({ email }));
+        assert.equal(response.status, 503);
+        assert.equal((await response.json()).code, 'RECOVERY_UNAVAILABLE');
+      }
+    } finally { process.env.PASSWORD_RESET_SUPPORT_EMAIL = saved; }
+  });
   it('preserves username login and upgrades plaintext password without returning it', async () => {
     const response = await login.POST(post({ username: 'Test Traveler', password: oldPassword }));
     assert.equal(response.status, 200);
@@ -249,7 +299,7 @@ describe('authentication and support-assisted recovery', () => {
     assert.equal((await login.POST(post({ email: user.email, password: newPassword }))).status, 200);
   });
   it('requires email when two accounts share a name', async () => {
-    await prisma.user.create({ data: { name: 'Test Traveler', email: 'second@example.test', phoneNumber: '+966500000002', password: oldPassword } });
+    await prisma.user.create({ data: { name: 'Test Traveler', email: 'second@example.test', phoneNumber: '+966500000002', dateOfBirth: new Date('1998-05-15T00:00:00Z'), password: oldPassword } });
     assert.equal((await login.POST(post({ username: 'Test Traveler', password: newPassword }))).status, 401);
     assert.equal((await login.POST(post({ email: 'traveler@tarhal.com', password: newPassword }))).status, 200);
   });
