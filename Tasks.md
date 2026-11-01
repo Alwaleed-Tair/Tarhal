@@ -18,6 +18,8 @@
 | AI chat widget answering travel questions | Wallet, subscriptions, SkyMiles, Bundle & Save, Cultural Compass |
 | Deployed on Netlify with a shared database | Sub/Super admin, extra roles |
 
+> 🗄️ **Database changes this sprint** (airlines, new car fields, hotel/car booking tables, enums, seat holds) are specified in **[`Update.md`](./Update.md)**. Hotel/car **booking tables are created now** so the design is complete for the SDD, but their APIs and pages stay deferred.
+
 ---
 
 
@@ -25,10 +27,10 @@
 
 | Day | Tasks | Expected Deliverable |
 |---|---|---|
-| **2/11** | **Schema freeze (first thing in the morning):** add `heldUntil` and `heldByUserId` to `Seat`; add `Role` (TRAVELER, ADMIN) and `TicketClass` (ECONOMY, BUSINESS, FIRST) enums; add `model`, `city` and `isAvailable` to `Car`; fix the `dateOfBirth` migration so it runs on a non-empty database; one clean migration | Schema merged by end of day |
-| **3/11** | Run the migration on Neon; update the seed: future-dated flights with seats, 1 admin + 2 traveler demo accounts, hotels and cars; remove test files from `main` (`test-queries.ts` ×2, `load-test.js` ×2, `app/test-popup`, `outputs/`, `prisma/backup_schema.sql`) | Shared database seeded and demo-ready |
-| **4/11** | Admin APIs (admin role only): `GET /api/admin/flights`, `GET /api/admin/bookings` (with user and flight info) | Admin read APIs |
-| **5/11** | `POST /api/admin/flights` (create flight + auto-generate its seats); `PATCH /api/admin/flights/[id]` (edit price/time) | Admin can add and edit flights |
+| **2/11** | **Schema freeze (first thing in the morning)** — apply the target schema in `Update.md` as one clean migration: new `Airline` model + `Flight.airlineId`; new `Car` fields (`make`, `model`, `year`, `seats`, `transmission`, `city`, `insurancePricePerDay`, `isAvailable`, `imageUrl`) replacing `insuranceOption`; `Hotel.address` + `imageUrl`; new `HotelBooking` and `CarRental` models; `Seat.heldUntil` + `heldByUserId`; `Role`, `TicketClass`, `Transmission` enums; timestamps and indexes; fix the `dateOfBirth` migration | Schema merged by end of day |
+| **3/11** | Run the migration on Neon (reset + re-seed, see `Update.md` § Migration); update the seed: 5 airlines (Saudia, Qatar Airways, Emirates, flynas, flyadeal) with logos, future-dated flights linked to airlines with seats using the `TicketClass` enum, cars with make/model/year/seats/city/insurance price, hotels with address/image, 1 admin + 2 traveler accounts; remove test files from `main` (`test-queries.ts` ×2, `load-test.js` ×2, `app/test-popup`, `outputs/`, `prisma/backup_schema.sql`) | Shared database seeded and demo-ready |
+| **4/11** | Admin APIs (admin role only): `GET /api/admin/flights` (with airline), `GET /api/admin/bookings` (with user and flight info), `GET /api/admin/airlines` | Admin read APIs |
+| **5/11** | `POST /api/admin/flights` (requires `airlineId`; create flight + auto-generate its seats); `PATCH /api/admin/flights/[id]` (edit price/time) | Admin can add and edit flights |
 | **6/11** | Reset and re-seed the demo database; help fix bugs from the end-to-end test | Clean data for the demo |
 
 ---
@@ -38,10 +40,10 @@
 | Day | Tasks | Expected Deliverable |
 |---|---|---|
 | **2/11** | Fix booking security in `POST /api/bookings`: calculate the price on the server (`flight.basePrice × seat.priceMultiplier`), never trust `basePrice` from the client; check all seats belong to the requested flight; validate traveler fields; switch to the shared `lib/prisma.ts` | Secure booking endpoint |
-| **3/11** | `GET /api/flights/[id]` returning flight details + full seat map (status per seat); search results return available seat count and lowest price instead of every seat; fix the UTC/Riyadh date issue in search | APIs for the results and seat pages |
+| **3/11** | `GET /api/flights/[id]` returning flight details + airline (name, nameAr, IATA code, logo) + full seat map (status per seat); search results include the airline, available seat count and lowest price instead of every seat; optional `airline` filter in search; fix the UTC/Riyadh date issue in search | APIs for the results and seat pages |
 | **4/11** | Take `userId` from the session (using Mohammed's `getCurrentUser`); seat hold flow: `HELD` with `heldUntil` (10 min), expired holds become available again | Bookings tied to the logged-in user |
 | **5/11** | `GET /api/bookings` (my bookings); `POST /api/bookings/[id]/cancel` (sets `isActive=false` and releases seats) | My bookings + cancel |
-| **6/11** | Fix bugs found in the end-to-end test with Tariq | Stable booking flow |
+| **6/11** | Fix bugs found in the end-to-end test with Tariq; update the class diagram to v3 per `Update.md` § Class Diagram (Airline, HotelBooking, CarRental, new enums, `Decimal` prices) | Stable booking flow + class diagram v3 |
 
 ---
 
@@ -51,8 +53,8 @@
 |---|---|---|
 | **2/11** | `POST /api/auth/register` (name, email, phone, password, date of birth) with the same validation style as login | Users can sign up |
 | **3/11** | Real sessions: login sets a secure HTTP-only session cookie (NextAuth credentials provider or a signed cookie); `getCurrentUser()` helper in `lib/`; `POST /api/auth/logout`; restrict CORS (remove `*`) | Logged-in state works across pages |
-| **4/11** | Middleware protecting routes: `/bookings` and booking APIs need login; `/admin` and `/api/admin/*` need ADMIN role | Role-based protection |
-| **5/11** | Update hotels/cars filters for the new `Car` fields (`city`, `isAvailable`); help Omar connect the listing pages | Hotels/cars pages on real data |
+| **4/11** | Middleware protecting routes: `/bookings` and booking APIs need login; `/admin` and `/api/admin/*` need the `Role.ADMIN` enum value (replaces the old `'traveler'` string) | Role-based protection |
+| **5/11** | Update car filters in `lib/catalog-filters.ts` for the new fields: `city`, `make`, `minSeats`, `minYear`, `transmission`, only `isAvailable` cars; return `insurancePricePerDay`; add `address`/`imageUrl` to hotel responses; update the catalog tests; help Omar connect the listing pages | Hotels/cars pages on real data |
 | **6/11** | Regression test of auth + hotels/cars on the deployed link; update the auth tests | Auth confirmed stable |
 
 ---
@@ -74,7 +76,7 @@
 | Day | Tasks | Expected Deliverable |
 |---|---|---|
 | **2/11** | Flight search form (from, to, date, passengers) + results page, on mock data matching `docs/api-documentation.md` | Search UI |
-| **3/11** | Connect search and results to the real API; flight details page | Real search results |
+| **3/11** | Connect search and results to the real API; show airline logo and name (AR/EN) on each result card; airline filter on the results page; flight details page | Real search results |
 | **4/11** | Seat selection page (seat map, class colors, price update) + traveler details form; connect to booking API | Users can book |
 | **5/11** | Booking confirmation page + "My bookings" page with cancel button | Full passenger journey |
 | **6/11** | End-to-end test of the passenger journey with Abdulelah; loading/error/empty states on every page | Demo-ready passenger flow |
@@ -87,8 +89,8 @@
 |---|---|---|
 | **2/11** | Main layout: navbar (logged-in/out states), footer, color tokens, dark/light toggle; shared components (button, input, card, table) on shadcn | Design system everyone builds on |
 | **3/11** | Login and register pages connected to Mohammed's APIs; home page with the search form slot for Tariq | Auth pages working |
-| **4/11** | Hotels and cars listing pages with filters and pagination (APIs already exist) | Browse hotels & cars |
-| **5/11** | Admin pages: flights table (+ add/edit form) and bookings table, using Saud's APIs | Basic admin dashboard |
+| **4/11** | Hotels and cars listing pages with filters and pagination (APIs already exist). Car cards show make + model + year, seats, transmission, price per day and insurance price per day; hotel cards show image, address and rating | Browse hotels & cars |
+| **5/11** | Admin pages: flights table with airline column (+ add/edit form with an airline dropdown) and bookings table, using Saud's APIs | Basic admin dashboard |
 | **6/11** | Responsive and visual QA across all pages on the deployed link | Polished demo |
 
 ---
