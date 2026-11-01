@@ -20,17 +20,6 @@
 
 ---
 
-## 👤 Mohamed Elshiekh — Team Lead: Setup, Integration & Merging
-
-| Day | Tasks | Expected Deliverable |
-|---|---|---|
-| **2/11** | Install and configure Tailwind + shadcn/ui; set the folder structure (`app/(passenger)`, `app/admin`, `components/`); create the shared Neon database and share one `.env` template; connect the repo to Netlify | Project runs for everyone; preview link live |
-| **3/11** | Agree on one API response shape with the backend (`{ success, data }` / `{ success, error, code }`); update `docs/api-documentation.md` to match the real endpoints | API contract the frontend can trust |
-| **4/11** | Review and merge PRs daily; unblock dependencies; start the SDD draft from the current schema and diagrams | Clean `main`; SDD outline |
-| **5/11** | Integration day: connect the remaining mock pages to real APIs with Tariq and Omar | All pages on real data |
-| **6/11** | Run the full end-to-end demo on the deployed link; log bugs; final merge and deploy; write a short demo script | Deployed MVP + demo script |
-
----
 
 ## 👤 Saud Mohammed — Backend: Database
 
