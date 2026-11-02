@@ -5,7 +5,7 @@ type Card = { id: string; flightNumber: string; from: string; to: string; depart
 type Msg = { role: 'user' | 'assistant'; content: string; flights?: Card[] };
 
 const MAX_CHARS = 1000;
-const HELLO: Msg = { role: 'assistant', content: 'مرحباً! أنا مساعد ترحال. اسألني عن الرحلات والوجهات. / Hi! Ask me about flights and destinations.' };
+const HELLO: Msg = { role: 'assistant', content: 'مرحباً! أنا مساعد ترحال. اسألني عن الرحلات والوجهات.\nHi! Ask me about flights and destinations.' };
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
@@ -53,7 +53,7 @@ export default function ChatWidget() {
                   <div key={f.id} style={{ border: '1px solid #cbd5e1', borderRadius: 10, padding: 10, marginTop: 6, background: '#fff', fontSize: 13 }}>
                     <div style={{ fontWeight: 600 }}>{f.from} → {f.to} · {f.flightNumber}</div>
                     <div>{fmt(f.departureTime)}</div>
-                    <div>From {f.lowestPrice} SAR · {f.availableSeats} seats left</div>
+                    <div>From {f.lowestPrice} SAR · {f.availableSeats} {f.availableSeats === 1 ? 'seat' : 'seats'} left</div>
                   </div>
                 ))}
               </div>
