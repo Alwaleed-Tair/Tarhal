@@ -7,6 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─── Enums ───────────────────────────────────────────────
+
 enum SeatStatus {
   AVAILABLE
   HELD
@@ -20,72 +22,115 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum Role {
+  TRAVELER
+  ADMIN
+}
+
+enum TicketClass {
+  ECONOMY
+  BUSINESS
+  FIRST
+}
+
+enum Transmission {
+  AUTOMATIC
+  MANUAL
+}
+
+// ─── Users ───────────────────────────────────────────────
+
 model User {
-  id          String    @id @default(uuid())
+  id          String   @id @default(uuid())
   name        String
-  email       String    @unique
-  phoneNumber String    @unique
+  email       String   @unique
+  phoneNumber String   @unique
   password    String
   dateOfBirth DateTime
-  role        String    @default("traveler")
-  
-  bookings    Booking[]
+  role        Role     @default(TRAVELER)
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  bookings      Booking[]
+  hotelBookings HotelBooking[]
+  carRentals    CarRental[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Flights ─────────────────────────────────────────────
+
+model Airline {
+  id       String  @id @default(uuid())
+  name     String
+  nameAr   String
+  iataCode String  @unique
+  logoUrl  String?
+
+  flights Flight[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Flight {
-  id            String    @id @default(uuid())
-  flightNumber  String    @unique
+  id            String   @id @default(uuid())
+  flightNumber  String   @unique
+  airlineId     String
+  airline       Airline  @relation(fields: [airlineId], references: [id])
   from          String
   to            String
   departureTime DateTime
   arrivalTime   DateTime
-  basePrice     Decimal   @db.Decimal(10, 2)
-  
-  seats         Seat[]
-  bookings      Booking[]
+  basePrice     Decimal  @db.Decimal(10, 2)
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  seats    Seat[]
+  bookings Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([from, to, departureTime])
+  @@index([airlineId])
 }
 
 model Seat {
-  id              String           @id @default(uuid())
+  id              String      @id @default(uuid())
   flightId        String
-  flight          Flight           @relation(fields: [flightId], references: [id], onDelete: Cascade)
+  flight          Flight      @relation(fields: [flightId], references: [id], onDelete: Cascade)
   seatCode        String
-  ticketClass     String
-  priceMultiplier Decimal          @default(1.0) @db.Decimal(4, 2)
-  status          SeatStatus       @default(AVAILABLE)
-  
-  traveler        BookingTraveler?
+  ticketClass     TicketClass @default(ECONOMY)
+  priceMultiplier Decimal     @default(1.0) @db.Decimal(4, 2)
+  status          SeatStatus  @default(AVAILABLE)
+  heldUntil       DateTime?
+  heldByUserId    String?
 
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  traveler BookingTraveler?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([flightId, seatCode])
 }
 
 model Booking {
-  id            String            @id @default(uuid())
+  id            String        @id @default(uuid())
   userId        String
-  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   flightId      String
-  flight        Flight            @relation(fields: [flightId], references: [id], onDelete: Cascade)
-  
-  basePrice     Decimal           @db.Decimal(10, 2)
-  luggageFee    Decimal           @default(0) @db.Decimal(10, 2)
-  discount      Decimal           @default(0) @db.Decimal(10, 2)
-  totalPrice    Decimal           @db.Decimal(10, 2)
-  paymentStatus PaymentStatus     @default(PENDING)
-  isActive      Boolean           @default(true)
-  
-  travelers     BookingTraveler[]
+  flight        Flight        @relation(fields: [flightId], references: [id], onDelete: Cascade)
+  basePrice     Decimal       @db.Decimal(10, 2)
+  luggageFee    Decimal       @default(0) @db.Decimal(10, 2)
+  discount      Decimal       @default(0) @db.Decimal(10, 2)
+  totalPrice    Decimal       @db.Decimal(10, 2)
+  paymentStatus PaymentStatus @default(PENDING)
+  isActive      Boolean       @default(true)
 
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  travelers BookingTraveler[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model BookingTraveler {
@@ -94,24 +139,94 @@ model BookingTraveler {
   booking        Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   seatId         String   @unique
   seat           Seat     @relation(fields: [seatId], references: [id], onDelete: Cascade)
-  
   fullName       String
   passportNumber String
   dateOfBirth    DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+
+// ─── Hotels ──────────────────────────────────────────────
 
 model Hotel {
   id            String  @id @default(uuid())
   name          String
   city          String
+  address       String?
   pricePerNight Decimal @db.Decimal(10, 2)
-  rating        Float   
-  roomType      String  
+  rating        Float
+  roomType      String
+  imageUrl      String?
+
+  bookings HotelBooking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([city])
 }
 
+model HotelBooking {
+  id            String        @id @default(uuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hotelId       String
+  hotel         Hotel         @relation(fields: [hotelId], references: [id], onDelete: Restrict)
+  checkIn       DateTime
+  checkOut      DateTime
+  guests        Int           @default(1)
+  totalPrice    Decimal       @db.Decimal(10, 2)
+  paymentStatus PaymentStatus @default(PENDING)
+  isActive      Boolean       @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([hotelId, checkIn, checkOut])
+}
+
+// ─── Cars ────────────────────────────────────────────────
+
 model Car {
-  id              String  @id @default(uuid())
-  category        String
-  pricePerDay     Decimal @db.Decimal(10, 2)
-  insuranceOption Boolean 
+  id                   String       @id @default(uuid())
+  make                 String
+  model                String
+  year                 Int
+  seats                Int
+  category             String
+  transmission         Transmission @default(AUTOMATIC)
+  city                 String
+  pricePerDay          Decimal      @db.Decimal(10, 2)
+  insurancePricePerDay Decimal      @default(0) @db.Decimal(10, 2)
+  isAvailable          Boolean      @default(true)
+  imageUrl             String?
+
+  rentals CarRental[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([city])
+}
+
+model CarRental {
+  id            String        @id @default(uuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  carId         String
+  car           Car           @relation(fields: [carId], references: [id], onDelete: Restrict)
+  pickupDate    DateTime
+  returnDate    DateTime
+  withInsurance Boolean       @default(false)
+  totalPrice    Decimal       @db.Decimal(10, 2)
+  paymentStatus PaymentStatus @default(PENDING)
+  isActive      Boolean       @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([carId, pickupDate, returnDate])
 }
