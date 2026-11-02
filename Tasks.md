@@ -23,27 +23,27 @@
 ---
 
 
-## 👤 Saud Mohammed — Backend: Database
+## 👤 Abdulelah Alshareef — Database Design & Flights/Bookings
 
 | Day | Tasks | Expected Deliverable |
 |---|---|---|
-| **2/11** | **Schema freeze (first thing in the morning)** — apply the target schema in `Update.md` as one clean migration: new `Airline` model + `Flight.airlineId`; new `Car` fields (`make`, `model`, `year`, `seats`, `transmission`, `city`, `insurancePricePerDay`, `isAvailable`, `imageUrl`) replacing `insuranceOption`; `Hotel.address` + `imageUrl`; new `HotelBooking` and `CarRental` models; `Seat.heldUntil` + `heldByUserId`; `Role`, `TicketClass`, `Transmission` enums; timestamps and indexes; fix the `dateOfBirth` migration | Schema merged by end of day |
-| **3/11** | Run the migration on Neon (reset + re-seed, see `Update.md` § Migration); update the seed: 5 airlines (Saudia, Qatar Airways, Emirates, flynas, flyadeal) with logos, future-dated flights linked to airlines with seats using the `TicketClass` enum, cars with make/model/year/seats/city/insurance price, hotels with address/image, 1 admin + 2 traveler accounts; remove test files from `main` (`test-queries.ts` ×2, `load-test.js` ×2, `app/test-popup`, `outputs/`, `prisma/backup_schema.sql`) | Shared database seeded and demo-ready |
-| **4/11** | Admin APIs (admin role only): `GET /api/admin/flights` (with airline), `GET /api/admin/bookings` (with user and flight info), `GET /api/admin/airlines` | Admin read APIs |
-| **5/11** | `POST /api/admin/flights` (requires `airlineId`; create flight + auto-generate its seats); `PATCH /api/admin/flights/[id]` (edit price/time) | Admin can add and edit flights |
-| **6/11** | Reset and re-seed the demo database; help fix bugs from the end-to-end test | Clean data for the demo |
+| **2/11** | **Schema design (first thing in the morning):** review and finalize the schema v3 design in `Update.md` (Airline, new Car fields, HotelBooking/CarRental, seat holds, enums) and hand it to Saud; review Saud's migration PR against the design. Then fix booking security in `POST /api/bookings`: calculate the price on the server (`flight.basePrice × seat.priceMultiplier`), never trust `basePrice` from the client; check all seats belong to the requested flight; validate traveler fields; switch to the shared `lib/prisma.ts` | Final schema design + secure booking endpoint |
+| **3/11** | `GET /api/flights/[id]` returning flight details + airline (name, nameAr, IATA code, logo) + full seat map (status per seat); search results include the airline, available seat count and lowest price instead of every seat; optional `airline` filter in search; fix the UTC/Riyadh date issue in search | APIs for the results and seat pages |
+| **4/11** | Take `userId` from the session (using Mohammed's `getCurrentUser`); seat hold logic: `HELD` with `heldUntil` (10 min), expired holds become available again | Bookings tied to the logged-in user |
+| **5/11** | `GET /api/bookings` (my bookings); `POST /api/bookings/[id]/cancel` (sets `isActive=false` and releases seats) | My bookings + cancel |
+| **6/11** | Fix bugs found in the end-to-end test with Tariq; update the class diagram to v3 per `Update.md` § Class Diagram (Airline, HotelBooking, CarRental, new enums, `Decimal` prices) | Stable booking flow + class diagram v3 |
 
 ---
 
-## 👤 Abdulelah Alshareef — Backend: Flights & Bookings
+## 👤 Saud Mohammed — Database Implementation
 
 | Day | Tasks | Expected Deliverable |
 |---|---|---|
-| **2/11** | Fix booking security in `POST /api/bookings`: calculate the price on the server (`flight.basePrice × seat.priceMultiplier`), never trust `basePrice` from the client; check all seats belong to the requested flight; validate traveler fields; switch to the shared `lib/prisma.ts` | Secure booking endpoint |
-| **3/11** | `GET /api/flights/[id]` returning flight details + airline (name, nameAr, IATA code, logo) + full seat map (status per seat); search results include the airline, available seat count and lowest price instead of every seat; optional `airline` filter in search; fix the UTC/Riyadh date issue in search | APIs for the results and seat pages |
-| **4/11** | Take `userId` from the session (using Mohammed's `getCurrentUser`); seat hold flow: `HELD` with `heldUntil` (10 min), expired holds become available again | Bookings tied to the logged-in user |
-| **5/11** | `GET /api/bookings` (my bookings); `POST /api/bookings/[id]/cancel` (sets `isActive=false` and releases seats) | My bookings + cancel |
-| **6/11** | Fix bugs found in the end-to-end test with Tariq; update the class diagram to v3 per `Update.md` § Class Diagram (Airline, HotelBooking, CarRental, new enums, `Decimal` prices) | Stable booking flow + class diagram v3 |
+| **2/11** | **Implement schema v3** in `prisma/schema.prisma` from the design in `Update.md`, as one clean migration: new `Airline` model + `Flight.airlineId`; new `Car` fields (`make`, `model`, `year`, `seats`, `transmission`, `city`, `insurancePricePerDay`, `isAvailable`, `imageUrl`) replacing `insuranceOption`; `Hotel.address` + `imageUrl`; new `HotelBooking` and `CarRental` models; `Seat.heldUntil` + `heldByUserId`; `Role`, `TicketClass`, `Transmission` enums; timestamps and indexes; fix the `dateOfBirth` migration; run `prisma validate` and the migration on a clean local database | Schema merged by end of day |
+| **3/11** | Run the migration on Neon (reset + re-seed, see `Update.md` § Migration); update the seed: 5 airlines (Saudia, Qatar Airways, Emirates, flynas, flyadeal) with logos, future-dated flights linked to airlines with seats using the `TicketClass` enum, cars with make/model/year/seats/city/insurance price, hotels with address/image, 1 admin + 2 traveler accounts; remove test files from `main` (`test-queries.ts` ×2, `load-test.js` ×2, `app/test-popup`, `outputs/`, `prisma/backup_schema.sql`) | Shared database seeded and demo-ready |
+| **4/11** | Implement the shared data-access layer in `lib/db/` (replaces the empty placeholder): flight queries with airline and available seat count, bookings with travelers/user/flight, airlines list, create a flight with auto-generated seats, update a flight | Reusable Prisma queries |
+| **5/11** | Admin endpoints on top of `lib/db` (admin role only): `GET /api/admin/flights`, `GET /api/admin/bookings`, `GET /api/admin/airlines`, `POST /api/admin/flights` (requires `airlineId`), `PATCH /api/admin/flights/[id]` (edit price/time) | Admin data APIs |
+| **6/11** | Reset and re-seed the demo database; check data integrity (no orphan seats, expired holds cleared, every flight has an airline); help fix database bugs from the end-to-end test | Clean data for the demo |
 
 ---
 
@@ -97,8 +97,9 @@
 
 ## 🔗 Key Dependencies
 
-- **2/11 is blocking for everyone:** Mohamed's setup and Saud's schema must be merged by end of day. Frontend works on mock data until the APIs are ready.
-- **Mohammed's `getCurrentUser()` (3/11) unblocks** Abdulelah's session-based booking and Saud's admin APIs (4/11).
+- **2/11 is blocking for everyone:** Abdulelah finalizes the schema design in the morning; Mohamed's setup and Saud's schema migration must be merged by end of day. Frontend works on mock data until the APIs are ready.
+- **Mohammed's `getCurrentUser()` (3/11) unblocks** Abdulelah's session-based booking (4/11) and Saud's admin endpoints (5/11).
+- **Saud's `lib/db` queries (4/11) unblock** his admin endpoints (5/11), which Omar's admin pages use.
 - **Omar's layout and components (2/11) unblock** Tariq's pages and Alwaleed's chat widget.
 - **Abdulelah's flight details API (3/11) unblocks** Tariq's seat selection page (4/11).
 

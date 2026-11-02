@@ -1,6 +1,6 @@
 # 🗄️ Tarhal — Database Update (Schema v3)
 
-> **Owner:** Saud (migration + seed) · **Applies in:** MVP sprint, day 1 (2/11) · **Status:** proposed, validated with Prisma
+> **Design:** Abdulelah · **Implementation:** Saud (schema, migration, seed) · **Applies in:** MVP sprint, day 1 (2/11) · **Status:** proposed, validated with Prisma
 >
 > This file lists every change to `prisma/schema.prisma` and the class diagram, why it is needed, and who is affected. The complete target schema is at the bottom ([§ Target Schema](#-target-schema-v3)); it passes `prisma validate`.
 
@@ -135,12 +135,14 @@ Existing data does **not** fit the new required columns (`Flight.airlineId`, `Ca
 
 | Area | What breaks / needs updating | Owner | Day |
 |---|---|---|---|
-| `prisma/schema.prisma`, migrations, `seed.ts`, `seeds/*.json` | Everything above | Saud | 2–3/11 |
+| Schema v3 design (this file) | Final review and sign-off before implementation | Abdulelah | 2/11 |
+| `prisma/schema.prisma`, migrations, `seed.ts`, `seeds/*.json` | Implement everything above | Saud | 2–3/11 |
+| `lib/db/` | Shared queries (flights with airline, bookings, airlines, create flight with seats) | Saud | 4/11 |
 | `app/api/flights/search`, `GET /api/flights/[id]` | Include `airline` in results; optional `airline` filter | Abdulelah | 3/11 |
 | Booking price calculation | `ticketClass` is now an enum — compare with `TicketClass.BUSINESS`, not `'Business'` | Abdulelah | 2–4/11 |
 | `lib/catalog-filters.ts` (`carFilters`, `hotelFilters`) + `tests/auth-catalog.test.ts` | New car filters (`city`, `make`, `minSeats`, `minYear`, `transmission`, available only); hotel fields | Mohammed Alasad | 5/11 |
 | Auth / middleware role checks | Use `Role.ADMIN` / `Role.TRAVELER` instead of strings | Mohammed Alasad | 4/11 |
-| Admin APIs | `POST /api/admin/flights` requires `airlineId`; `GET /api/admin/airlines` | Saud | 4–5/11 |
+| Admin APIs | `POST /api/admin/flights` requires `airlineId`; `GET /api/admin/airlines` | Saud | 5/11 |
 | Flight results page | Airline logo + name on cards; airline filter | Tariq | 3/11 |
 | Cars / hotels pages, admin flight form | New car fields on cards; airline dropdown in admin | Omar | 4–5/11 |
 | `docs/api-documentation.md` | New fields in flight, car and hotel responses | **Unassigned** | 3/11 |
