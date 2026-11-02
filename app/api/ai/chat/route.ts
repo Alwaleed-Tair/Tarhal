@@ -1,48 +1,35 @@
-import { NextResponse } from 'next/server';
-import { generateText, stepCountIs } from 'ai';
-import { createDeepSeek } from '@ai-sdk/deepseek';
-import { prisma } from '../../../../lib/prisma';
-import { ChatInputError, MAX_OUTPUT_TOKENS, MAX_TOOL_STEPS, SYSTEM_PROMPT, validateMessages } from '../../../../lib/ai/chat-core';
-import { makeFlightTool, normalizeFlight } from '../../../../lib/ai/flight-tool';
+import { NextResponse } from 'next/server.js';
+import { generateText, isStepCount } from 'ai';
+import { AiConfigError, chatModel } from '../../../../lib/ai/model.ts';
+import { MAX_OUTPUT_TOKENS, systemPrompt } from '../../../../lib/ai/prompt.ts';
+import { parseMessages } from '../../../../lib/ai/messages.ts';
+import { flightTool, type FlightCard } from '../../../../lib/ai/flights.ts';
 
-export const maxDuration = 30; // seconds; must stay above the model timeout below
+const headers = { 'Cache-Control': 'no-store' };
+
+function fail(code: string, error: string, status: number) {
+  return NextResponse.json({ success: false, error, code }, { status, headers });
+}
 
 export async function POST(request: Request) {
-  const apiKey = process.env.DEEPSEEK_API_KEY;
-  if (!apiKey) return NextResponse.json({ error: 'Chat is not configured' }, { status: 503 });
+  let body: unknown;
+  try { body = await request.json(); } catch { body = null; }
+  const messages = parseMessages(body);
+  if (typeof messages === 'string') return fail('INVALID_MESSAGE', messages, 400);
 
-  let messages;
+  const flights: FlightCard[] = [];
   try {
-    messages = validateMessages(await request.json());
-  } catch (e) {
-    const msg = e instanceof ChatInputError ? e.message : 'Invalid JSON body';
-    return NextResponse.json({ error: msg }, { status: 400 });
-  }
-
-  const flightCards: ReturnType<typeof normalizeFlight>[] = [];
-  const searchFlights = async ({ from, to, date }: { from: string; to: string; date: string }) => {
-    const rows = await prisma.flight.findMany({
-      where: { from, to, departureTime: { gte: new Date(`${date}T00:00:00.000Z`), lt: new Date(`${date}T23:59:59.999Z`) } },
-      include: { seats: { where: { status: 'AVAILABLE' } } },
-      take: 5,
-    });
-    flightCards.push(...rows.map(normalizeFlight));
-    return rows;
-  };
-
-  try {
-    const deepseek = createDeepSeek({ apiKey });
     const result = await generateText({
-      model: deepseek('deepseek-chat'),
-      system: SYSTEM_PROMPT,
+      model: chatModel(),
+      system: systemPrompt(new Date().toISOString().slice(0, 10)),
       messages,
-      tools: { searchFlights: makeFlightTool(searchFlights) },
-      stopWhen: stepCountIs(MAX_TOOL_STEPS),
+      tools: flightTool(flights),
+      stopWhen: isStepCount(3),
       maxOutputTokens: MAX_OUTPUT_TOKENS,
-      abortSignal: AbortSignal.timeout(25_000),
     });
-    return NextResponse.json({ reply: result.text, flights: flightCards, usage: result.totalUsage ?? result.usage });
-  } catch {
-    return NextResponse.json({ error: 'The assistant is unavailable right now' }, { status: 502 });
+    return NextResponse.json({ success: true, reply: result.text || '…', flights, usage: result.totalUsage ?? result.usage }, { headers });
+  } catch (e) {
+    if (e instanceof AiConfigError) return fail('AI_NOT_CONFIGURED', 'The assistant is not configured yet.', 503);
+    return fail('AI_UNAVAILABLE', 'The assistant could not answer right now. Please try again.', 502);
   }
 }
