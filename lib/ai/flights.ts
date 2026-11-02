@@ -1,6 +1,5 @@
 import { tool } from 'ai';
 import { z } from 'zod';
-import { prisma } from '../prisma.ts';
 
 export type FlightCard = {
   id: string; flightNumber: string; from: string; to: string;
@@ -9,6 +8,8 @@ export type FlightCard = {
 
 // Same day window the existing /api/flights/search uses (UTC day).
 export async function findFlights(from: string, to: string, date: string): Promise<FlightCard[]> {
+  // Loaded lazily so the chat still works when the database client is unavailable.
+  const { prisma } = await import('../prisma.ts');
   const flights = await prisma.flight.findMany({
     where: {
       from: from.toUpperCase(), to: to.toUpperCase(),
