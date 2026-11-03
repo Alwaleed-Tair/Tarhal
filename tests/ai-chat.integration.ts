@@ -16,6 +16,7 @@ process.env.DATABASE_URL = connection.toString();
 const requests: any[] = [];
 const webRequests: any[] = [];
 let webMode = 'ok'; // 'ok' | 'fail'
+let finish = 'stop';
 let mode = 'flight'; // 'flight' | 'text' | 'fail' | 'hotels' | 'fallback' | 'cars'
 const toolCall = (id: string, name: string, args: unknown) => ({ role: 'assistant', content: null, tool_calls: [{ id, type: 'function', function: { name, arguments: JSON.stringify(args) } }] });
 const fake: Server = createServer((req, res) => {
@@ -44,7 +45,7 @@ const fake: Server = createServer((req, res) => {
     else if (mode === 'fallback' && last.tool_call_id === 'call_h') message = toolCall('call_w', 'webSearch', { query: body.messages.findLast((m: any) => m.role === 'user').content });
     else message = { role: 'assistant', content: last.role === 'tool' ? 'Found it.' : 'Hello from the fake model' };
     res.writeHead(200, { 'content-type': 'application/json' });
-    res.end(JSON.stringify({ ...base, choices: [{ index: 0, finish_reason: message.tool_calls ? 'tool_calls' : 'stop', message }] }));
+    res.end(JSON.stringify({ ...base, choices: [{ index: 0, finish_reason: message.tool_calls ? 'tool_calls' : finish, message }] }));
   });
 });
 
@@ -101,7 +102,9 @@ describe('POST /api/ai/chat end to end', () => {
     assert.equal(sent.messages[0].role, 'system');
     assert.match(sent.messages[0].content, /Saudi/);
     assert.deepEqual(sent.messages.slice(1).map((m: any) => m.content), ['hi', 'hello', 'visa?']);
-    assert.equal(sent.max_tokens, 700);
+    assert.equal(sent.max_tokens, 1500);
+    assert.equal(sent.temperature, 0.5);
+    assert.deepEqual(sent.thinking, { type: 'disabled' }); // fast mode
     assert.ok(body.usage);
   });
   it('lets the model search real flights and returns cards (same-day, route-exact, lowest price, seats left)', async () => {
@@ -167,6 +170,14 @@ describe('POST /api/ai/chat end to end', () => {
     const toolNames = requests[sent].tools.map((t: any) => t.function.name);
     assert.ok(!toolNames.includes('webSearch') && toolNames.includes('searchHotels'));
     delete process.env.TARHAL_WEB_SEARCH;
+  });
+  it('tells the user when a reply was cut by the token limit', async () => {
+    mode = 'text'; finish = 'length';
+    const body = await (await call(user('long plan'))).json();
+    finish = 'stop';
+    assert.equal(body.truncated, true);
+    assert.match(body.reply, /^Hello from the fake model\n\n\[/);
+    assert.equal((await (await call(user('short'))).json()).truncated, false);
   });
   it('maps provider failures to a safe 502 and a missing key to 503', async () => {
     mode = 'fail';

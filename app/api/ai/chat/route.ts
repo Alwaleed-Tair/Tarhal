@@ -28,8 +28,15 @@ export async function POST(request: Request) {
       tools: { ...flightTool(flights), ...catalogTools(hotels, cars), ...(webSearchEnabled() ? webTool(sources) : {}) },
       stopWhen: isStepCount(4),
       maxOutputTokens: MAX_OUTPUT_TOKENS,
+      temperature: 0.5, // fewer odd word choices than the default
+      // The provider enables DeepSeek 'thinking' by default for V4 models: slower, costlier, and it ignores temperature.
+      // Off for a fast chat; set TARHAL_THINKING=true to turn it on.
+      providerOptions: { deepseek: { thinking: { type: process.env.TARHAL_THINKING === 'true' ? 'enabled' : 'disabled' } } },
     });
-    return NextResponse.json({ success: true, reply: result.text || '…', flights, hotels, cars, searchedWeb: sources.length > 0, usage: result.totalUsage ?? result.usage }, { headers });
+    // A reply cut by the token limit must say so instead of ending mid-sentence.
+    const cut = result.finishReason === 'length';
+    const reply = (result.text || '…') + (cut ? '\n\n[انقطع الرد بسبب الطول — اكتب «كمّل» وأكمله / reply cut off — type "continue"]' : '');
+    return NextResponse.json({ success: true, reply, truncated: cut, flights, hotels, cars, searchedWeb: sources.length > 0, usage: result.totalUsage ?? result.usage }, { headers });
   } catch (e) {
     if (e instanceof AiConfigError) return fail('AI_NOT_CONFIGURED', 'The assistant is not configured yet.', 503);
     return fail('AI_UNAVAILABLE', 'The assistant could not answer right now. Please try again.', 502);
