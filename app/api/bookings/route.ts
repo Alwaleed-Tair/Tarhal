@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
-// Switched to the shared Prisma client as required
 import { prisma } from '../../../lib/prisma';
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    // basePrice is deliberately removed from the client destructuring
+    
+    // TODO (4/11): Mohammed, replace this body destructuring with your getCurrentUser() session utility once you push it.
     const { userId, flightId, travelers } = body;
 
     if (!userId || !flightId || !travelers || !Array.isArray(travelers) || travelers.length === 0) {
@@ -21,6 +22,7 @@ export async function POST(request: Request) {
     }
 
     const requestedSeatIds = travelers.map((t: any) => t.seatId);
+    const now = new Date();
 
     const result = await prisma.$transaction(async (tx) => {
       // 1. Fetch flight to securely get the real basePrice on the server
@@ -39,22 +41,31 @@ export async function POST(request: Request) {
       const allBelongToFlight = seats.every(s => s.flightId === flightId);
       if (!allBelongToFlight) throw new Error("SEAT_FLIGHT_MISMATCH");
 
-      // 4. Calculate the total price securely on the server (flight.basePrice × seat.priceMultiplier)
+      // 4. Calculate the total price securely on the server
       let calculatedTotal = 0;
       for (const seat of seats) {
         calculatedTotal += Number(flight.basePrice) * Number(seat.priceMultiplier);
       }
 
-      // 5. ATOMIC LOCK: Attempt to update the seats ONLY if they are currently AVAILABLE
+      // 5. ATOMIC LOCK & HOLD LOGIC: 
+      // Update seats ONLY if AVAILABLE, or if HELD but EXPIRED, or currently HELD by THIS user
       const lockedSeats = await tx.seat.updateMany({
         where: { 
           id: { in: requestedSeatIds },
-          status: 'AVAILABLE' 
+          OR: [
+            { status: 'AVAILABLE' },
+            { status: 'HELD', heldUntil: { lt: now } },
+            { status: 'HELD', heldByUserId: userId }
+          ]
         },
-        data: { status: 'BOOKED' }
+        data: { 
+          status: 'BOOKED',
+          heldUntil: null,     // Clear the hold timer
+          heldByUserId: null   // Clear the hold ownership
+        }
       });
 
-      // CONCURRENCY CHECK: If another user locked the seat milliseconds before us
+      // CONCURRENCY CHECK: If another user locked or holds the seat and it hasn't expired
       if (lockedSeats.count !== requestedSeatIds.length) {
         throw new Error("CONCURRENCY_CONFLICT");
       }
@@ -62,9 +73,9 @@ export async function POST(request: Request) {
       // 6. CREATE BOOKING: Safe to proceed
       const booking = await tx.booking.create({
         data: {
-          userId: userId,
+          userId: userId, 
           flightId: flightId,
-          basePrice: flight.basePrice, // Safely sourced from DB
+          basePrice: flight.basePrice, 
           totalPrice: calculatedTotal,
           travelers: {
             create: travelers.map((t: any) => ({
@@ -82,10 +93,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, data: result }, { status: 201 });
 
- } catch (error) {
+  } catch (error) {
     const err = error as Error;
     if (err.message === "CONCURRENCY_CONFLICT") {
-      return NextResponse.json({ error: "One or more seats were just booked by another user" }, { status: 409 });
+      return NextResponse.json({ error: "One or more seats are unavailable or held by another user" }, { status: 409 });
     }
     if (err.message === "FLIGHT_NOT_FOUND") {
       return NextResponse.json({ error: "Flight not found" }, { status: 404 });
