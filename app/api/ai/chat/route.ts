@@ -5,6 +5,7 @@ import { MAX_OUTPUT_TOKENS, systemPrompt } from '../../../../lib/ai/prompt.ts';
 import { parseMessages } from '../../../../lib/ai/messages.ts';
 import { flightTool, type FlightCard } from '../../../../lib/ai/flights.ts';
 import { catalogTools, type CarCard, type HotelCard } from '../../../../lib/ai/catalog.ts';
+import { isArabicOrEnglish, LANGUAGE_FALLBACK } from '../../../../lib/ai/language.ts';
 import { webSearchEnabled, webTool, type WebSource } from '../../../../lib/ai/web.ts';
 
 const headers = { 'Cache-Control': 'no-store' };
@@ -36,8 +37,9 @@ export async function POST(request: Request) {
     // A reply cut by the token limit must say so instead of ending mid-sentence.
     const cut = result.finishReason === 'length';
     const toolsUsed = (result.steps ?? []).flatMap((st: any) => (st.toolCalls ?? []).map((c: any) => c.toolName));
-    const reply = (result.text || '…') + (cut ? '\n\n[انقطع الرد بسبب الطول — اكتب «كمّل» وأكمله / reply cut off — type "continue"]' : '');
-    return NextResponse.json({ success: true, reply, truncated: cut, toolsUsed, flights, hotels, cars, searchedWeb: sources.length > 0, usage: result.totalUsage ?? result.usage }, { headers });
+    const blocked = !isArabicOrEnglish(result.text);
+    const reply = blocked ? LANGUAGE_FALLBACK : (result.text || '…') + (cut ? '\n\n[انقطع الرد بسبب الطول — اكتب «كمّل» وأكمله / reply cut off — type "continue"]' : '');
+    return NextResponse.json({ success: true, reply, truncated: cut && !blocked, toolsUsed, languageBlocked: blocked, flights, hotels, cars, searchedWeb: sources.length > 0, usage: result.totalUsage ?? result.usage }, { headers });
   } catch (e) {
     if (e instanceof AiConfigError) return fail('AI_NOT_CONFIGURED', 'The assistant is not configured yet.', 503);
     return fail('AI_UNAVAILABLE', 'The assistant could not answer right now. Please try again.', 502);

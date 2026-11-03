@@ -17,6 +17,7 @@ const requests: any[] = [];
 const webRequests: any[] = [];
 let webMode = 'ok'; // 'ok' | 'fail'
 let finish = 'stop';
+let textOverride = '';
 let mode = 'flight'; // 'flight' | 'text' | 'fail' | 'hotels' | 'fallback' | 'cars'
 const toolCall = (id: string, name: string, args: unknown) => ({ role: 'assistant', content: null, tool_calls: [{ id, type: 'function', function: { name, arguments: JSON.stringify(args) } }] });
 const fake: Server = createServer((req, res) => {
@@ -43,7 +44,7 @@ const fake: Server = createServer((req, res) => {
     else if (mode === 'cars' && last.role !== 'tool') message = toolCall('call_c', 'searchCars', { city: 'Riyadh', maxPricePerDay: 200 });
     else if (mode === 'fallback' && last.role !== 'tool') message = toolCall('call_h', 'searchHotels', { city: 'Atlantis' });
     else if (mode === 'fallback' && last.tool_call_id === 'call_h') message = toolCall('call_w', 'webSearch', { query: body.messages.findLast((m: any) => m.role === 'user').content });
-    else message = { role: 'assistant', content: last.role === 'tool' ? 'Found it.' : 'Hello from the fake model' };
+    else message = { role: 'assistant', content: textOverride || (last.role === 'tool' ? 'Found it.' : 'Hello from the fake model') };
     res.writeHead(200, { 'content-type': 'application/json' });
     res.end(JSON.stringify({ ...base, choices: [{ index: 0, finish_reason: message.tool_calls ? 'tool_calls' : finish, message }] }));
   });
@@ -172,6 +173,19 @@ describe('POST /api/ai/chat end to end', () => {
     const toolNames = requests[sent].tools.map((t: any) => t.function.name);
     assert.ok(!toolNames.includes('webSearch') && toolNames.includes('searchHotels'));
     delete process.env.TARHAL_WEB_SEARCH;
+  });
+  it('never returns a reply in a language other than Arabic or English', async () => {
+    mode = 'text';
+    for (const bad of ['こんにちは！私は旅行アシスタントです。', 'Привет! Я помогаю с поездками']) {
+      textOverride = bad;
+      const body = await (await call(user('كونيتشيوا'))).json();
+      assert.equal(body.languageBlocked, true);
+      assert.doesNotMatch(body.reply, /こんにちは|Привет/);
+      assert.match(body.reply, /بالعربي أو الإنجليزي/);
+    }
+    textOverride = 'هلا والله! 👋 جاهز أساعدك';
+    assert.equal((await (await call(user('هلا'))).json()).languageBlocked, false);
+    textOverride = '';
   });
   it('tells the user when a reply was cut by the token limit', async () => {
     mode = 'text'; finish = 'length';

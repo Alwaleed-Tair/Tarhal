@@ -22,3 +22,9 @@ test('keeps only the most recent history, starting with a user turn', () => {
   assert.equal(out[0].role, 'user');
   assert.equal(out.at(-1).content, 'last');
 });
+
+import { isArabicOrEnglish } from '../lib/ai/language.ts';
+test('only Arabic and English replies pass the language guard', () => {
+  for (const ok of ['هلا والله! 👋 ميزانية 6,000–9,000 ريال', 'Hello! RUH → JED, SAR 420 ✈️', 'مرحباً Tarhal 123 (50%)', '']) assert.equal(isArabicOrEnglish(ok), true, ok);
+  for (const bad of ['こんにちは！', 'Привет! Я помогаю', 'नमस्ते', '안녕하세요', '你好', 'Hello สวัสดี', 'مرحبا שלום', 'Γειά σου']) assert.equal(isArabicOrEnglish(bad), false, bad);
+});
