@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import './ChatWidget.css';
+import { formatReply } from './formatReply.ts';
 
 type Card = { id: string; flightNumber: string; airline?: string; from: string; to: string; departureTime: string; lowestPrice: number; availableSeats: number };
 type Hotel = { id: string; name: string; city: string; pricePerNight: number; rating: number; roomType: string };
@@ -53,7 +54,10 @@ export default function ChatWidget() {
           <div className="tc-messages" role="log" aria-live="polite">
             {msgs.map((m, i) => (
               <div key={i} className={`tc-msg ${m.role}`}>
-                <div className="tc-bubble">{m.content.split('\n').map((line, j) => <div key={j} dir="auto">{line || '\u00a0'}</div>)}</div>
+                <div className="tc-bubble">{formatReply(m.content).map((b, j) => b.type === 'gap' ? <div key={j} className="tc-gap" /> : (
+                  <div key={j} dir="auto" className={b.type === 'li' ? 'tc-li' : b.type === 'h' ? 'tc-h' : undefined}>
+                    {b.parts.map((p, k) => p.bold ? <strong key={k}>{p.text}</strong> : <span key={k}>{p.text}</span>)}
+                  </div>))}</div>
                 {m.flights?.map((f) => (
                   <div key={f.id} className="tc-card" dir="ltr">
                     <strong>{f.from} → {f.to} · {f.airline ? `${f.airline} ` : ''}{f.flightNumber}</strong>

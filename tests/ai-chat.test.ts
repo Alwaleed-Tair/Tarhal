@@ -28,3 +28,15 @@ test('only Arabic and English replies pass the language guard', () => {
   for (const ok of ['هلا والله! 👋 ميزانية 6,000–9,000 ريال', 'Hello! RUH → JED, SAR 420 ✈️', 'مرحباً Tarhal 123 (50%)', '']) assert.equal(isArabicOrEnglish(ok), true, ok);
   for (const bad of ['こんにちは！', 'Привет! Я помогаю', 'नमस्ते', '안녕하세요', '你好', 'Hello สวัสดี', 'مرحبا שלום', 'Γειά σου']) assert.equal(isArabicOrEnglish(bad), false, bad);
 });
+
+import { formatReply } from '../components/formatReply.ts';
+test('light markdown becomes clean blocks (no stray # ** | symbols)', () => {
+  const blocks = formatReply('# جدول يومين\n(الافتراض: مسافر)\n\n**اليوم الأول – الدمام**\n- صباحًا: كورنيش\n* عصرًا: جزيرة\n---\n| الوقت | النشاط |\n|---|---|\n| ١٠ | قهوة |\n\nنص **مهم** وسط الجملة `code`');
+  assert.deepEqual(blocks.map((b) => b.type), ['h', 'p', 'gap', 'h'.replace('h', 'p'), 'li', 'li', 'li', 'li', 'gap', 'p']);
+  const all = blocks.flatMap((b) => b.parts.map((p) => p.text)).join('');
+  assert.doesNotMatch(all, /[#*|`]/);
+  assert.equal(blocks[0].parts[0].bold, true);
+  assert.equal(blocks[3].parts[0].bold, true); // **title** line
+  assert.equal(blocks.at(-1)!.parts.some((p) => p.bold && p.text === 'مهم'), true);
+  assert.equal(blocks[6].parts.map((p) => p.text).join(''), 'الوقت · النشاط');
+});

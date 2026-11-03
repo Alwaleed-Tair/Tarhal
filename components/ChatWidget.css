@@ -42,6 +42,10 @@
 .tc-bubble { padding: 10px 12px; border-radius: 14px; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
 .tc-msg.assistant .tc-bubble { border-end-start-radius: 4px; background: var(--c-muted); color: var(--c-foreground); }
 .tc-msg.user .tc-bubble { border-end-end-radius: 4px; background: var(--c-primary); color: var(--c-primary-fg); }
+.tc-gap { height: 8px; }
+.tc-h { margin-top: 2px; font-size: 14px; font-weight: 700; }
+.tc-li { position: relative; padding-inline-start: 14px; }
+.tc-li::before { content: '•'; position: absolute; inset-inline-start: 2px; opacity: .7; }
 .tc-status { align-self: flex-start; color: var(--c-muted-fg); font-size: 13px; }
 .tc-error { color: var(--c-error); font-size: 13px; }
 
