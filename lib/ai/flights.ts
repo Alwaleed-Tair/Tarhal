@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 export type FlightCard = {
   id: string; flightNumber: string; from: string; to: string;
-  departureTime: string; arrivalTime: string; lowestPrice: number; availableSeats: number;
+  airline: string; departureTime: string; arrivalTime: string; lowestPrice: number; availableSeats: number;
 };
 
 // Same day window the existing /api/flights/search uses (UTC day).
@@ -15,7 +15,7 @@ export async function findFlights(from: string, to: string, date: string): Promi
       from: from.toUpperCase(), to: to.toUpperCase(),
       departureTime: { gte: new Date(`${date}T00:00:00.000Z`), lt: new Date(`${date}T23:59:59.999Z`) },
     },
-    include: { seats: { where: { status: 'AVAILABLE' } } },
+    include: { airline: true, seats: { where: { status: 'AVAILABLE' } } },
     orderBy: { departureTime: 'asc' },
     take: 5,
   });
@@ -23,7 +23,7 @@ export async function findFlights(from: string, to: string, date: string): Promi
     const base = Number(f.basePrice);
     const prices = f.seats.map((s) => base * Number(s.priceMultiplier));
     return {
-      id: f.id, flightNumber: f.flightNumber, from: f.from, to: f.to,
+      id: f.id, flightNumber: f.flightNumber, from: f.from, to: f.to, airline: f.airline?.name ?? '',
       departureTime: f.departureTime.toISOString(), arrivalTime: f.arrivalTime.toISOString(),
       lowestPrice: Math.round(prices.length ? Math.min(...prices) : base), availableSeats: f.seats.length,
     };
@@ -46,8 +46,8 @@ export function flightTool(cards: FlightCard[]) {
         try {
           const found = await findFlights(from, to, date);
           cards.push(...found);
-          return { count: found.length, flights: found.map((f) => ({ flightNumber: f.flightNumber, departs: f.departureTime, lowestPriceSAR: f.lowestPrice, seatsLeft: f.availableSeats })) };
-        } catch { return { error: 'Flight search is unavailable right now' }; }
+          return { count: found.length, flights: found.map((f) => ({ flightNumber: f.flightNumber, airline: f.airline, departs: f.departureTime, lowestPriceSAR: f.lowestPrice, seatsLeft: f.availableSeats })) };
+        } catch (e) { console.error('[ai] searchFlights failed:', e instanceof Error ? e.message.split('\n').pop() : e); return { error: 'Flight search is unavailable right now' }; }
       },
     }),
   };

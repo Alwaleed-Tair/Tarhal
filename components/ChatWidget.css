@@ -1,0 +1,70 @@
+/* Chat widget styling, taken from Omar's admin design (tokens, radius, fonts, camel icon).
+   Variables are scoped to .tarhal-chat so they never leak into the rest of the app. */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap');
+
+.tarhal-chat {
+  --c-foreground: hsl(211 36% 30%);
+  --c-background: hsl(218 36% 94%);
+  --c-card: hsl(218 34% 97%);
+  --c-border: hsl(214 28% 84%);
+  --c-input: hsl(214 28% 82%);
+  --c-primary: hsl(216 86% 53%);
+  --c-primary-fg: #fff;
+  --c-muted: hsl(216 25% 89%);
+  --c-muted-fg: hsl(215 22% 42%);
+  --c-header: hsl(216 63% 12%);
+  --c-error: hsl(2 72% 55%);
+  position: fixed; z-index: 1000; bottom: 24px; inset-inline-end: 24px;
+  font-family: 'DM Sans', 'Noto Sans Arabic', system-ui, sans-serif; color: var(--c-foreground);
+}
+.tarhal-chat * { box-sizing: border-box; }
+.tarhal-chat button, .tarhal-chat input { font: inherit; }
+.tarhal-chat :is(button, input):focus-visible { outline: 3px solid var(--c-primary); outline-offset: 3px; }
+
+.tc-launcher { display: flex; align-items: center; gap: 11px; margin-inline-start: auto; min-height: 46px; padding: 9px 14px; border: 1px solid hsl(213 55% 72% / .35); border-radius: 14px; background: linear-gradient(145deg, #244e7c, #4f8dbe); color: #fff; font-weight: 700; cursor: pointer; box-shadow: 0 8px 22px #06172d45; }
+.tc-launcher:hover { filter: brightness(1.08); }
+.tc-logo { width: 27px; height: 27px; object-fit: cover; border-radius: 50%; background: #fff; }
+.tc-panel-logo { width: 34px; height: 34px; flex: 0 0 auto; object-fit: cover; border-radius: 50%; background: #fff; }
+
+.tc-panel { width: min(370px, calc(100vw - 32px)); height: min(610px, calc(100dvh - 120px)); display: flex; flex-direction: column; overflow: hidden; margin-bottom: 12px; border: 1px solid var(--c-border); border-radius: 18px; background: var(--c-card); box-shadow: 0 18px 56px #06172d55; }
+.tc-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: var(--c-header); color: #fff; }
+.tc-heading { min-width: 0; flex: 1; }
+.tc-heading strong, .tc-heading span { display: block; }
+.tc-heading strong { font-size: 14px; }
+.tc-heading span { margin-top: 3px; color: #d7e3f3; font-size: 11px; }
+.tc-close { display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 9px; background: transparent; color: #fff; font-size: 20px; cursor: pointer; }
+.tc-close:hover { background: #ffffff20; }
+
+.tc-messages { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 16px; }
+.tc-msg { max-width: 88%; display: flex; flex-direction: column; gap: 6px; }
+.tc-msg.user { align-self: flex-end; }
+.tc-msg.assistant { align-self: flex-start; }
+.tc-bubble { padding: 10px 12px; border-radius: 14px; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.tc-msg.assistant .tc-bubble { border-end-start-radius: 4px; background: var(--c-muted); color: var(--c-foreground); }
+.tc-msg.user .tc-bubble { border-end-end-radius: 4px; background: var(--c-primary); color: var(--c-primary-fg); }
+.tc-gap { height: 8px; }
+.tc-h { margin-top: 2px; font-size: 14px; font-weight: 700; }
+.tc-li { position: relative; padding-inline-start: 14px; }
+.tc-li::before { content: '•'; position: absolute; inset-inline-start: 2px; opacity: .7; }
+.tc-status { align-self: flex-start; color: var(--c-muted-fg); font-size: 13px; }
+.tc-error { color: var(--c-error); font-size: 13px; }
+
+.tc-card { padding: 10px 12px; border: 1px solid var(--c-border); border-radius: 12px; background: var(--c-card); font-size: 12px; line-height: 1.5; }
+.tc-card strong { display: block; font-size: 13px; color: var(--c-foreground); }
+.tc-card .tc-price { margin-top: 2px; font-weight: 700; color: var(--c-primary); }
+
+.tc-quick { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 12px; }
+.tc-quick button { border: 1px solid var(--c-border); border-radius: 999px; padding: 6px 10px; background: var(--c-background); color: var(--c-foreground); font-size: 12px; cursor: pointer; }
+.tc-quick button:hover { border-color: var(--c-primary); }
+
+.tc-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--c-border); }
+.tc-input { min-width: 0; flex: 1; height: 40px; padding: 8px 11px; border: 1px solid var(--c-input); border-radius: 10px; background: var(--c-background); color: var(--c-foreground); }
+.tc-send { display: grid; place-items: center; width: 42px; border: 0; border-radius: 10px; background: var(--c-primary); color: var(--c-primary-fg); cursor: pointer; }
+.tc-send:disabled { cursor: not-allowed; opacity: .55; }
+
+@media (max-width: 640px) {
+  .tarhal-chat { bottom: 16px; inset-inline-end: 16px; }
+  .tc-launcher { width: 52px; height: 52px; padding: 0; justify-content: center; border-radius: 50%; }
+  .tc-launcher span { display: none; }
+  .tc-panel { width: calc(100vw - 32px); }
+}
