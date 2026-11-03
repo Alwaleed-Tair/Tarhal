@@ -45,7 +45,7 @@ export function catalogTools(hotels: HotelCard[], cars: CarCard[]) {
           const found = await findHotels(args);
           hotels.push(...found);
           return { count: found.length, hotels: found.map(({ imageUrl, id, ...h }) => h) };
-        } catch { return { error: 'Tarhal hotel data is unavailable right now' }; }
+        } catch (e) { console.error('[ai] searchHotels failed:', e instanceof Error ? e.message.split('\n').pop() : e); return { error: 'Tarhal hotel data is unavailable right now' }; }
       },
     }),
     searchCars: tool({
@@ -56,7 +56,7 @@ export function catalogTools(hotels: HotelCard[], cars: CarCard[]) {
           const found = await findCars(args);
           cars.push(...found);
           return { count: found.length, cars: found.map(({ imageUrl, id, ...c }) => c) };
-        } catch { return { error: 'Tarhal car data is unavailable right now' }; }
+        } catch (e) { console.error('[ai] searchCars failed:', e instanceof Error ? e.message.split('\n').pop() : e); return { error: 'Tarhal car data is unavailable right now' }; }
       },
     }),
   };

@@ -130,6 +130,7 @@ describe('POST /api/ai/chat end to end', () => {
     assert.deepEqual(body.hotels.map((h: any) => h.name).sort(), ['Budget Stay', 'Corniche Inn']);
     assert.equal(body.hotels[0].name, 'Corniche Inn'); // best rating first
     assert.equal(body.searchedWeb, false);
+    assert.deepEqual(body.toolsUsed, ['searchHotels']);
     assert.equal(webRequests.length, w);
   });
   it('returns only available cars within the price limit', async () => {
@@ -142,6 +143,7 @@ describe('POST /api/ai/chat end to end', () => {
     const body = await (await call(user('restaurants in Al-Balad'))).json();
     assert.equal(body.hotels.length, 0);
     assert.equal(body.searchedWeb, true);
+    assert.deepEqual(body.toolsUsed, ['searchHotels', 'webSearch']);
     const w = webRequests.at(-1);
     assert.equal(w.headers['x-api-key'], 'test-key');
     assert.equal(w.body.tools[0].type, 'web_search_20250305');

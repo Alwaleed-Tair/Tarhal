@@ -59,7 +59,7 @@ export function webTool(used: WebSource[]) {
           if (!r.notes) return { error: 'No useful results' };
           for (const s of r.sources) if (!used.some((u) => u.url === s.url)) used.push(s);
           return { notes: r.notes, sources: r.sources.map((s) => s.title) };
-        } catch { return { error: 'Web search is unavailable right now; answer from general knowledge and say it is unverified' }; }
+        } catch (e) { console.error('[ai] webSearch failed:', e instanceof Error ? e.message : e); return { error: 'Web search is unavailable right now; answer from general knowledge and say it is unverified' }; }
       },
     }),
   };

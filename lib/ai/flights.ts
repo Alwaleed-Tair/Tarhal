@@ -47,7 +47,7 @@ export function flightTool(cards: FlightCard[]) {
           const found = await findFlights(from, to, date);
           cards.push(...found);
           return { count: found.length, flights: found.map((f) => ({ flightNumber: f.flightNumber, airline: f.airline, departs: f.departureTime, lowestPriceSAR: f.lowestPrice, seatsLeft: f.availableSeats })) };
-        } catch { return { error: 'Flight search is unavailable right now' }; }
+        } catch (e) { console.error('[ai] searchFlights failed:', e instanceof Error ? e.message.split('\n').pop() : e); return { error: 'Flight search is unavailable right now' }; }
       },
     }),
   };
