@@ -1,10 +1,13 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 
-type Card = { id: string; flightNumber: string; from: string; to: string; departureTime: string; lowestPrice: number; availableSeats: number };
-type Msg = { role: 'user' | 'assistant'; content: string; flights?: Card[] };
+type Card = { id: string; flightNumber: string; airline?: string; from: string; to: string; departureTime: string; lowestPrice: number; availableSeats: number };
+type Hotel = { id: string; name: string; city: string; pricePerNight: number; rating: number; roomType: string };
+type Car = { id: string; make: string; model: string; year: number; seats: number; category: string; city: string; pricePerDay: number };
+type Msg = { role: 'user' | 'assistant'; content: string; flights?: Card[]; hotels?: Hotel[]; cars?: Car[] };
 
 const MAX_CHARS = 1000;
+const cardStyle = { border: '1px solid #cbd5e1', borderRadius: 10, padding: 10, marginTop: 6, background: '#fff', fontSize: 13 } as const;
 const HELLO: Msg = { role: 'assistant', content: 'مرحباً! أنا مساعد ترحال. اسألني عن الرحلات والوجهات.\nHi! Ask me about flights and destinations.' };
 
 export default function ChatWidget() {
@@ -29,7 +32,7 @@ export default function ChatWidget() {
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data?.success) throw new Error(data?.error || 'Request failed');
-      setMsgs([...next, { role: 'assistant', content: data.reply, flights: data.flights }]);
+      setMsgs([...next, { role: 'assistant', content: data.reply, flights: data.flights, hotels: data.hotels, cars: data.cars }]);
     } catch (e) {
       setError(e instanceof Error && e.message ? e.message : 'Something went wrong. Please try again.');
     } finally { setLoading(false); }
@@ -51,9 +54,23 @@ export default function ChatWidget() {
                 <div dir="auto" style={{ background: m.role === 'user' ? '#0f766e' : '#f1f5f9', color: m.role === 'user' ? '#fff' : '#111', padding: '8px 12px', borderRadius: 12, whiteSpace: 'pre-wrap', fontSize: 14, lineHeight: 1.5 }}>{m.content}</div>
                 {m.flights?.map((f) => (
                   <div key={f.id} style={{ border: '1px solid #cbd5e1', borderRadius: 10, padding: 10, marginTop: 6, background: '#fff', fontSize: 13 }}>
-                    <div style={{ fontWeight: 600 }}>{f.from} → {f.to} · {f.flightNumber}</div>
+                    <div style={{ fontWeight: 600 }}>{f.from} → {f.to} · {f.airline ? `${f.airline} ` : ''}{f.flightNumber}</div>
                     <div>{fmt(f.departureTime)}</div>
                     <div>From {f.lowestPrice} SAR · {f.availableSeats} {f.availableSeats === 1 ? 'seat' : 'seats'} left</div>
+                  </div>
+                ))}
+                {m.hotels?.map((h) => (
+                  <div key={h.id} style={cardStyle}>
+                    <div style={{ fontWeight: 600 }}>{h.name} · {h.city}</div>
+                    <div>★ {h.rating} · {h.roomType}</div>
+                    <div>{h.pricePerNight} SAR / night</div>
+                  </div>
+                ))}
+                {m.cars?.map((c) => (
+                  <div key={c.id} style={cardStyle}>
+                    <div style={{ fontWeight: 600 }}>{c.make} {c.model} {c.year} · {c.city}</div>
+                    <div>{c.category} · {c.seats} seats</div>
+                    <div>{c.pricePerDay} SAR / day</div>
                   </div>
                 ))}
               </div>
