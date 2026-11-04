@@ -107,3 +107,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Failed to process booking" }, { status: 500 });
   }
 }
+
+export async function GET(request: Request) {
+  try {
+    // TODO (5/11): Mohammed, replace this query parameter with your getCurrentUser() session utility once you push it.
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const bookings = await prisma.booking.findMany({
+      where: { userId: userId },
+      include: { flight: true, travelers: true }
+    });
+
+    return NextResponse.json({ success: true, data: bookings }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to fetch bookings" }, { status: 500 });
+  }
+}
