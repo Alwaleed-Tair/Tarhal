@@ -1,0 +1,82 @@
+[
+  {
+    "id": "10000000-0000-4000-8000-000000000001",
+    "name": "Tarhal Palm Hotel (Sample)",
+    "city": "Riyadh",
+    "address": "King Fahd Road, Riyadh",
+    "pricePerNight": 320,
+    "rating": 4.2,
+    "roomType": "Single",
+    "imageUrl": "/images/hotels/palm.jpg"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000002",
+    "name": "Tarhal Boulevard Hotel (Sample)",
+    "city": "Riyadh",
+    "address": "Olaya Street, Riyadh",
+    "pricePerNight": 510,
+    "rating": 4.6,
+    "roomType": "Suite",
+    "imageUrl": "/images/hotels/boulevard.jpg"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000003",
+    "name": "Tarhal Coral Hotel (Sample)",
+    "city": "Jeddah",
+    "address": "Corniche Road, Jeddah",
+    "pricePerNight": 280,
+    "rating": 3.8,
+    "roomType": "Double",
+    "imageUrl": "/images/hotels/coral.jpg"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000004",
+    "name": "Tarhal Waterfront Hotel (Sample)",
+    "city": "Dammam",
+    "address": "King Abdullah Road, Dammam",
+    "pricePerNight": 360,
+    "rating": 4.1,
+    "roomType": "Twin",
+    "imageUrl": "/images/hotels/waterfront.jpg"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000005",
+    "name": "Tarhal Garden Hotel (Sample)",
+    "city": "Madinah",
+    "address": "King Faisal Road, Madinah",
+    "pricePerNight": 450,
+    "rating": 4.5,
+    "roomType": "Family",
+    "imageUrl": "/images/hotels/garden.jpg"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000006",
+    "name": "Tarhal Mountain Hotel (Sample)",
+    "city": "Abha",
+    "address": "Al Sooda Road, Abha",
+    "pricePerNight": 210,
+    "rating": 3.5,
+    "roomType": "Double",
+    "imageUrl": "/images/hotels/mountain.jpg"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000007",
+    "name": "Tarhal Oasis Hotel (Sample)",
+    "city": "AlUla",
+    "address": "Old Town, AlUla",
+    "pricePerNight": 680,
+    "rating": 4.8,
+    "roomType": "Suite",
+    "imageUrl": "/images/hotels/oasis.jpg"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000008",
+    "name": "Tarhal Heritage Hotel (Sample)",
+    "city": "Taif",
+    "address": "Al Shafa, Taif",
+    "pricePerNight": 190,
+    "rating": 3.2,
+    "roomType": "Single",
+    "imageUrl": "/images/hotels/heritage.jpg"
+  }
+]

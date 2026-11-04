@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="820" viewBox="0 0 1000 820" role="img" aria-labelledby="title description">
+  <title id="title">Tarhal authentication flow — Mohammed Alasad</title>
+  <desc id="description">Registration: Landing, Register form with name phone email password, validation, account created, redirect to dashboard after successful sign-in. Login: Login form, validate credentials, session created, redirect to dashboard. Invalid input stays on the form. Failed sign-in after registration returns to login and preserves the account.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#526277"/></marker>
+    <style>
+      text { font-family: Arial, sans-serif; fill: #192b42; }
+      .box { fill: #fff; stroke: #a8b8cb; stroke-width: 1.5; }
+      .label { font-size: 20px; text-anchor: middle; font-weight: 600; }
+      .detail { font-size: 16px; text-anchor: middle; fill: #485c74; }
+      .line { fill: none; stroke: #526277; stroke-width: 2; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1000" height="820" fill="#f3f6fa"/>
+  <text x="40" y="48" font-size="28" font-weight="700">Tarhal • Authentication flow</text>
+  <text x="40" y="78" font-size="16">Mohammed Alasad | Project 2 | Planned MVP behavior</text>
+  <text x="270" y="128" class="label">REGISTER</text>
+  <text x="730" y="128" class="label">LOGIN</text>
+
+  <rect x="70" y="150" width="400" height="60" rx="12" class="box"/>
+  <text x="270" y="188" class="label">Landing</text>
+  <path d="M270 210 V238" class="line"/>
+  <rect x="70" y="250" width="400" height="80" rx="12" class="box"/>
+  <text x="270" y="282" class="label">Register form</text>
+  <text x="270" y="309" class="detail">name, phone, email, password</text>
+  <path d="M270 330 V358" class="line"/>
+  <rect x="70" y="370" width="400" height="80" rx="12" class="box"/>
+  <text x="270" y="402" class="label">Validation</text>
+  <text x="270" y="429" class="detail">Server checks fields and unique email</text>
+  <path d="M270 450 V478" class="line"/>
+  <rect x="70" y="490" width="400" height="100" rx="12" class="box"/>
+  <text x="270" y="520" class="label">Account created</text>
+  <text x="270" y="547" class="detail">Store password hash; role = traveler</text>
+  <text x="270" y="572" class="detail">Then Credentials sign-in → session</text>
+  <path d="M270 590 V618" class="line"/>
+  <rect x="70" y="630" width="400" height="60" rx="12" class="box"/>
+  <text x="270" y="668" class="label">Redirect to dashboard</text>
+
+  <rect x="530" y="250" width="400" height="80" rx="12" class="box"/>
+  <text x="730" y="282" class="label">Login form</text>
+  <text x="730" y="309" class="detail">email, password</text>
+  <path d="M730 330 V358" class="line"/>
+  <rect x="530" y="370" width="400" height="80" rx="12" class="box"/>
+  <text x="730" y="402" class="label">Validate credentials</text>
+  <text x="730" y="429" class="detail">Find account; verify password hash</text>
+  <path d="M730 450 V478" class="line"/>
+  <rect x="530" y="490" width="400" height="100" rx="12" class="box"/>
+  <text x="730" y="532" class="label">Session created</text>
+  <text x="730" y="562" class="detail">NextAuth Credentials / JWT session</text>
+  <path d="M730 590 V618" class="line"/>
+  <rect x="530" y="630" width="400" height="60" rx="12" class="box"/>
+  <text x="730" y="668" class="label">Redirect to dashboard</text>
+
+  <text x="70" y="732" font-size="16" font-weight="600">Failure paths</text>
+  <text x="70" y="758" font-size="16">Invalid fields / credentials → stay on form with an error; no successful redirect.</text>
+  <text x="70" y="784" font-size="16">Sign-in fails after registration → keep the account and return to login; dashboard requires a session.</text>
+</svg>
