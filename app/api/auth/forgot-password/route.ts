@@ -1,9 +1,11 @@
+import { rejectCrossOrigin } from '../../../../lib/auth-http.ts';
 import { authOptions, authResponse, authError, jsonObject, validEmail } from '../../../../lib/auth-http.ts';
 import { resetSecret } from '../../../../lib/password-reset.ts';
 
 export const OPTIONS = authOptions;
 
 export async function POST(request: Request) {
+  const denied = rejectCrossOrigin(request); if (denied) return denied;
   const body = await jsonObject(request);
   if (!body) return authError('INVALID_BODY', 'Send a valid JSON object with your email address.', 400);
   if (!validEmail(body.email)) {
