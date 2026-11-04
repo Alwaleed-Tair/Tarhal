@@ -14,6 +14,7 @@ test('inclusive decimal prices and combined hotel filters', () => {
   });
   assert.deepEqual(carFilters(new URLSearchParams('category=SUV&minPrice=0')), {
     pricePerDay: { gte: '0' }, category: { equals: 'SUV', mode: 'insensitive' },
+    isAvailable: true, city: undefined, make: undefined, seats: undefined, year: undefined,
   });
 });
 
@@ -76,3 +77,12 @@ for (const query of ['page=0', 'page=-1', 'page=1.5', 'page=1e2', 'page=', 'page
     assert.throws(() => catalogPagination(new URLSearchParams(query)), FilterError);
   });
 }
+
+test('car filters combine inventory, location and vehicle requirements', () => {
+  const where = carFilters(new URLSearchParams('city=Riyadh&make=Toyota&minSeats=5&minYear=2022&transmission=AUTOMATIC'));
+  assert.equal(where.isAvailable, true);
+  assert.deepEqual(where.seats, { gte: 5 });
+  assert.deepEqual(where.year, { gte: 2022 });
+  assert.equal(where.transmission, 'AUTOMATIC');
+  for (const query of ['minSeats=0', 'minSeats=1.5', 'minYear=NaN', 'transmission=auto', 'city=a&city=b']) assert.throws(() => carFilters(new URLSearchParams(query)), FilterError);
+});

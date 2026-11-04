@@ -1,3 +1,5 @@
+import { issueSession, SESSION_COOKIE, sessionCookieOptions, sessionSecret } from '../../../../lib/session-token.ts';
+import { rejectCrossOrigin } from '../../../../lib/auth-http.ts';
 import { prisma } from '../../../../lib/prisma.ts';
 import { hashPassword, verifyPassword } from '../../../../lib/passwords.ts';
 import { authOptions, authResponse, authError, jsonObject, validEmail } from '../../../../lib/auth-http.ts';
@@ -5,6 +7,7 @@ import { authOptions, authResponse, authError, jsonObject, validEmail } from '..
 export const OPTIONS = authOptions;
 
 export async function POST(request: Request) {
+  const denied = rejectCrossOrigin(request); if (denied) return denied;
   const body = await jsonObject(request);
   if (!body) return authError('INVALID_BODY', 'Send a valid JSON object with your sign-in details.', 400);
   if (body.email !== undefined && body.username !== undefined) {
@@ -22,21 +25,26 @@ export async function POST(request: Request) {
   try {
     // Names are not unique; shared names must sign in using their unique email.
     const users = await prisma.user.findMany({
-      where: body.email !== undefined ? { email: body.email as string } : { name: (body.username as string).trim() },
+      where: body.email !== undefined ? { email: (body.email as string).toLowerCase() } : { name: (body.username as string).trim() },
       take: 2,
     });
     const user = users.length === 1 ? users[0] : null;
     if (!user || !await verifyPassword(body.password, user.password)) {
       return authError('INVALID_CREDENTIALS', 'We could not sign you in. Check your email or username and password. Try your email if your name is shared, or use password recovery.', 401);
     }
+    const secret = sessionSecret();
+    let currentPassword = user.password;
     if (!user.password.startsWith('scrypt$')) {
+      currentPassword = await hashPassword(body.password);
       const upgraded = await prisma.user.updateMany({
         where: { id: user.id, password: user.password },
-        data: { password: await hashPassword(body.password) },
+        data: { password: currentPassword },
       });
       if (upgraded.count !== 1) return authError('CREDENTIALS_CHANGED', 'Your sign-in details changed during this request. Sign in again with your current password.', 401);
     }
-    return authResponse({ success: true, message: 'Login successful!', user: { id: user.id, name: user.name } });
+    const response = authResponse({ success: true, message: 'Login successful!', user: { id: user.id, name: user.name, role: user.role } });
+    response.cookies.set(SESSION_COOKIE, issueSession({ id: user.id, password: currentPassword }, secret), sessionCookieOptions());
+    return response;
   } catch {
     return authError('LOGIN_UNAVAILABLE', 'We could not sign you in right now. Please try again later.', 500);
   }
