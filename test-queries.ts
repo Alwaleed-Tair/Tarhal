@@ -36,7 +36,7 @@ async function runPerformanceTests() {
   console.time('Car Rental Query Time');
   const insuredCars = await prisma.car.findMany({
     where: {
-      insuranceOption: true,
+      insurancePricePerDay: { gt: 0 },
     },
   });
   console.timeEnd('Car Rental Query Time');

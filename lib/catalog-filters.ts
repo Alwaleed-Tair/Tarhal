@@ -60,8 +60,20 @@ export function hotelFilters(params: URLSearchParams): Prisma.HotelWhereInput {
 }
 
 export function carFilters(params: URLSearchParams): Prisma.CarWhereInput {
-  checkKeys(params, ['minPrice', 'maxPrice', 'category']);
-  return { pricePerDay: priceRange(params), category: textFilter(params, 'category') };
+  checkKeys(params, ['minPrice', 'maxPrice', 'category', 'city', 'make', 'minSeats', 'minYear', 'transmission']);
+  function minimum(key: string, max: number) {
+    const raw = read(params, key);
+    if (raw === undefined) return undefined;
+    if (!/^[1-9]\d*$/.test(raw) || Number(raw) > max) throw new FilterError(`${key} must be a positive whole number up to ${max}`);
+    return { gte: Number(raw) };
+  }
+  const transmission = read(params, 'transmission');
+  if (transmission !== undefined && !['AUTOMATIC', 'MANUAL'].includes(transmission)) throw new FilterError('transmission must be AUTOMATIC or MANUAL');
+  return { pricePerDay: priceRange(params), category: textFilter(params, 'category'),
+    isAvailable: true, city: textFilter(params, 'city'), make: textFilter(params, 'make'),
+    seats: minimum('minSeats', 100), year: minimum('minYear', 9999),
+    ...(transmission !== undefined && { transmission: transmission as 'AUTOMATIC' | 'MANUAL' }),
+  };
 }
 
 export function catalogPagination(params: URLSearchParams) {

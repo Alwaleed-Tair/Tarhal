@@ -14,6 +14,7 @@ if (!['localhost', '127.0.0.1', '[::1]'].includes(connection.hostname)) {
 const schema = 'tarhal_test_' + randomUUID().replaceAll('-', '');
 connection.searchParams.set('schema', schema);
 process.env.DATABASE_URL = connection.toString();
+process.env.SESSION_SECRET = 'integration-session-secret-'.repeat(3);
 process.env.PASSWORD_RESET_SECRET = 'integration-test-only-secret-'.repeat(2);
 process.env.PASSWORD_RESET_SUPPORT_EMAIL = 'support@example.test';
 const { prisma } = await import('../lib/prisma.ts');
@@ -278,7 +279,8 @@ describe('authentication and support-assisted recovery', () => {
     try {
       assert.equal((await forgot.POST(post({ email: 'traveler@tarhal.com' }))).status, 503);
       assert.equal((await reset.POST(post({ token: 'abc', newPassword }))).status, 503);
-    } finally { process.env.PASSWORD_RESET_SECRET = saved; }
+    } finally { process.env.SESSION_SECRET = 'integration-session-secret-'.repeat(3);
+process.env.PASSWORD_RESET_SECRET = saved; }
   });
   it('rejects expired, tampered and nonexistent-user tokens', async () => {
     const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });

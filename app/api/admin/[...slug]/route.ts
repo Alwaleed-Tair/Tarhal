@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFlights, createFlightWithSeats, updateFlight, getAirlines, getBookings } from '../../../../lib/db/queries';
 
-// Helper to check admin role (simplified for demo)
-function isAdmin(req: NextRequest) {
-  // In a real app, verify the token/session and user role
-  const role = req.headers.get('x-user-role');
-  return role === 'ADMIN';
-}
+import { getCurrentUser } from '../../../../lib/auth.ts';
+import { Role } from '@prisma/client';
+async function isAdmin(req: NextRequest) { return (await getCurrentUser(req))?.role === Role.ADMIN; }
 
 export async function GET(req: NextRequest) {
-  if (!isAdmin(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!await isAdmin(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   
   const { pathname } = new URL(req.url);
 
@@ -32,7 +29,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!isAdmin(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!await isAdmin(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
   const { flightNumber, airlineId, from, to, departureTime, arrivalTime, basePrice, seats } = body;
@@ -53,7 +50,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  if (!isAdmin(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!await isAdmin(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const url = new URL(req.url);
   const id = url.pathname.split('/').pop();

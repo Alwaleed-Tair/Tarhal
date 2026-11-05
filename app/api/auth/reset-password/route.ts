@@ -1,3 +1,4 @@
+import { rejectCrossOrigin } from '../../../../lib/auth-http.ts';
 import { prisma } from '../../../../lib/prisma.ts';
 import { authOptions, authResponse, authError, jsonObject } from '../../../../lib/auth-http.ts';
 import { hashPassword, validNewPassword } from '../../../../lib/passwords.ts';
@@ -10,6 +11,7 @@ function invalidToken() {
 }
 
 export async function POST(request: Request) {
+  const denied = rejectCrossOrigin(request); if (denied) return denied;
   const body = await jsonObject(request);
   if (!body) return authError('INVALID_BODY', 'Send a valid JSON object with your reset token and new password.', 400);
   if (typeof body.token !== 'string' || !body.token.trim()) {
