@@ -1,0 +1,6 @@
+The supplied Tarhal logo is installed as public/tarhal-logo.png, with its dark background removed.
+
+To replace it, overwrite public/tarhal-logo.png with your own image.
+If you use another filename, update logoSrc in src/config/branding.ts.
+The image is shown in the sidebar and mobile navigation. If it is missing, the dashboard shows a Tarhal text mark.
+The camel icon used by the chatbot is public/tarhal-camel.png.
