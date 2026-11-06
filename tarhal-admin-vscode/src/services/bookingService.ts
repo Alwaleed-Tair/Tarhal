@@ -5,19 +5,29 @@ export type CreateBookingPayload = { userId: string; flightId: string | number; 
 
 export type BookingRow = { id: string; type: string; customer: string; date: string; price: number; status: string };
 
+const asRaw = (v: unknown): Raw => (v && typeof v === 'object' ? (v as Raw) : {});
+
+// Real shape from GET /api/admin/bookings: { id, isActive, paymentStatus: PENDING|PAID|FAILED|REFUNDED, totalPrice,
+// createdAt, user: { name, email }, flight: { flightNumber, airline: { name } } }. Flat demo-style fields still work.
+function bookingStatus(r: Raw): string {
+  const explicit = pick(r, 'status');
+  if (explicit !== undefined) return str(explicit);
+  if (r.isActive === false) return 'Cancelled';
+  return str(r.paymentStatus).toUpperCase() === 'PAID' ? 'Confirmed' : 'Pending';
+}
+
 const toBookingRow = (r: Raw): BookingRow => ({
   id: str(pick(r, 'id', 'bookingId', 'reference')),
   type: str(pick(r, 'type'), 'flight'),
-  customer: str(pick(r, 'customer', 'customerName', 'userName', 'userId')),
+  customer: str(pick(r, 'customer', 'customerName', 'userName')) || str(asRaw(r.user).name) || str(asRaw(r.user).email) || str(r.userId),
   date: str(pick(r, 'date', 'createdAt')),
   price: num(pick(r, 'totalPrice', 'price', 'amount')),
-  status: str(pick(r, 'status'), 'Pending'),
+  status: bookingStatus(r),
 });
 
 export const bookingService = {
   /**
-   * INTEGRATION POINT [Saud]: GET /api/admin/bookings (admin session required). Wire it into pages/bookings.tsx
-   * with the same pattern as admin-resource.tsx (useLiveData + demo fallback) once the response shape is confirmed.
+   * GET /api/admin/bookings (admin session required). Used by pages/bookings.tsx (useLiveData + demo fallback).
    */
   async list(): Promise<BookingRow[]> {
     const { data } = await api.get<Envelope<Raw[]>>('/admin/bookings');

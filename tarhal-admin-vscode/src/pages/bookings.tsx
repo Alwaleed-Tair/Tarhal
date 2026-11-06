@@ -10,6 +10,8 @@ import { Money } from '@/components/money';
 import { StatusBadge } from '@/components/status-badge';
 import { TableSkeleton } from '@/components/skeleton';
 import { useMockStatus } from '@/hooks/use-mock-loading';
+import { useLiveData } from '@/hooks/use-live-data';
+import { bookingService } from '@/services/bookingService';
 import type { Booking, BookingStatus, ServiceFilter } from '@/data/demoData';
 import { useFormat, useT } from '@/i18n/use-i18n';
 import { statusLabel, statusParam } from '@/i18n/labels';
@@ -22,12 +24,17 @@ const FILTERS: ServiceFilter[] = ['all', 'flight', 'hotel', 'car'];
 export default function Bookings() {
   const t = useT();
   const format = useFormat();
-  // TODO / INTEGRATION POINT
-  // INTEGRATION POINT: Connect Saud's Flight & Booking APIs here
-  const { bookings } = useDemoState();
+  // Live data from GET /api/admin/bookings; if the server is offline or the admin session is missing,
+  // the page falls back to the demo store (and shows the "Demo data" badge).
+  const { bookings: demoBookings } = useDemoState();
+  const { data: liveBookings, status: liveStatus, offline, reason } = useLiveData<Booking[]>(
+    () => bookingService.list() as Promise<Booking[]>, () => demoBookings, 'bookings');
+  // Offline: the reactive demo store (status edits update the table). Online: the server's rows.
+  const bookings = offline ? demoBookings : liveBookings;
   const [filter, setFilter] = useState<ServiceFilter>('all');
   const [query, setQuery] = useState('');
-  const { status: loadStatus, empty: forceEmpty, retry } = useMockStatus();
+  const { status: mockStatus, empty: forceEmpty, retry } = useMockStatus();
+  const loadStatus = liveStatus === 'loading' ? 'loading' : liveStatus === 'error' ? 'error' : mockStatus;
   const needle = query.trim().toLowerCase();
   const list = (forceEmpty ? [] : bookings).filter((row) =>
     (filter === 'all' || row.type === filter) &&
@@ -47,7 +54,7 @@ export default function Bookings() {
     { key: 'date', width: '19%', header: t('dateTime'), muted: true, cell: (row) => format.dateTime(row.date) },
     { key: 'price', width: '12%', header: t('totalPrice'), align: 'end', cell: (row) => <Money usd={row.price} /> },
     { key: 'status', width: '12%', header: t('status'), align: 'center', cell: (row) => <StatusBadge status={row.status} /> },
-    { key: 'actions', width: '18%', header: t('actions'), align: 'end', cell: (row) => (
+    { key: 'actions', width: '18%', header: t('actions'), align: 'end', cell: (row) => !offline ? <span className="text-sm text-muted-foreground">—</span> : (
       <select className="select-control" value={row.status} onChange={(event) => changeStatus(row.id, event.target.value as BookingStatus)} aria-label={`${t('status')} ${row.id}`} data-testid={`select-status-${row.id}`}>
         {STATUSES.map((status) => <option key={status} value={status}>{statusLabel(status, t)}</option>)}
       </select>
@@ -63,6 +70,7 @@ export default function Bookings() {
           subtitle={t('bookingsSubtitle')}
           badges={<>
             <ContextBadge>{t('recordsCount', { count: format.number(bookings.length) })}</ContextBadge>
+            {offline && <ContextBadge tone="warning">{t('demoBadge')} · {reason}</ContextBadge>}
             {pendingCount > 0 && <ContextBadge tone="warning">{t('pendingCount', { count: format.number(pendingCount) })}</ContextBadge>}
           </>}
           actions={

@@ -36,6 +36,10 @@ export function createFormatters(language: Language, currency: Currency = 'USD')
 
   return {
     number: (value: number) => numberFormat.format(value),
+    /** 4.6 -> "4.6" (one decimal, same digits as the rest of the page). */
+    rating: (value: number) => new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value),
+    /** 2024 -> "2024" (no thousands separator). */
+    year: (value: number) => String(value),
     /** USD amount (how data is stored) -> converted and formatted in the active currency. */
     currency: (usd: number) => money(usd * rate),
     /** USD -> display currency number, unformatted (used for chart scales). */

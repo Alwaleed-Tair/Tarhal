@@ -16,7 +16,7 @@ export default function Register() {
   const t = useT();
   const [, setLocation] = useLocation();
   const { isLoggedIn } = useAuth();
-  const form = useForm({ name: '', email: '', phone: '', dateOfBirth: '', password: '', confirmPassword: '', terms: false }, validateRegister);
+  const form = useForm({ name: '', email: '', phone: '', dateOfBirth: '', password: '', confirmPassword: '', terms: false as boolean }, validateRegister);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 

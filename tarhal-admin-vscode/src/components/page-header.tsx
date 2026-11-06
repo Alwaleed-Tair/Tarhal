@@ -8,7 +8,7 @@ function Breadcrumb({ section }: { section: string }) {
   const t = useT();
   return (
     <nav aria-label={t('breadcrumb')} className="breadcrumb">
-      <Link href="/">{t('breadcrumbAdmin')}</Link>
+      <Link href="/dashboard">{t('breadcrumbAdmin')}</Link>
       <ChevronRight size={13} className="rtl:rotate-180" aria-hidden="true" />
       <span aria-current="page">{section}</span>
     </nav>

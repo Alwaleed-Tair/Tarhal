@@ -4,6 +4,11 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import ChatAssistant from '@/components/chat-assistant';
 import ToastViewport from '@/components/toast-viewport';
 import { useDocumentSettings } from '@/hooks/use-document-settings';
+import Home from '@/pages/home';
+import Login from '@/pages/login';
+import Register from '@/pages/register';
+import Stays from '@/pages/stays';
+import Rentals from '@/pages/rentals';
 import Dashboard from '@/pages/dashboard';
 import AdminResource from '@/pages/admin-resource';
 import Bookings from '@/pages/bookings';
@@ -21,7 +26,14 @@ function Routes() {
   return (
     <RoutedErrorBoundary>
       <Switch>
-        <Route path="/" component={Dashboard} />
+        {/* Public site */}
+        <Route path="/" component={Home} />
+        <Route path="/login" component={Login} />
+        <Route path="/register" component={Register} />
+        <Route path="/stays" component={Stays} />
+        <Route path="/rentals" component={Rentals} />
+        {/* Admin (see routes.admin in config/routes.ts) */}
+        <Route path="/dashboard" component={Dashboard} />
         <Route path="/flights">
           <AdminResource kind="flight" />
         </Route>

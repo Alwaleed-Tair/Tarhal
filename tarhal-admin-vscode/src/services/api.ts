@@ -81,8 +81,10 @@ export function assertSuccess<T extends { success?: boolean }>(body: T): T {
 }
 
 /** Accepts `data: [...]` as well as `data: { items | results | rows: [...] }`. */
-export function toList(body: { data?: unknown }): Raw[] {
-  const d = body?.data as unknown;
+export function toList(body: unknown): Raw[] {
+  // The admin endpoints (/admin/flights, /admin/airlines, /admin/bookings) return a bare array, not { data: [...] }.
+  if (Array.isArray(body)) return body as Raw[];
+  const d = (body as { data?: unknown } | undefined)?.data as unknown;
   if (Array.isArray(d)) return d as Raw[];
   const o = (d ?? {}) as Raw;
   for (const k of ['items', 'results', 'rows', 'data']) if (Array.isArray(o[k])) return o[k] as Raw[];

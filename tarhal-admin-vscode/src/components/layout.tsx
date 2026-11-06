@@ -10,7 +10,7 @@ import { useDismiss } from '@/hooks/use-dismiss';
 
 // Main navigation items shown in the sidebar, mobile menu, and search suggestions.
 const navItems = [
-  { href: '/', key: 'dashboard' as const, icon: Gauge },
+  { href: '/dashboard', key: 'dashboard' as const, icon: Gauge },
   { href: '/flights', key: 'flights' as const, icon: Plane },
   { href: '/hotels', key: 'hotels' as const, icon: Hotel },
   { href: '/cars', key: 'cars' as const, icon: CarFront },
@@ -27,7 +27,7 @@ function Logo() {
   const [failed, setFailed] = useState(false);
   const t = useT();
   return (
-    <Link className="brand" href="/" aria-label={`${brand.name} — ${t('dashboard')}`} title={t('dashboard')}>
+    <Link className="brand" href="/dashboard" aria-label={`${brand.name} — ${t('dashboard')}`} title={t('dashboard')}>
       {failed
         ? <span className="brand-mark" aria-hidden="true">{brand.name[0]}</span>
         : <img src={brand.logoSrc} alt="" onError={() => setFailed(true)} />}
