@@ -1,3 +1,4 @@
+import { getCurrentUser } from '../../../lib/auth.ts';
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
 
@@ -5,8 +6,10 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     
-    // TODO (4/11): Mohammed, replace this body destructuring with your getCurrentUser() session utility once you push it.
-    const { userId, flightId, travelers } = body;
+    const user = await getCurrentUser();
+    if (!user) return NextResponse.json({ error: 'Login required' }, { status: 401 });
+    const userId = user.id;
+    const { flightId, travelers } = body;
 
     if (!userId || !flightId || !travelers || !Array.isArray(travelers) || travelers.length === 0) {
       return NextResponse.json({ error: "Missing required booking fields" }, { status: 400 });

@@ -1,32 +1,72 @@
 [
   {
     "id": "20000000-0000-4000-8000-000000000001",
+    "make": "Hyundai",
+    "model": "Accent",
+    "year": 2023,
+    "seats": 5,
     "category": "Economy",
+    "transmission": "AUTOMATIC",
+    "city": "Riyadh",
     "pricePerDay": 95,
-    "insuranceOption": false
+    "insurancePricePerDay": 20,
+    "isAvailable": true,
+    "imageUrl": "/images/cars/accent.jpg"
   },
   {
     "id": "20000000-0000-4000-8000-000000000002",
+    "make": "Toyota",
+    "model": "Corolla",
+    "year": 2024,
+    "seats": 5,
     "category": "Compact",
+    "transmission": "AUTOMATIC",
+    "city": "Jeddah",
     "pricePerDay": 130,
-    "insuranceOption": true
+    "insurancePricePerDay": 30,
+    "isAvailable": true,
+    "imageUrl": "/images/cars/corolla.jpg"
   },
   {
     "id": "20000000-0000-4000-8000-000000000003",
+    "make": "Toyota",
+    "model": "Camry",
+    "year": 2024,
+    "seats": 5,
     "category": "Sedan",
+    "transmission": "AUTOMATIC",
+    "city": "Riyadh",
     "pricePerDay": 180,
-    "insuranceOption": true
+    "insurancePricePerDay": 40,
+    "isAvailable": true,
+    "imageUrl": "/images/cars/camry.jpg"
   },
   {
     "id": "20000000-0000-4000-8000-000000000004",
+    "make": "Nissan",
+    "model": "Patrol",
+    "year": 2023,
+    "seats": 7,
     "category": "SUV",
+    "transmission": "AUTOMATIC",
+    "city": "Dammam",
     "pricePerDay": 290,
-    "insuranceOption": true
+    "insurancePricePerDay": 70,
+    "isAvailable": true,
+    "imageUrl": "/images/cars/patrol.jpg"
   },
   {
     "id": "20000000-0000-4000-8000-000000000005",
+    "make": "Mercedes-Benz",
+    "model": "S-Class",
+    "year": 2024,
+    "seats": 5,
     "category": "Luxury",
+    "transmission": "AUTOMATIC",
+    "city": "Riyadh",
     "pricePerDay": 650,
-    "insuranceOption": true
+    "insurancePricePerDay": 150,
+    "isAvailable": true,
+    "imageUrl": "/images/cars/s-class.jpg"
   }
 ]
