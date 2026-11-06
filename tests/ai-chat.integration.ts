@@ -157,11 +157,11 @@ describe('POST /api/ai/chat end to end', () => {
     assert.doesNotMatch(toolMsg.content, /https?:\/\//); // no raw URLs pushed at the model by default
   });
   it('forces a web search for visa/restaurant/weather questions before answering', async () => {
-    mode = 'text'; const w = webRequests.length;
+    mode = 'text'; const w = webRequests.length; const sent = requests.length;
     const body = await (await call(user('هل السعوديين يحتاجون فيزا لليابان؟ visa'))).json();
     assert.deepEqual(body.toolsUsed, ['webSearch']);
     assert.equal(webRequests.length, w + 1);
-    assert.deepEqual(requests.find((r: any) => JSON.stringify(r.messages).includes('visa') && r.tool_choice)?.tool_choice.function.name, 'webSearch');
+    assert.equal(requests[sent].tool_choice.function.name, 'webSearch'); // forced on the very first model call
   });
   it('does not force the web for greetings or for flights, hotels and cars (Tarhal data first)', async () => {
     mode = 'text'; const w = webRequests.length;
