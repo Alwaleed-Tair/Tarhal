@@ -39,11 +39,12 @@ const fake: Server = createServer((req, res) => {
     const last = body.messages.at(-1);
     const base = { id: 'x', object: 'chat.completion', created: 1, model: 'fake', usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 } };
     let message: any;
-    if (mode === 'flight' && last.role !== 'tool') message = toolCall('call_1', 'searchFlights', { from: 'ruh', to: 'JED', date: flightDate });
+    const forced = body.tool_choice?.function?.name;
+    if (forced === 'webSearch' && mode !== 'ignoreforce') message = toolCall('call_w', 'webSearch', { query: body.messages.findLast((m: any) => m.role === 'user').content });
+    else if (mode === 'flight' && last.role !== 'tool') message = toolCall('call_1', 'searchFlights', { from: 'ruh', to: 'JED', date: flightDate });
     else if (mode === 'hotels' && last.role !== 'tool') message = toolCall('call_h', 'searchHotels', { city: 'dammam' });
     else if (mode === 'cars' && last.role !== 'tool') message = toolCall('call_c', 'searchCars', { city: 'Riyadh', maxPricePerDay: 200 });
     else if (mode === 'fallback' && last.role !== 'tool') message = toolCall('call_h', 'searchHotels', { city: 'Atlantis' });
-    else if (mode === 'fallback' && last.tool_call_id === 'call_h') message = toolCall('call_w', 'webSearch', { query: body.messages.findLast((m: any) => m.role === 'user').content });
     else message = { role: 'assistant', content: textOverride || (last.role === 'tool' ? 'Found it.' : 'Hello from the fake model') };
     res.writeHead(200, { 'content-type': 'application/json' });
     res.end(JSON.stringify({ ...base, choices: [{ index: 0, finish_reason: message.tool_calls ? 'tool_calls' : finish, message }] }));
@@ -94,7 +95,7 @@ describe('POST /api/ai/chat end to end', () => {
   });
   it('answers plain questions and sends system prompt, history and token cap', async () => {
     mode = 'text';
-    const res = await call({ messages: [{ role: 'user', content: 'hi' }, { role: 'assistant', content: 'hello' }, { role: 'user', content: 'visa?' }] });
+    const res = await call({ messages: [{ role: 'user', content: 'hi' }, { role: 'assistant', content: 'hello' }, { role: 'user', content: 'thanks' }] });
     const body = await res.json();
     assert.equal(res.status, 200);
     assert.equal(body.reply, 'Hello from the fake model');
@@ -102,7 +103,7 @@ describe('POST /api/ai/chat end to end', () => {
     const sent = requests.at(-1);
     assert.equal(sent.messages[0].role, 'system');
     assert.match(sent.messages[0].content, /Saudi/);
-    assert.deepEqual(sent.messages.slice(1).map((m: any) => m.content), ['hi', 'hello', 'visa?']);
+    assert.deepEqual(sent.messages.slice(1).map((m: any) => m.content), ['hi', 'hello', 'thanks']);
     assert.equal(sent.max_tokens, 1500);
     assert.equal(sent.temperature, 0.5);
     assert.deepEqual(sent.thinking, { type: 'disabled' }); // fast mode
@@ -141,18 +142,40 @@ describe('POST /api/ai/chat end to end', () => {
   });
   it('falls back to the web when Tarhal has nothing, and sends the search tool + key', async () => {
     mode = 'fallback'; webMode = 'ok';
-    const body = await (await call(user('restaurants in Al-Balad'))).json();
+    const body = await (await call(user('hotel in Atlantis'))).json();
     assert.equal(body.hotels.length, 0);
     assert.equal(body.searchedWeb, true);
     assert.deepEqual(body.toolsUsed, ['searchHotels', 'webSearch']);
+    assert.deepEqual(requests.at(-2).tool_choice, { type: 'function', function: { name: 'webSearch' } }); // forced by the route, not left to the model
     const w = webRequests.at(-1);
     assert.equal(w.headers['x-api-key'], 'test-key');
     assert.equal(w.body.tools[0].type, 'web_search_20250305');
-    assert.equal(w.body.messages[0].content, 'restaurants in Al-Balad');
+    assert.equal(w.body.messages[0].content, 'hotel in Atlantis');
     const toolMsg = requests.at(-1).messages.at(-1);
     assert.match(toolMsg.content, /Al-Baik/);
     assert.doesNotMatch(toolMsg.content, /let me look/); // pre-search guessing dropped
     assert.doesNotMatch(toolMsg.content, /https?:\/\//); // no raw URLs pushed at the model by default
+  });
+  it('forces a web search for visa/restaurant/weather questions before answering', async () => {
+    mode = 'text'; const w = webRequests.length;
+    const body = await (await call(user('هل السعوديين يحتاجون فيزا لليابان؟ visa'))).json();
+    assert.deepEqual(body.toolsUsed, ['webSearch']);
+    assert.equal(webRequests.length, w + 1);
+    assert.deepEqual(requests.find((r: any) => JSON.stringify(r.messages).includes('visa') && r.tool_choice)?.tool_choice.function.name, 'webSearch');
+  });
+  it('does not force the web for greetings or for flights, hotels and cars (Tarhal data first)', async () => {
+    mode = 'text'; const w = webRequests.length;
+    for (const q of ['هلا', 'hi there', 'ابي رحلة من الرياض إلى جدة', 'visa for hotel in Dammam']) {
+      const sent = requests.length; await call(user(q));
+      assert.notEqual(requests[sent].tool_choice?.function?.name, 'webSearch', q);
+    }
+    assert.equal(webRequests.length, w);
+  });
+  it('answers anyway when the model ignores a forced web search (no 502)', async () => {
+    mode = 'ignoreforce';
+    const res = await call(user('what is the weather in Abha?'));
+    assert.equal(res.status, 200);
+    assert.equal((await res.json()).reply, 'Hello from the fake model');
   });
   it('still answers when web search fails', async () => {
     mode = 'fallback'; webMode = 'fail';
@@ -164,7 +187,7 @@ describe('POST /api/ai/chat end to end', () => {
   });
   it('serves a repeated web question from the cache (fast path)', async () => {
     mode = 'fallback'; const w = webRequests.length;
-    await call(user('restaurants in Al-Balad')); // same text as the earlier successful search
+    await call(user('hotel in Atlantis')); // same text as the earlier successful search
     assert.equal(webRequests.length, w);
   });
   it('can be switched off with TARHAL_WEB_SEARCH=false', async () => {
