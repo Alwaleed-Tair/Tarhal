@@ -1,0 +1,110 @@
+.loading-page {
+  min-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #10263d;
+  padding: 32px;
+  box-sizing: border-box;
+  gap: 16px;
+}
+
+.logo-wrapper {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  border-radius: 12px;
+
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 30%,
+    black 70%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 30%,
+    black 70%,
+    transparent 100%
+  );
+}
+
+.Main-logo {
+  max-height: 500px;
+  width: auto;
+  display: block;
+  animation:
+    glow-pulse 2s ease-in-out infinite,
+    logo-jump 2s ease-in-out forwards;
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(106, 147, 201, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 30px rgba(106, 147, 201, 0.9));
+  }
+}
+
+@keyframes logo-jump {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  30% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  55% {
+    transform: scale(1.1) translateY(-10px);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+.camel-track {
+  width: 100%;
+  max-width: 300px;
+  overflow: hidden;
+  position: relative;
+  height: 50px;
+}
+
+.camel-walk {
+  position: absolute;
+  font-size: 40px;
+  animation: camel-walk-across 10s linear infinite;
+}
+
+@keyframes camel-walk-across {
+  0% {
+    left: 100%;
+    transform: scaleX(1); /* normal orientation, walking left */
+  }
+  49% {
+    transform: scaleX(1);
+  }
+  50% {
+    left: -10%;
+    transform: scaleX(-1); /* mirrored, walking right on return */
+  }
+  99% {
+    transform: scaleX(-1);
+  }
+  100% {
+    left: 100%;
+    transform: scaleX(1);
+  }
+}
