@@ -40,3 +40,17 @@ test('light markdown becomes clean blocks (no stray # ** | symbols)', () => {
   assert.equal(blocks.at(-1)!.parts.some((p) => p.bold && p.text === 'مهم'), true);
   assert.equal(blocks[6].parts.map((p) => p.text).join(''), 'الوقت · النشاط');
 });
+
+import { needsWebFirst, tarhalCameBackEmpty } from '../lib/ai/policy.ts';
+test('web search is forced only for live-info questions', () => {
+  for (const q of ['وش احلى مطاعم بجده البلد؟', 'Do Saudis need a visa for Japan?', 'What is the weather in Abha in August?', 'هل أحتاج تطعيمات للسفر إلى أفريقيا؟', 'كم الحد المسموح للشنطة؟', 'Best time to visit AlUla?']) assert.equal(needsWebFirst(q), true, q);
+  for (const q of ['هلا', 'شكراً', 'ابي فندق في الدمام', 'Cheap car rental in Riyadh', 'ابي رحلة من الرياض إلى جدة', 'اكتب لي كود بايثون', 'ميزانية أسبوع في دبي']) assert.equal(needsWebFirst(q), false, q);
+});
+test('empty or failed Tarhal hotels/cars trigger the web fallback once', () => {
+  const r = (toolName: string, output: any) => ({ toolResults: [{ toolName, output }] });
+  assert.equal(tarhalCameBackEmpty([r('searchHotels', { count: 0, hotels: [] })]), true);
+  assert.equal(tarhalCameBackEmpty([r('searchCars', { error: 'x' })]), true);
+  assert.equal(tarhalCameBackEmpty([r('searchHotels', { count: 2 })]), false);
+  assert.equal(tarhalCameBackEmpty([r('searchFlights', { count: 0 })]), false);
+  assert.equal(tarhalCameBackEmpty([r('searchHotels', { count: 0 }), r('webSearch', { notes: 'ok' })]), false);
+});
