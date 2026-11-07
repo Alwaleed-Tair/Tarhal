@@ -106,6 +106,7 @@ function MobileNav({ open, onClose }: { open: boolean; onClose: () => void }) {
       <button className="mobile-close" onClick={onClose} aria-label={t('closeNavigation')}><X /></button>
       <Logo />
       <LogoControls />
+      <div className="mobile-currency"><CurrencySelect /></div>
       <nav className="nav-list">
         {navItems.map(({ href, key, icon: Icon }) => (
           <Link
@@ -217,8 +218,8 @@ function UserMenu() {
         data-testid="button-user-menu"
       >
         <CircleUserRound size={17} />
-        {t('admin')}
-        <ChevronDown size={15} />
+        <span className="user-name">{t('admin')}</span>
+        <ChevronDown size={15} className="user-chevron" />
       </button>
       {isOpen && (
         <div className="user-dropdown">

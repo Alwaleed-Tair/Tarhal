@@ -5,13 +5,16 @@ import { useSyncExternalStore } from 'react';
 // Demo triggers: error@tarhal.com fails to log in, taken@tarhal.com fails to register.
 
 export type AuthUser = { name: string; email: string };
-export type AuthErrorCode = 'invalidCredentials' | 'emailTaken';
+export type AuthErrorCode = 'invalidCredentials' | 'emailTaken' | 'invalidField';
 
 export class AuthError extends Error {
   code: AuthErrorCode;
-  constructor(code: AuthErrorCode) {
+  /** For 'invalidField': which form field the API rejected (name, email, phone, password, dateOfBirth). */
+  field?: string;
+  constructor(code: AuthErrorCode, field?: string) {
     super(code);
     this.code = code;
+    this.field = field;
   }
 }
 

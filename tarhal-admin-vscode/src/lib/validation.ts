@@ -18,7 +18,8 @@ function emailError(value: string): TranslationKey | undefined {
 
 function passwordError(value: string): TranslationKey | undefined {
   if (!value) return 'errPasswordRequired';
-  if (value.length < 8) return 'errPasswordShort';
+  // The API accepts 12-128 characters (docs/api-documentation.md, POST /api/auth/register).
+  if (value.length < 12) return 'errPasswordShort';
   return /[A-Za-z؀-ۿ]/.test(value) && /\d/.test(value) ? undefined : 'errPasswordWeak';
 }
 
@@ -38,10 +39,11 @@ export function validateLogin(values: LoginValues): FieldErrors<LoginValues> {
 
 export function validateRegister(values: RegisterValues): FieldErrors<RegisterValues> {
   return compact<RegisterValues>({
-    name: values.name.trim().length >= 2 ? undefined : 'errNameRequired',
+    name: values.name.trim().length >= 2 && values.name.trim().length <= 100 ? undefined : 'errNameRequired',
     email: emailError(values.email),
-    phone: /^\+?[0-9\s-]{7,15}$/.test(values.phone.trim()) ? undefined : 'errPhoneInvalid',
-    dateOfBirth: values.dateOfBirth && values.dateOfBirth <= new Date().toISOString().slice(0, 10) ? undefined : 'errDobInvalid',
+    // Spaces and dashes are allowed while typing; the API wants an optional + and 8-15 digits (see authService.register).
+    phone: /^\+?[0-9]{8,15}$/.test(values.phone.replace(/[\s-]/g, '')) ? undefined : 'errPhoneInvalid',
+    dateOfBirth: values.dateOfBirth >= '1900-01-01' && values.dateOfBirth <= new Date().toISOString().slice(0, 10) ? undefined : 'errDobInvalid',
     password: passwordError(values.password),
     confirmPassword: values.confirmPassword === values.password ? undefined : 'errConfirmMismatch',
     terms: values.terms ? undefined : 'errTermsRequired',
