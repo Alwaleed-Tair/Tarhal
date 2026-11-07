@@ -18,7 +18,8 @@
     "test:integration": "node --test tests/endpoints.integration.ts",
     "auth:reset-token": "node --env-file=.env scripts/issue-password-reset.ts",
     "ai:eval": "node scripts/ai-eval.ts",
-    "test:ai": "node --test tests/ai-chat.integration.ts"
+    "test:ai": "node --test tests/ai-chat.integration.ts",
+    "test:e2e": "node scripts/e2e-flow.mjs"
   },
   "repository": {
     "type": "git",

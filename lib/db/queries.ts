@@ -1,6 +1,5 @@
-import { PrismaClient, SeatStatus, Role, TicketClass } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { SeatStatus, Role, TicketClass } from '@prisma/client';
+import { prisma } from '../prisma.ts';
 
 // --- Flight Queries ---
 export async function getFlights(filters?: { airlineId?: string }) {
@@ -63,7 +62,8 @@ export async function getAirlines() {
 export async function getBookings() {
   return await prisma.booking.findMany({
     include: {
-      user: true,
+      // Never return the password hash.
+      user: { select: { id: true, name: true, email: true, phoneNumber: true, role: true } },
       flight: {
         include: { airline: true }
       },
