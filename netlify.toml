@@ -1,0 +1,11 @@
+# Netlify: one site serves the API (Next.js) and the React frontend from the same origin.
+# Required environment variables (Site settings → Environment variables):
+#   DATABASE_URL, SESSION_SECRET, DEEPSEEK_API_KEY
+#   optional: PASSWORD_RESET_SECRET, PASSWORD_RESET_SUPPORT_EMAIL
+# See docs/deployment.md.
+[build]
+  command = "npm run build:netlify"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"

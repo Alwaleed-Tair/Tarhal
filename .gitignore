@@ -3,3 +3,6 @@ node_modules
 .env
 .next
 *.tsbuildinfo
+
+# Built frontend (npm run build:frontend)
+public/_site

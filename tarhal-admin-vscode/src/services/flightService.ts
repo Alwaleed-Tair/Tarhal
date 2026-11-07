@@ -18,7 +18,7 @@ const toRow = (r: Raw): ResourceRow => {
     airline: airlineName(pick(r, 'airline', 'airlineName')),
     cabinClass: str(pick(r, 'cabinClass', 'cabin'), 'Economy') as CabinClass,
     route: from && to ? `${from} → ${to}` : str(pick(r, 'route')),
-    price: num(pick(r, 'price', 'fare')),
+    price: num(pick(r, 'basePrice', 'price', 'fare')),
     status: str(pick(r, 'status'), 'Scheduled'),
   };
 };
