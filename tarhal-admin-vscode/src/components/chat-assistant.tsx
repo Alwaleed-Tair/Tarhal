@@ -1,47 +1,46 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Send, X } from 'lucide-react';
+import { Money } from '@/components/money';
 import { useT } from '@/components/layout';
-import type { TranslationKey } from '@/i18n/translations';
 import { brand } from '@/config/branding';
+import { formatReply } from '@/lib/format-reply';
+import { useFormat } from '@/i18n/use-i18n';
+import type { TranslationKey } from '@/i18n/translations';
+import { api, sarToUsd } from '@/services/api';
+
+// Real assistant: POST /api/ai/chat (docs/api-documentation.md, section 6). The conversation is sent every time
+// (the API uses the last 24 messages, each up to 1000 characters). Flights, hotels and cars it found come back as cards.
+type FlightCard = { id: string; flightNumber: string; airline?: string; from: string; to: string; departureTime: string; lowestPrice: number; availableSeats: number };
+type HotelCard = { id: string; name: string; city: string; pricePerNight: number; rating: number; roomType: string };
+type CarCard = { id: string; make: string; model: string; year: number; seats: number; city: string; pricePerDay: number };
 
 type ChatMessage = {
   id: number;
   role: 'assistant' | 'user';
   text: string;
+  flights?: FlightCard[];
+  hotels?: HotelCard[];
+  cars?: CarCard[];
 };
 
-const quickTopics: Array<{ label: TranslationKey; reply: TranslationKey }> = [
-  { label: 'bookings', reply: 'chatBookingHelp' },
-  { label: 'revenue', reply: 'chatRevenueHelp' },
-  { label: 'flights', reply: 'chatFlightsHelp' },
-  { label: 'hotels', reply: 'chatHotelsHelp' },
-  { label: 'cars', reply: 'chatCarsHelp' },
-];
+const MAX_CHARS = 1000;
+const quickTopics: TranslationKey[] = ['chatQuick1', 'chatQuick2', 'chatQuick3', 'chatQuick4', 'chatQuick5'];
 
 let nextMessageId = 0;
 
-function getReplyKey(message: string): TranslationKey {
-  const value = message.toLocaleLowerCase();
-
-  if (/book|reserv|حجز|الحجوز/.test(value)) return 'chatBookingHelp';
-  if (/revenue|income|إيراد|الايراد/.test(value)) return 'chatRevenueHelp';
-  if (/flight|رحل/.test(value)) return 'chatFlightsHelp';
-  if (/hotel|فندق|الفناد/.test(value)) return 'chatHotelsHelp';
-  if (/car|rental|سيار|تأجير/.test(value)) return 'chatCarsHelp';
-
-  return 'chatFallback';
-}
-
 export default function ChatAssistant() {
   const t = useT();
+  const format = useFormat();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [messages, open]);
+  }, [messages, loading, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -54,21 +53,30 @@ export default function ChatAssistant() {
     return () => window.removeEventListener('keydown', closeOnEscape);
   }, [open]);
 
-  function sendMessage(text: string, replyKey = getReplyKey(text)) {
+  async function sendMessage(text: string) {
     const trimmed = text.trim();
-    if (!trimmed) return;
+    if (!trimmed || loading) return;
 
-    setMessages((current) => [
-      ...current,
-      { id: ++nextMessageId, role: 'user', text: trimmed },
-      { id: ++nextMessageId, role: 'assistant', text: t(replyKey) },
-    ]);
+    const next = [...messages, { id: ++nextMessageId, role: 'user' as const, text: trimmed }];
+    setMessages(next);
     setDraft('');
+    setError('');
+    setLoading(true);
+    try {
+      const { data } = await api.post('/ai/chat', { messages: next.map(({ role, text: content }) => ({ role, content })) }, { timeout: 60_000 });
+      if (!data?.success) throw new Error(data?.error || 'Request failed');
+      setMessages([...next, { id: ++nextMessageId, role: 'assistant', text: String(data.reply ?? ''), flights: data.flights, hotels: data.hotels, cars: data.cars }]);
+    } catch (err) {
+      const apiError = (err as { response?: { data?: { error?: string } } }).response?.data?.error;
+      setError(apiError || t('errorMessage'));
+    } finally {
+      setLoading(false);
+    }
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    sendMessage(draft);
+    void sendMessage(draft);
   }
 
   return (
@@ -123,25 +131,47 @@ export default function ChatAssistant() {
           <div className="chat-messages" role="log" aria-live="polite">
             <div className="chat-message assistant">{t('chatGreeting')}</div>
             {messages.map((message) => (
-              <div
-                className={`chat-message ${message.role}`}
-                key={message.id}
-              >
-                {message.text}
+              <div className="chat-entry" data-role={message.role} key={message.id}>
+                <div className={`chat-message ${message.role}`}>
+                  {message.role === 'user' ? message.text : formatReply(message.text).map((block, index) => block.type === 'gap'
+                    ? <div key={index} className="chat-gap" />
+                    : <div key={index} dir="auto" className={block.type === 'li' ? 'chat-li' : block.type === 'h' ? 'chat-h' : undefined}>
+                        {block.parts.map((part, i) => part.bold ? <strong key={i}>{part.text}</strong> : <span key={i}>{part.text}</span>)}
+                      </div>)}
+                </div>
+                {message.flights?.map((f) => (
+                  <div key={f.id} className="chat-card">
+                    <strong dir="ltr">{f.from} → {f.to} · {f.airline ? `${f.airline} ` : ''}{f.flightNumber}</strong>
+                    <span>{format.dateTime(f.departureTime)}</span>
+                    <span>{t('fromPrice', { price: format.currency(sarToUsd(f.lowestPrice)) })} · {t('seatsCount', { count: format.number(f.availableSeats) })}</span>
+                  </div>
+                ))}
+                {message.hotels?.map((h) => (
+                  <div key={h.id} className="chat-card">
+                    <strong>{h.name} · {h.city}</strong>
+                    <span>★ {format.rating(h.rating)} · {h.roomType}</span>
+                    <span><Money usd={sarToUsd(h.pricePerNight)} /> {t('perNight')}</span>
+                  </div>
+                ))}
+                {message.cars?.map((c) => (
+                  <div key={c.id} className="chat-card">
+                    <strong dir="ltr">{c.make} {c.model} {format.year(c.year)} · {c.city}</strong>
+                    <span>{t('seatsCount', { count: format.number(c.seats) })}</span>
+                    <span><Money usd={sarToUsd(c.pricePerDay)} /> {t('perDay')}</span>
+                  </div>
+                ))}
               </div>
             ))}
+            {loading && <div className="chat-status" aria-live="polite">{t('chatTyping')}</div>}
+            {error && <div className="chat-error" role="alert">{error}</div>}
             <div ref={messagesEndRef} />
           </div>
 
-          {messages.length === 0 && (
+          {messages.length === 0 && !loading && (
             <div className="chat-quick-prompts" aria-label={t('chatbot')}>
               {quickTopics.map((topic) => (
-                <button
-                  key={topic.label}
-                  type="button"
-                  onClick={() => sendMessage(t(topic.label), topic.reply)}
-                >
-                  {t(topic.label)}
+                <button key={topic} type="button" onClick={() => void sendMessage(t(topic))}>
+                  {t(topic)}
                 </button>
               ))}
             </div>
@@ -154,11 +184,13 @@ export default function ChatAssistant() {
               onChange={(event) => setDraft(event.target.value)}
               placeholder={t('chatPlaceholder')}
               aria-label={t('chatPlaceholder')}
+              maxLength={MAX_CHARS}
+              disabled={loading}
             />
             <button
               className="chat-send"
               type="submit"
-              disabled={!draft.trim()}
+              disabled={!draft.trim() || loading}
               aria-label={t('chatSend')}
             >
               <Send size={17} />
