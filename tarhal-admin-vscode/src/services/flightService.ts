@@ -1,4 +1,4 @@
-import { api, assertSuccess, assertWrite, toList, num, pick, str, type Envelope, type Raw } from '@/services/api';
+import { sarToUsd, usdToSar, api, assertSuccess, assertWrite, toList, num, pick, str, type Envelope, type Raw } from '@/services/api';
 import type { CabinClass, ResourceRow } from '@/data/demoData';
 
 export type Seat = { id: string; label: string; available: boolean };
@@ -18,7 +18,7 @@ const toRow = (r: Raw): ResourceRow => {
     airline: airlineName(pick(r, 'airline', 'airlineName')),
     cabinClass: str(pick(r, 'cabinClass', 'cabin'), 'Economy') as CabinClass,
     route: from && to ? `${from} → ${to}` : str(pick(r, 'route')),
-    price: num(pick(r, 'basePrice', 'price', 'fare')),
+    price: sarToUsd(num(pick(r, 'basePrice', 'price', 'fare'))),
     status: str(pick(r, 'status'), 'Scheduled'),
   };
 };
@@ -31,7 +31,7 @@ const toSeat = (s: Raw): Seat => ({
 
 const toBody = (i: FlightInput) => {
   const [from = '', to = ''] = i.route.split('→').map((part) => part.trim());
-  return { flightNumber: i.flightNumber, airlineId: i.airlineId, from, to, cabinClass: i.cabinClass, price: i.price, status: i.status };
+  return { flightNumber: i.flightNumber, airlineId: i.airlineId, from, to, cabinClass: i.cabinClass, price: usdToSar(i.price), status: i.status };
 };
 
 export const flightService = {
