@@ -104,7 +104,9 @@ model Seat {
   heldUntil       DateTime?
   heldByUserId    String?
 
-  traveler BookingTraveler?
+  // One seat can appear in several bookings over time (a cancelled booking keeps its traveler row);
+  // double booking is prevented by the atomic seat status update in POST /api/bookings.
+  travelers BookingTraveler[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -137,7 +139,7 @@ model BookingTraveler {
   id             String   @id @default(uuid())
   bookingId      String
   booking        Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  seatId         String   @unique
+  seatId         String
   seat           Seat     @relation(fields: [seatId], references: [id], onDelete: Cascade)
   fullName       String
   passportNumber String
@@ -145,6 +147,8 @@ model BookingTraveler {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([seatId])
 }
 
 // ─── Hotels ──────────────────────────────────────────────
