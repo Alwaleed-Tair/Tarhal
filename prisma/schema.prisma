@@ -1,5 +1,7 @@
 generator client {
   provider = "prisma-client-js"
+  // "native" for local machines; "rhel-openssl-3.0.x" for Netlify Functions (AWS Lambda, Node 22).
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
