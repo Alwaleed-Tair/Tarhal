@@ -14,6 +14,7 @@ import { useLiveData } from '@/hooks/use-live-data';
 import { bookingService } from '@/services/bookingService';
 import type { Booking, BookingStatus, ServiceFilter } from '@/data/demoData';
 import { useFormat, useT } from '@/i18n/use-i18n';
+import { shortId } from '@/lib/booking-stats';
 import { statusLabel, statusParam } from '@/i18n/labels';
 import { notify } from '@/store/notificationStore';
 import { updateBooking, useDemoState } from '@/store/demoStore';
@@ -49,10 +50,10 @@ export default function Bookings() {
 
   const columns: Column<Booking>[] = [
     { key: 'type', width: '10%', header: t('type'), cell: (row) => t(row.type) },
-    { key: 'id', width: '12%', header: t('bookingId'), cell: (row) => <Ltr>{row.id}</Ltr> },
+    { key: 'id', width: '12%', header: t('bookingId'), cell: (row) => <span title={row.id}><Ltr>{shortId(row.id)}</Ltr></span> },
     { key: 'customer', width: '17%', header: t('customer'), cell: (row) => row.customer },
     { key: 'date', width: '19%', header: t('dateTime'), muted: true, cell: (row) => format.dateTime(row.date) },
-    { key: 'price', width: '12%', header: t('totalPrice'), align: 'end', cell: (row) => <Money usd={row.price} /> },
+    { key: 'price', width: '12%', header: t('totalPrice'), align: 'end', cell: (row) => <Money sar={row.price} /> },
     { key: 'status', width: '12%', header: t('status'), align: 'center', cell: (row) => <StatusBadge status={row.status} /> },
     { key: 'actions', width: '18%', header: t('actions'), align: 'end', cell: (row) => !offline ? <span className="text-sm text-muted-foreground">—</span> : (
       <select className="select-control" value={row.status} onChange={(event) => changeStatus(row.id, event.target.value as BookingStatus)} aria-label={`${t('status')} ${row.id}`} data-testid={`select-status-${row.id}`}>
@@ -88,7 +89,7 @@ export default function Bookings() {
           <div className="table-wrap overflow-x-auto w-full rounded-xl" tabIndex={0} role="region" aria-label={t('allBookings')}>
             {loadStatus === 'loading' ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={retry} /> : <>
             <DataTable caption={t('allBookings')} columns={columns} rows={list} getKey={(row) => row.id} minWidth={1100} />
-            {list.length === 0 && <EmptyState message={t('noResults')} actionLabel={filter !== 'all' || query ? t('clearFilters') : undefined} onAction={resetFilters} />}
+            {list.length === 0 && <EmptyState message={!offline && !query && (filter === 'hotel' || filter === 'car') ? t('noDataYet') : t('noResults')} actionLabel={filter !== 'all' || query ? t('clearFilters') : undefined} onAction={resetFilters} />}
             </>}
           </div>
         </div>

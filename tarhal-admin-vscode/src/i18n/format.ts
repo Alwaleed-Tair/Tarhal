@@ -11,17 +11,32 @@ function parseDate(value: string): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-export function createFormatters(language: Language, currency: Currency = 'USD') {
+/** Riyadh is UTC+3 all year. The API stores UTC; flights are entered and shown in Riyadh time. */
+const RIYADH_OFFSET_MS = 3 * 60 * 60 * 1000;
+/** "2027-01-10T08:00:00.000Z" -> "2027-01-10T11:00" (the value a datetime-local input uses). Empty when not a date. */
+export function isoToRiyadhLocal(iso: string): string {
+  const time = Date.parse(iso);
+  return Number.isNaN(time) ? '' : new Date(time + RIYADH_OFFSET_MS).toISOString().slice(0, 16);
+}
+/** "2027-01-10T11:00" entered as Riyadh time -> "2027-01-10T08:00:00.000Z". */
+export function riyadhLocalToIso(local: string): string {
+  return new Date(`${local}:00+03:00`).toISOString();
+}
+
+export function createFormatters(language: Language, currency: Currency = 'SAR') {
   const locale = LOCALES[language];
   const numberFormat = new Intl.NumberFormat(locale);
-  const usdFormat = new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol', maximumFractionDigits: 0 });
-  const rate = currency === 'SAR' ? USD_TO_SAR : 1;
+  /** All amounts are stored in SAR; they are converted only when the user picks USD. */
+  const toDisplay = (sar: number) => (currency === 'USD' ? sar / USD_TO_SAR : sar);
 
-  /** Amount that is already in the display currency -> "$1,200" or "1,200 ⃁". */
+  /** Amount that is already in the display currency -> "$1,200" or "SAR 1,200". Whole amounts show no decimals, others show two. */
   function money(value: number): string {
-    if (currency === 'USD') return usdFormat.format(value);
-    // LRI...PDI keeps "1,200 ⃁" in one left-to-right run, in both English and Arabic pages.
-    return `\u2066${numberFormat.format(Math.round(value))}\u00A0\u20C1\u2069`;
+    const rounded = Math.round(value * 100) / 100;
+    const digits = Number.isInteger(rounded) ? 0 : 2;
+    const options = { minimumFractionDigits: digits, maximumFractionDigits: digits };
+    if (currency === 'USD') return new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol', ...options }).format(rounded);
+    // LRI...PDI keeps "SAR 1,200" in one left-to-right run, in both English and Arabic pages.
+    return `\u2066SAR\u00A0${new Intl.NumberFormat(locale, options).format(rounded)}\u2069`;
   }
   // `calendar: 'gregory'` stops ar-SA from switching to the Hijri calendar.
   const dateFormat = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric', calendar: 'gregory' });
@@ -40,17 +55,17 @@ export function createFormatters(language: Language, currency: Currency = 'USD')
     rating: (value: number) => new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value),
     /** 2024 -> "2024" (no thousands separator). */
     year: (value: number) => String(value),
-    /** USD amount (how data is stored) -> converted and formatted in the active currency. */
-    currency: (usd: number) => money(usd * rate),
-    /** USD -> display currency number, unformatted (used for chart scales). */
-    convert: (usd: number) => usd * rate,
+    /** SAR amount (how data is stored) -> converted if needed and formatted in the active currency. */
+    currency: (sar: number) => money(toDisplay(sar)),
+    /** SAR -> display currency number, unformatted (used for chart scales). */
+    convert: toDisplay,
     /** Accepts an ISO string; falls back to the raw text if it cannot be parsed. */
     date: (value: string) => { const date = parseDate(value); return date ? formatDateObject(date) : value; },
     dateTime: (value: string) => { const date = parseDate(value); return date ? `${formatDateObject(date)} · ${timeFormat.format(date)}` : value; },
-    /** Compact axis label for a value already in the display currency: $0, $2k / 0, 2k ⃁. Render inside <bdi dir="ltr">. */
+    /** Compact axis label for a value already in the display currency: $0, $2k / SAR 0, SAR 2k. Render inside <bdi dir="ltr">. */
     axisCurrency: (value: number) => {
       const short = value < 1000 ? String(value) : `${+(value / 1000).toFixed(1)}k`;
-      return currency === 'USD' ? `$${short}` : `${short} \u20C1`;
+      return currency === 'USD' ? `$${short}` : `SAR ${short}`;
     },
     time: (timestamp: number) => timeFormat.format(new Date(timestamp)),
     month: (monthIndex: number) => monthFormat.format(new Date(2026, monthIndex, 1)),

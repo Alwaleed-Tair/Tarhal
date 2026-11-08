@@ -23,6 +23,8 @@ const toHotel = (r: Raw): Hotel => {
     addressAr: str(pick(r, 'addressAr', 'address_ar')) || address,
     rating: num(pick(r, 'rating', 'stars')),
     image: str(pick(r, 'imageUrl', 'image', 'thumbnail', 'photo')) || '/images/hotels/none.jpg', // missing file -> gradient placeholder
+    city: str(pick(r, 'city')) || undefined,
+    pricePerNight: pick(r, 'pricePerNight', 'price') === undefined ? undefined : num(pick(r, 'pricePerNight', 'price')),
   };
 };
 
@@ -45,7 +47,17 @@ export const hotelService = {
   async remove(apiId: string | number): Promise<void> {
     assertWrite((await api.delete<Envelope<Raw>>(`/hotels/${encodeURIComponent(String(apiId))}`)).data);
   },
-  /** Public Stays page: first 100 hotels; filtering/sorting/pagination happen in the browser (ListingView). */
+  /**
+   * Public Stays page: one page from GET /api/hotels. Filters the API really supports (lib/catalog-filters.ts):
+   * city, roomType, minPrice, maxPrice, minRating, page, pageSize. Anything else is answered with 400. Sorted by price.
+   */
+  async listPage(params: { page: number; pageSize: number } & Record<string, string | number>): Promise<{ items: Hotel[]; total: number }> {
+    const { data } = await api.get<Paginated<Raw>>('/hotels', { params });
+    assertSuccess(data);
+    const items = toList(data).map(toHotel);
+    return { items, total: data.pagination?.total ?? items.length };
+  },
+  /** First 100 hotels, unfiltered: the source of the filter choices (cities) and of the list when the API is offline. */
   async listPublic(): Promise<Hotel[]> {
     const { data } = await api.get<Paginated<Raw>>('/hotels', { params: { page: 1, pageSize: 100 } });
     assertSuccess(data);

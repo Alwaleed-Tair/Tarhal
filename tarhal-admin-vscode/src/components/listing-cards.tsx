@@ -37,6 +37,7 @@ export function HotelCard({ hotel }: { hotel: Hotel }) {
       <CardContent className="grid flex-1 content-start gap-1.5 p-4">
         <h3 className="text-base font-semibold text-foreground">{name}</h3>
         <p className="flex items-start gap-1.5 text-sm text-muted-foreground"><MapPin className="mt-0.5 size-4 shrink-0" aria-hidden="true" />{address}</p>
+        {hotel.pricePerNight !== undefined && <p className="text-lg font-bold text-foreground"><Money sar={hotel.pricePerNight} /><span className="text-sm font-normal text-muted-foreground"> {t('perNight')}</span></p>}
       </CardContent>
       <CardFooter className="p-4 pt-0">
         <Button className="w-full" size="sm" onClick={() => bookNow(name)}>{t('bookNow')}</Button>
@@ -65,7 +66,7 @@ export function CarCard({ car }: { car: Car }) {
           <span className={spec}><Settings2 className="size-4" aria-hidden="true" />{t(car.transmission === 'Automatic' ? 'automatic' : 'manual')}</span>
         </div>
         <div className="grid gap-1 border-t pt-3">
-          <p className="text-xl font-bold text-foreground"><Money usd={car.pricePerDay} /><span className="text-sm font-normal text-muted-foreground"> {t('perDay')}</span></p>
+          <p className="text-xl font-bold text-foreground"><Money sar={car.pricePerDay} /><span className="text-sm font-normal text-muted-foreground"> {t('perDay')}</span></p>
           <p className="flex items-center gap-1.5 text-sm text-muted-foreground"><ShieldCheck className="size-4 text-primary" aria-hidden="true" />{t('insurancePerDay', { price: format.currency(car.insurancePerDay) })}</p>
         </div>
       </CardContent>

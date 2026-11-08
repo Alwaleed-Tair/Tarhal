@@ -220,7 +220,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .metric-label { font-size: calc(14px * var(--text-scale)); font-weight: 600; }
 .metric-value { margin-top: 6px; font-size: clamp(calc(30px * var(--text-scale)), 3vw, calc(38px * var(--text-scale))); font-weight: 700; letter-spacing: -.02em; }
 
-.action-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px; margin: 0 18px 38px; }
+.action-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 36px; margin: 0 18px 38px; }
 .action-row .button { width: 100%; }
 
 /* ==========================================================================
@@ -295,7 +295,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .chart-total strong { display: block; letter-spacing: -.03em; } /* size, weight and line-height come from text-5xl sm:text-6xl font-bold leading-tight in revenue-chart.tsx */
 .chart-total > span { font-size: calc(27px * var(--text-scale)); font-weight: 700; color: hsl(var(--foreground)); }
 
-.revenue-chart { --axis-width: calc(48px * var(--text-scale)); }
+.revenue-chart { --axis-width: calc(66px * var(--text-scale)); }
 .chart-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 16px; margin-bottom: 14px; }
 .period-select { margin-inline-start: auto; min-width: 190px; cursor: pointer; }
 .chart-summary { display: flex; align-items: baseline; gap: 10px; font-size: calc(13px * var(--text-scale)); color: hsl(var(--muted-foreground)); }
@@ -550,7 +550,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .page-panel { min-height: calc(100dvh - 77px); padding: 23px 13px; border-radius: 26px; }
   .page-heading { align-items: flex-start; flex-direction: column; margin-bottom: 21px; }
   .metric-card { min-height: 105px; }
-  .action-row { grid-template-columns: 1fr; margin-bottom: 24px; }
+  .action-row { grid-auto-flow: row; margin-bottom: 24px; }
   .action-row .button { width: 100%; }
   .modal-backdrop { padding: 12px; }
   .modal-card { border-radius: 19px; }
@@ -659,3 +659,40 @@ html.accessibility-large { font-size: 125%; }
 .metric-value bdi, .chart-total bdi, .chart-summary bdi { gap: .18em; }
 .metric-value .sar-symbol, .chart-total .sar-symbol, .chart-summary .sar-symbol { font-size: 1em; line-height: inherit; }
 .metric-value bdi, .chart-total bdi { line-height: inherit; }
+
+/* Labels for numbers the API cannot give yet */
+.metric-no-data { font-size: calc(16px * var(--text-scale)); font-weight: 600; letter-spacing: 0; }
+.chart-no-data { margin: 0; padding: 46px 20px; text-align: center; font-weight: 600; color: hsl(var(--muted-foreground)); }
+.chart-legend-note { font-weight: 500; color: hsl(var(--muted-foreground)); }
+
+/* Flight form: seat rows */
+.modal-seats { display: grid; gap: 12px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.modal-seats legend { padding: 0 0 8px; color: hsl(var(--muted-foreground)); font-size: calc(12px * var(--text-scale)); font-weight: 700; }
+.modal-seat-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; align-items: start; gap: 10px; }
+.modal-seat-remove { margin-top: calc(12px * var(--text-scale) + 12px); min-height: 42px; padding-inline: 12px; }
+.modal-seat-add { justify-self: start; }
+.accessibility-large .modal-seat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* Responsive QA: date inputs have a wide built-in minimum, so the field tracks must be able to shrink and the modal needs the room. */
+.modal-card { width: min(620px, 100%); }
+.accessibility-large .modal-card { width: min(760px, 100%); }
+.modal-field { grid-template-columns: minmax(0, 1fr); }
+.modal-field .input-control, .modal-field .select-control { min-width: 0; }
+.user-button { white-space: nowrap; }
+/* Fixed-width columns: long real values wrap inside their cell instead of running into the next column. */
+.data-table-fixed td { white-space: normal; overflow-wrap: anywhere; }
+.data-table-fixed td :is(.button, .status) { white-space: nowrap; overflow-wrap: normal; }
+
+/* Responsive QA (375px): the top bar wraps, with search on its own row, so it can never widen the page. */
+@media (max-width: 680px) {
+  .topbar { height: auto; min-height: 62px; flex-wrap: wrap; justify-content: flex-end; gap: 8px 10px; padding-block: 8px; }
+  .menu-toggle { margin-inline-end: auto; }
+  .global-search-wrap { order: 10; flex: 1 0 100%; min-width: 0; }
+  .global-search, .accessibility-large .global-search { width: 100%; max-width: none; }
+  .accessibility-large .topbar { gap: 8px 6px; }
+  .data-table th, .data-table td { padding-inline: 12px; }
+  .modal-seat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .modal-actions { flex-wrap: wrap; }
+  .period-select { min-width: 0; width: 100%; }
+  .filter-row { margin-top: 0; }
+}

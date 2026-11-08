@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { DataTable, type Column } from '@/components/data-table';
 import { Layout } from '@/components/layout';
 import { ContextBadge, PageHeader } from '@/components/page-header';
@@ -8,9 +8,11 @@ import { Ltr } from '@/components/ltr';
 import { ErrorState } from '@/components/error-state';
 import { StatusBadge } from '@/components/status-badge';
 import { TableSkeleton } from '@/components/skeleton';
+import { useAdminBookings } from '@/hooks/use-admin-bookings';
 import { useMockStatus } from '@/hooks/use-mock-loading';
 import type { User, UserStatus } from '@/data/demoData';
 import { useFormat, useT } from '@/i18n/use-i18n';
+import { customersFromBookings } from '@/lib/booking-stats';
 import { statusLabel, statusParam } from '@/i18n/labels';
 import { notify } from '@/store/notificationStore';
 import { updateUser, useDemoState } from '@/store/demoStore';
@@ -22,10 +24,16 @@ export default function Users() {
   const format = useFormat();
   // TODO / INTEGRATION POINT
   // INTEGRATION POINT: Connect Mohammed's Auth, Hotel & Car APIs here
-  const { users } = useDemoState();
+  // There is no users endpoint yet, so live rows are the customers found in GET /api/admin/bookings.
+  // The demo store (with its status filters and status changes) is only used when that request fails, with the Demo data badge.
+  const { users: demoUsers } = useDemoState();
+  const { bookings, status: liveStatus, offline, reason } = useAdminBookings();
+  const liveUsers = useMemo(() => customersFromBookings(bookings), [bookings]);
+  const users = offline ? demoUsers : liveUsers;
   const [filter, setFilter] = useState<'all' | UserStatus>('all');
   const [query, setQuery] = useState('');
-  const { status: loadStatus, empty: forceEmpty, retry } = useMockStatus();
+  const { status: mockStatus, empty: forceEmpty, retry } = useMockStatus();
+  const loadStatus = liveStatus === 'loading' ? 'loading' : liveStatus === 'error' ? 'error' : mockStatus;
   const needle = query.trim().toLowerCase();
   const list = (forceEmpty ? [] : users).filter((row) =>
     (filter === 'all' || row.status === filter) &&
@@ -38,7 +46,13 @@ export default function Users() {
     notify({ tone: status === 'Deleted' ? 'warning' : 'success', titleKey: 'statusUpdatedTitle', messageKey: 'userStatusUpdated', params: { id, status: statusParam(status) } });
   }
 
-  const columns: Column<User>[] = [
+  const liveColumns: Column<User>[] = [
+    { key: 'name', width: '28%', header: t('fullName'), cell: (row) => row.name },
+    { key: 'email', width: '32%', header: t('email'), muted: true, cell: (row) => <Ltr>{row.email}</Ltr> },
+    { key: 'phone', width: '24%', header: t('phone'), muted: true, cell: (row) => <Ltr>{row.phone ?? '—'}</Ltr> },
+    { key: 'bookings', width: '16%', header: t('totalBookings'), align: 'end', cell: (row) => format.number(row.bookings) },
+  ];
+  const demoColumns: Column<User>[] = [
     { key: 'id', width: '9%', header: t('userId'), cell: (row) => <Ltr>{row.id}</Ltr> },
     { key: 'name', width: '16%', header: t('fullName'), cell: (row) => row.name },
     { key: 'email', width: '22%', header: t('email'), muted: true, cell: (row) => <Ltr>{row.email}</Ltr> },
@@ -52,16 +66,19 @@ export default function Users() {
     ) },
   ];
 
+  const columns = offline ? demoColumns : liveColumns;
+
   return (
     <Layout>
       <section className="page-panel">
         <PageHeader
           section={t('users')}
           title={t('usersManagement')}
-          subtitle={t('usersSubtitle')}
+          subtitle={offline ? t('usersSubtitle') : t('usersLiveSubtitle')}
           badges={<>
             <ContextBadge>{t('recordsCount', { count: format.number(users.length) })}</ContextBadge>
-            <ContextBadge tone="success">{t('activeCount', { count: format.number(activeCount) })}</ContextBadge>
+            {offline && <ContextBadge tone="success">{t('activeCount', { count: format.number(activeCount) })}</ContextBadge>}
+            {offline && <ContextBadge tone="warning">{t('demoBadge')} · {reason}</ContextBadge>}
           </>}
           actions={
             <SuggestSearch value={query} onChange={setQuery} placeholder={t('search')} testId="input-users-search"
@@ -69,16 +86,16 @@ export default function Users() {
               renderItem={(row) => <><span className="search-suggestion-id">{row.name}</span><span className="search-suggestion-details" dir="ltr">{row.email}</span></>} />
           }
         />
-        <div className="filter-row">
+        {offline && <div className="filter-row">
           <button className={`filter-chip ${filter === 'all' ? 'active' : ''}`} aria-pressed={filter === 'all'} onClick={() => setFilter('all')} data-testid="filter-users-all">{t('all')}</button>
           {STATUSES.map((status) => (
             <button key={status} className={`filter-chip ${filter === status ? 'active' : ''}`} aria-pressed={filter === status} onClick={() => setFilter(status)} data-testid={`filter-users-${status}`}>{statusLabel(status, t)}</button>
           ))}
-        </div>
+        </div>}
         <div className="section-card">
           <div className="table-wrap overflow-x-auto w-full rounded-xl" tabIndex={0} role="region" aria-label={t('usersManagement')}>
             {loadStatus === 'loading' ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={retry} /> : <>
-            <DataTable caption={t('usersManagement')} columns={columns} rows={list} getKey={(row) => row.id} minWidth={1100} />
+            <DataTable caption={t('usersManagement')} columns={columns} rows={list} getKey={(row) => row.id} minWidth={offline ? 1100 : 760} />
             {list.length === 0 && <EmptyState message={t('noResults')} actionLabel={filter !== 'all' || query ? t('clearFilters') : undefined} onAction={resetFilters} />}
             </>}
           </div>

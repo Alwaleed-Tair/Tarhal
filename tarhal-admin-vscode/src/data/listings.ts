@@ -2,7 +2,7 @@
 // Hotel images: drop files into `public/images/hotels/` (hotel-1.jpg ...). Until they exist the cards
 // show a gradient placeholder automatically.
 
-export type Hotel = { id: string; name: string; nameAr: string; address: string; addressAr: string; rating: number; image: string };
+export type Hotel = { id: string; name: string; nameAr: string; address: string; addressAr: string; rating: number; image: string; city?: string; pricePerNight?: number };
 
 // TODO / INTEGRATION POINT
 // INTEGRATION POINT: Connect Mohammed's Auth, Hotel & Car APIs here
@@ -28,6 +28,7 @@ export type Car = {
   year: number;
   seats: number;
   transmission: 'Automatic' | 'Manual';
+  city?: string;
   pricePerDay: number;
   insurancePerDay: number;
 };

@@ -3,11 +3,13 @@ import type { ServiceFilter } from '@/data/demoData';
 import { Layout } from '@/components/layout';
 import { ContextBadge, PageHeader } from '@/components/page-header';
 import RevenueChart from '@/components/revenue-chart';
+import { useAdminBookings } from '@/hooks/use-admin-bookings';
 import { useT } from '@/i18n/use-i18n';
 
 export default function Revenue() {
   const t = useT();
   const [service, setService] = useState<ServiceFilter>('all');
+  const { bookings, status, offline, reason } = useAdminBookings();
 
   return (
     <Layout>
@@ -16,7 +18,10 @@ export default function Revenue() {
           section={t('revenue')}
           title={t('revenueOverview')}
           subtitle={t('revenueSubtitle')}
-          badges={<ContextBadge>{t(service === 'all' ? 'allServices' : service)}</ContextBadge>}
+          badges={<>
+            <ContextBadge>{t(service === 'all' ? 'allServices' : service)}</ContextBadge>
+            {offline && <ContextBadge tone="warning">{t('demoBadge')} · {reason}</ContextBadge>}
+          </>}
           actions={
             <select className="select-control" value={service} onChange={(event) => setService(event.target.value as ServiceFilter)} aria-label={t('allServices')} data-testid="select-revenue-service">
               <option value="all">{t('allServices')}</option>
@@ -27,7 +32,7 @@ export default function Revenue() {
           }
         />
         <section className="chart-panel">
-          <RevenueChart service={service} showTotal />
+          <RevenueChart service={service} bookings={bookings} loading={status === 'loading'} offline={offline} showTotal />
         </section>
       </section>
     </Layout>
