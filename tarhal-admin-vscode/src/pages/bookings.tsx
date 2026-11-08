@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { DataTable, type Column } from '@/components/data-table';
 import { Layout } from '@/components/layout';
 import { ContextBadge, PageHeader } from '@/components/page-header';
@@ -37,9 +37,10 @@ export default function Bookings() {
   const { status: mockStatus, empty: forceEmpty, retry } = useMockStatus();
   const loadStatus = liveStatus === 'loading' ? 'loading' : liveStatus === 'error' ? 'error' : mockStatus;
   const needle = query.trim().toLowerCase();
-  const list = (forceEmpty ? [] : bookings).filter((row) =>
+  const { language } = useDemoState().settings;
+  const list = useMemo(() => (forceEmpty ? [] : bookings).filter((row) =>
     (filter === 'all' || row.type === filter) &&
-    (!needle || `${row.id} ${row.customer} ${t(row.type)} ${statusLabel(row.status, t)}`.toLowerCase().includes(needle)));
+    (!needle || `${row.id} ${row.customer} ${t(row.type)} ${statusLabel(row.status, t)}`.toLowerCase().includes(needle))), [bookings, filter, needle, forceEmpty, language]);
   const pendingCount = bookings.filter((row) => row.status === 'Pending').length;
   const resetFilters = () => { setFilter('all'); setQuery(''); };
 
@@ -48,18 +49,20 @@ export default function Bookings() {
     notify({ tone: status === 'Cancelled' ? 'warning' : 'success', titleKey: 'statusUpdatedTitle', messageKey: 'bookingStatusUpdated', params: { id, status: statusParam(status) } });
   }
 
+  // The status dropdown only exists in demo mode: the API has no route to change a booking's status.
+  const widths = offline ? ['10%', '12%', '17%', '19%', '12%', '12%'] : ['12%', '13%', '25%', '22%', '14%', '14%'];
   const columns: Column<Booking>[] = [
-    { key: 'type', width: '10%', header: t('type'), cell: (row) => t(row.type) },
-    { key: 'id', width: '12%', header: t('bookingId'), cell: (row) => <span title={row.id}><Ltr>{shortId(row.id)}</Ltr></span> },
-    { key: 'customer', width: '17%', header: t('customer'), cell: (row) => row.customer },
-    { key: 'date', width: '19%', header: t('dateTime'), muted: true, cell: (row) => format.dateTime(row.date) },
-    { key: 'price', width: '12%', header: t('totalPrice'), align: 'end', cell: (row) => <Money sar={row.price} /> },
-    { key: 'status', width: '12%', header: t('status'), align: 'center', cell: (row) => <StatusBadge status={row.status} /> },
-    { key: 'actions', width: '18%', header: t('actions'), align: 'end', cell: (row) => !offline ? <span className="text-sm text-muted-foreground">—</span> : (
+    { key: 'type', width: widths[0], header: t('type'), cell: (row) => t(row.type) },
+    { key: 'id', width: widths[1], header: t('bookingId'), cell: (row) => <span title={row.id}><Ltr>{shortId(row.id)}</Ltr></span> },
+    { key: 'customer', width: widths[2], header: t('customer'), cell: (row) => row.customer },
+    { key: 'date', width: widths[3], header: t('dateTime'), muted: true, cell: (row) => format.dateTime(row.date) },
+    { key: 'price', width: widths[4], header: t('totalPrice'), align: 'end', cell: (row) => <Money sar={row.price} /> },
+    { key: 'status', width: widths[5], header: t('status'), align: 'center', cell: (row) => <StatusBadge status={row.status} /> },
+    ...(!offline ? [] : [{ key: 'actions', width: '18%', header: t('actions'), align: 'end' as const, cell: (row: Booking) => (
       <select className="select-control" value={row.status} onChange={(event) => changeStatus(row.id, event.target.value as BookingStatus)} aria-label={`${t('status')} ${row.id}`} data-testid={`select-status-${row.id}`}>
         {STATUSES.map((status) => <option key={status} value={status}>{statusLabel(status, t)}</option>)}
       </select>
-    ) },
+    ) }]),
   ];
 
   return (
@@ -88,8 +91,8 @@ export default function Bookings() {
         <div className="section-card">
           <div className="table-wrap overflow-x-auto w-full rounded-xl" tabIndex={0} role="region" aria-label={t('allBookings')}>
             {loadStatus === 'loading' ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={retry} /> : <>
-            <DataTable caption={t('allBookings')} columns={columns} rows={list} getKey={(row) => row.id} minWidth={1100} />
-            {list.length === 0 && <EmptyState message={!offline && !query && (filter === 'hotel' || filter === 'car') ? t('noDataYet') : t('noResults')} actionLabel={filter !== 'all' || query ? t('clearFilters') : undefined} onAction={resetFilters} />}
+            {list.length > 0 && <DataTable caption={t('allBookings')} columns={columns} rows={list} getKey={(row) => row.id} minWidth={0} stackOnPhone />}
+            {list.length === 0 && <EmptyState message={query ? t('noResults') : !offline && (filter === 'hotel' || filter === 'car') ? t('noDataYet') : t('noBookingsYet')} actionLabel={filter !== 'all' || query ? t('clearFilters') : undefined} onAction={resetFilters} />}
             </>}
           </div>
         </div>
