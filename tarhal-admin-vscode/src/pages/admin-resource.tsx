@@ -173,8 +173,9 @@ export default function AdminResource({ kind }: { kind: Kind }) {
   // INTEGRATION POINT: Connect Saud's Flight & Booking APIs here
   // Flights = Saud. Hotels and Cars = Mohammed (INTEGRATION POINT: Connect Mohammed's Auth, Hotel & Car APIs here). Add/Edit/Remove below should call the matching endpoints.
   const { data: fetched, status: loadStatus, offline, reason, reload } = useLiveData(() => loaders[kind](), () => ({ rows: initialResources[kind], total: initialResources[kind].length }), kind);
-  const { bookings, status: bookingsStatus, offline: bookingsOffline } = useAdminBookings();
-  const { data: airlineDirectory, offline: airlinesOffline } = useLiveData<Airline[]>(() => flightService.airlineDirectory(), () => OPTIONS.airline.map((name) => ({ id: name, name, nameAr: translateValue(name, 'ar') })), 'airlines');
+  // Only the flights page uses bookings and airlines: Hotels and Cars skip both requests.
+  const { bookings, status: bookingsStatus, offline: bookingsOffline } = useAdminBookings(kind === 'flight');
+  const { data: airlineDirectory, offline: airlinesOffline } = useLiveData<Airline[]>(() => (kind === 'flight' ? flightService.airlineDirectory() : Promise.resolve([])), () => OPTIONS.airline.map((name) => ({ id: name, name, nameAr: translateValue(name, 'ar') })), `airlines-${kind === 'flight'}`);
   // The demo airlines have no real ids: never offer them while the API is working.
   const airlines = airlinesOffline && !offline ? [] : airlineDirectory;
   const can = WRITE_ACTIONS[kind];

@@ -82,7 +82,8 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:px-6">
+      {/* Wraps instead of overflowing on phones and with Senior Mode's larger text. */}
+      <div className="mx-auto flex min-h-16 w-full max-w-6xl flex-wrap items-center gap-2 px-4 py-2 sm:px-6">
         <BrandLink />
 
         <nav aria-label={t('mainNavigation')} className="ms-6 hidden items-center gap-1 md:flex">
@@ -91,13 +92,13 @@ export function Navbar() {
           ))}
         </nav>
 
-        <div className="ms-auto flex items-center gap-3">
+        <div className="ms-auto flex flex-wrap items-center justify-end gap-1.5 sm:gap-3">
           <CurrencySelect />
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3">
             <Button variant="ghost" size="sm" className={controlClass} onClick={() => updateSettings({ language: isArabic ? 'en' : 'ar' })}
               aria-label={isArabic ? 'Switch to English' : 'التبديل إلى العربية'} data-testid="button-navbar-language">
               <Languages className="size-4" aria-hidden="true" />
-              <span className="min-w-14 text-center" lang={isArabic ? 'en' : 'ar'} dir={isArabic ? 'ltr' : 'rtl'}>{isArabic ? t('english') : t('arabic')}</span>
+              <span className="hidden min-w-14 text-center sm:inline" lang={isArabic ? 'en' : 'ar'} dir={isArabic ? 'ltr' : 'rtl'}>{isArabic ? t('english') : t('arabic')}</span>
             </Button>
             <Button variant="ghost" size="icon" className={cn(controlClass, 'size-9 px-0')} onClick={() => updateSettings({ theme: isDark ? 'light' : 'dark' })}
               aria-label={isDark ? t('switchToLight') : t('switchToDark')} aria-pressed={isDark} data-testid="button-navbar-theme">

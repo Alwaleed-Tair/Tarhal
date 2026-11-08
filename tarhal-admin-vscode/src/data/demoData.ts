@@ -67,7 +67,7 @@ export const bookings: Booking[] = [
   { id: 'BK-1001', type: 'flight', customer: 'Sara Al-Otaibi', date: '2026-09-12T08:30', price: 267, status: 'Cancelled' },
   { id: 'BK-1002', type: 'car', customer: 'Khalid Al-Ghamdi', date: '2026-09-21T19:10', price: 300, status: 'Pending' },
   { id: 'BK-1003', type: 'hotel', customer: 'Zayn Malik', date: '2026-09-12T15:30', price: 1250, status: 'Confirmed' },
-  { id: 'BK-1004', type: 'flight', customer: 'Omar Faraj', date: '2027-02-11T23:55', price: 123, status: 'Confirmed' },
+  { id: 'BK-1004', type: 'flight', customer: 'Omar Faraj', date: '2026-10-11T23:55', price: 123, status: 'Confirmed' },
 ];
 
 export type User = {
@@ -88,7 +88,7 @@ export const users: User[] = [
   { id: '6738', name: 'Sara Al-Otaibi', email: 'sara@tarhal.com', date: '2026-09-12', bookings: 7, status: 'Inactive' },
   { id: '26252', name: 'Khalid Al-Ghamdi', email: 'khalid@tarhal.com', date: '2026-09-21', bookings: 3, status: 'Deleted' },
   { id: '2637', name: 'Zayn Malik', email: 'zayn@tarhal.com', date: '2026-09-12', bookings: 5, status: 'Active' },
-  { id: '26372', name: 'Omar Faraj', email: 'omar@tarhal.com', date: '2027-02-11', bookings: 9, status: 'Active' },
+  { id: '26372', name: 'Omar Faraj', email: 'omar@tarhal.com', date: '2026-10-11', bookings: 9, status: 'Active' },
 ];
 
 export type RevenueKey = 'cars' | 'flights' | 'hotels';

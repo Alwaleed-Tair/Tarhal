@@ -19,10 +19,10 @@ Login uses Mohammed's HTTP-only session cookie, so every request is sent with `w
 | Mohammed | Login / register / logout | `src/services/authService.ts` | paths (`/auth/login`, `/auth/register`, `/auth/logout`); register sends name, email, phone, dateOfBirth, password |
 | Mohammed | Hotels (public + admin) | `src/services/hotelService.ts` | field names in `toHotel` / `toRow` (`pick(...)` keys) |
 | Mohammed | Cars (public + admin) | `src/services/carService.ts` | field names in `toCar` / `toRow` |
-| Saud | Admin flights + airlines | `flightService.adminList` (`GET /admin/flights`), `flightService.airlines` (`GET /admin/airlines`) | field names in `toRow`; airline may be a nested object |
+| Saud | Admin flights + airlines | `flightService.adminList` (`GET /admin/flights`), `flightService.airlines` (`GET /admin/airlines`) | connected; re-check field names in `toRow` against Saud's new code |
 | Abdulelah / Tariq | Passenger booking (public site, not admin) | `flightService.search/getById`, `bookingService.create` | 409 = seat taken |
-| Saud | Admin bookings table | `bookingService.list` (`GET /admin/bookings`, ready) → wire into `src/pages/bookings.tsx` | response shape |
-| Saud | Admin flight add / edit | `src/pages/admin-resource.tsx` (`saveRecord`) → `POST /admin/flights` (needs `airlineId`), `PATCH /admin/flights/[id]` | form is local only and has no time fields yet |
+| Saud | Admin bookings table | `bookingService.list` (`GET /admin/bookings`) | connected; re-check the response shape against Saud's new code |
+| Saud | Admin flight add / edit | `src/pages/admin-resource.tsx` (`saveRecord`) → `POST /admin/flights` (needs `airlineId`), `PATCH /admin/flights/[id]` | connected; PATCH only changes price and departure time |
 | Tariq | Trip search form | `src/components/search-form-slot.tsx` | drop `<TripSearchForm />` in as children on `pages/home.tsx` |
 | Tariq | Search API | `src/components/listing-view.tsx` (local text filter) | replace with a request if search should be server-side |
 
@@ -32,8 +32,11 @@ Login uses Mohammed's HTTP-only session cookie, so every request is sent with `w
 | `/login`, `/register` | `authService` | `mockLogin` / `mockRegister` in `store/authStore.ts` |
 | `/stays` | `hotelService.listPublic()` | `data/listings.ts` |
 | `/rentals` | `carService.listPublic()` | `data/listings.ts` |
-| `/flights`, `/hotels`, `/cars` (admin) | `flightService.search()`, `hotelService.list()`, `carService.list()` | `initialResources` in `data/demoData.ts` |
-| `/bookings` list, `/users`, `/revenue`, `/dashboard` | demo store | (no endpoints yet) |
+| `/flights`, `/hotels`, `/cars` (admin) | `flightService.adminList()`, `hotelService.list()`, `carService.list()` | `initialResources` in `data/demoData.ts` |
+| `/bookings`, `/revenue`, `/dashboard` | `bookingService.list()` (`GET /admin/bookings`) | demo store |
+| `/users` | customers found in `GET /admin/bookings` (there is no users endpoint yet) | demo store |
+
+Admin pages need a signed-in user who is not a traveler (`AdminOnly` in `src/App.tsx`). That only hides the pages; the server's 401 on `/api/admin/*` is the real protection.
 
 ## Debugging "why is it not live?"
 1. Look for the **Demo data · <reason>** badge (`HTTP 404` = wrong path, `Server unreachable / CORS` = server off or CORS).
@@ -44,3 +47,4 @@ Login uses Mohammed's HTTP-only session cookie, so every request is sent with `w
 - Components: `src/components/` (design-system primitives in `components/ui/`). Pages: `src/pages/`.
 - Colors/theme tokens: `src/index.css`. Routes: `src/config/routes.ts`. Texts (EN + AR): `src/i18n/translations.ts`.
 - New text = add the key to **both** `en` and `ar`.
+- Show amounts with `<Money sar={...} />`: it draws the official Saudi Riyal symbol (`public/Saudi_Riyal_Symbol-2.svg`) by SAMA's rules. `format.currency()` is plain text, only for places that cannot hold an icon (`aria-label`, `<option>`).

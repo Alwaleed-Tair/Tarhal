@@ -24,7 +24,7 @@ export function HotelCard({ hotel }: { hotel: Hotel }) {
   const address = language === 'ar' ? hotel.addressAr : hotel.address;
 
   return (
-    <Card className="flex flex-col overflow-hidden transition-shadow hover:shadow-lg" data-testid={`hotel-card-${hotel.id}`}>
+    <Card className="flex w-full flex-col overflow-hidden transition-shadow hover:shadow-lg" data-testid={`hotel-card-${hotel.id}`}>
       <div className="relative aspect-[16/10] bg-gradient-to-br from-primary/25 to-muted">
         {imageFailed
           ? <div className="grid size-full place-items-center text-primary"><HotelIcon className="size-10" aria-hidden="true" /></div>
@@ -57,7 +57,7 @@ export function CarCard({ car }: { car: Car }) {
   const [insuranceBefore, insuranceAfter] = t('insurancePerDay', { price: '\0' }).split('\0');
 
   return (
-    <Card className="flex flex-col transition-shadow hover:shadow-lg" data-testid={`car-card-${car.id}`}>
+    <Card className="flex w-full flex-col transition-shadow hover:shadow-lg" data-testid={`car-card-${car.id}`}>
       <CardContent className="grid flex-1 content-start gap-3 p-4">
         <div className="flex items-start justify-between gap-2">
           <h3 className="text-base font-semibold text-foreground">{title}</h3>
