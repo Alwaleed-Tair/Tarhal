@@ -4,7 +4,8 @@ import { useSyncExternalStore } from 'react';
 // Replace mockLogin / mockRegister with real API calls when the backend exists.
 // Demo triggers: error@tarhal.com fails to log in, taken@tarhal.com fails to register.
 
-export type AuthUser = { name: string; email: string };
+/** `role` comes from the real login response ('ADMIN' or 'TRAVELER'). The demo login has none. */
+export type AuthUser = { name: string; email: string; role?: string };
 export type AuthErrorCode = 'invalidCredentials' | 'emailTaken';
 
 export class AuthError extends Error {
@@ -81,6 +82,14 @@ export function saveSession(user: AuthUser, token?: string) {
 export function logout() {
   setUser(null);
   try { localStorage.removeItem('token'); } catch { /* storage unavailable */ }
+}
+
+/**
+ * May this user see the admin pages? Hides them from travelers; the real protection is the server's 401 on /api/admin/*.
+ * No role means the demo login, or a session saved before roles were stored: allowed, and the server still refuses real data.
+ */
+export function canUseAdmin(user: AuthUser | null): boolean {
+  return user !== null && (!user.role || user.role.toUpperCase() === 'ADMIN');
 }
 
 export function useAuth() {

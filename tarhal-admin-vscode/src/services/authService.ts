@@ -10,7 +10,7 @@ function readSession(body: Raw, fallback: AuthUser): { user: AuthUser; token?: s
   const u = ((d.user as Raw) ?? d) as Raw;
   return {
     token: str(pick(d, 'token', 'accessToken', 'jwt')) || undefined,
-    user: { name: str(pick(u, 'name', 'fullName', 'username')) || fallback.name, email: str(pick(u, 'email')) || fallback.email },
+    user: { name: str(pick(u, 'name', 'fullName', 'username')) || fallback.name, email: str(pick(u, 'email')) || fallback.email, role: str(pick(u, 'role')) || undefined },
   };
 }
 

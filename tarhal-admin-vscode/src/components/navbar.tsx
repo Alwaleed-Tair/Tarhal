@@ -9,7 +9,7 @@ import { useDismiss } from '@/hooks/use-dismiss';
 import { useSignOut } from '@/hooks/use-sign-out';
 import { useT } from '@/i18n/use-i18n';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/store/authStore';
+import { canUseAdmin, useAuth } from '@/store/authStore';
 import { updateSettings, useDemoState } from '@/store/demoStore';
 
 // Shared look for the language + theme controls so they read as one unified pair.
@@ -47,9 +47,11 @@ function AccountMenu() {
       {open && (
         <div role="menu" className="absolute end-0 top-full z-50 mt-2 w-56 rounded-xl border bg-card p-1.5 shadow-lg">
           <p className="truncate px-3 py-2 text-xs text-muted-foreground" dir="ltr">{user.email}</p>
-          <Link href={routes.admin.dashboard} role="menuitem" className={itemClass} onClick={() => setOpen(false)}>
-            <LayoutDashboard className="size-4" aria-hidden="true" />{t('adminDashboard')}
-          </Link>
+          {canUseAdmin(user) && (
+            <Link href={routes.admin.dashboard} role="menuitem" className={itemClass} onClick={() => setOpen(false)}>
+              <LayoutDashboard className="size-4" aria-hidden="true" />{t('adminDashboard')}
+            </Link>
+          )}
           <button role="menuitem" className={cn(itemClass, 'text-destructive')} onClick={() => { setOpen(false); signOut(); }} data-testid="button-logout">
             <LogOut className="size-4" aria-hidden="true" />{t('logout')}
           </button>

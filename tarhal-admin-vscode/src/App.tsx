@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
+import { Redirect, Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 import { ErrorBoundary } from '@/components/error-boundary';
 import ChatAssistant from '@/components/chat-assistant';
 import ToastViewport from '@/components/toast-viewport';
@@ -16,10 +16,20 @@ import Revenue from '@/pages/revenue';
 import Users from '@/pages/users';
 import Settings from '@/pages/settings';
 import NotFound from '@/pages/not-found';
+import { routes } from '@/config/routes';
+import { canUseAdmin, useAuth } from '@/store/authStore';
 
 function RoutedErrorBoundary({ children }: { children: ReactNode }) {
   const [location] = useLocation();
   return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
+}
+
+/** Signed-out visitors go to the login page, travelers to the home page. */
+function AdminOnly({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  if (!user) return <Redirect to={routes.login} replace />;
+  if (!canUseAdmin(user)) return <Redirect to={routes.home} replace />;
+  return <>{children}</>;
 }
 
 function Routes() {
@@ -33,20 +43,14 @@ function Routes() {
         <Route path="/stays" component={Stays} />
         <Route path="/rentals" component={Rentals} />
         {/* Admin (see routes.admin in config/routes.ts) */}
-        <Route path="/dashboard" component={Dashboard} />
-        <Route path="/flights">
-          <AdminResource kind="flight" />
-        </Route>
-        <Route path="/hotels">
-          <AdminResource kind="hotel" />
-        </Route>
-        <Route path="/cars">
-          <AdminResource kind="car" />
-        </Route>
-        <Route path="/bookings" component={Bookings} />
-        <Route path="/revenue" component={Revenue} />
-        <Route path="/users" component={Users} />
-        <Route path="/settings" component={Settings} />
+        <Route path="/dashboard"><AdminOnly><Dashboard /></AdminOnly></Route>
+        <Route path="/flights"><AdminOnly><AdminResource kind="flight" /></AdminOnly></Route>
+        <Route path="/hotels"><AdminOnly><AdminResource kind="hotel" /></AdminOnly></Route>
+        <Route path="/cars"><AdminOnly><AdminResource kind="car" /></AdminOnly></Route>
+        <Route path="/bookings"><AdminOnly><Bookings /></AdminOnly></Route>
+        <Route path="/revenue"><AdminOnly><Revenue /></AdminOnly></Route>
+        <Route path="/users"><AdminOnly><Users /></AdminOnly></Route>
+        <Route path="/settings"><AdminOnly><Settings /></AdminOnly></Route>
         <Route component={NotFound} />
       </Switch>
     </RoutedErrorBoundary>
