@@ -95,8 +95,8 @@ export default function Users() {
         <div className="section-card">
           <div className="table-wrap overflow-x-auto w-full rounded-xl" tabIndex={0} role="region" aria-label={t('usersManagement')}>
             {loadStatus === 'loading' ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={retry} /> : <>
-            <DataTable caption={t('usersManagement')} columns={columns} rows={list} getKey={(row) => row.id} minWidth={offline ? 1100 : 760} />
-            {list.length === 0 && <EmptyState message={t('noResults')} actionLabel={filter !== 'all' || query ? t('clearFilters') : undefined} onAction={resetFilters} />}
+            {list.length > 0 && <DataTable caption={t('usersManagement')} columns={columns} rows={list} getKey={(row) => row.id} minWidth={0} stackOnPhone />}
+            {list.length === 0 && <EmptyState message={!offline && !query ? t('noCustomersYet') : t('noResults')} actionLabel={filter !== 'all' || query ? t('clearFilters') : undefined} onAction={resetFilters} />}
             </>}
           </div>
         </div>
