@@ -42,6 +42,9 @@ export const translations = {
     dashboardSubtitle: 'Bookings, revenue and users at a glance.', flightsSubtitle: 'Manage flights, routes and prices.', hotelsSubtitle: 'Manage hotels, rooms and nightly prices.', carsSubtitle: 'Manage rental cars, locations and daily prices.',
     bookingsSubtitle: 'Review bookings and update their status.', revenueSubtitle: 'Track revenue by service and period.', usersSubtitle: 'Manage customer accounts and their status.',
     // Admin flight form, "no data" labels and API-backed listing filters.
+    sectionFlight: 'Flight', sectionSchedule: 'Schedule', sectionPrice: 'Price', noFlightsYet: 'No flights yet. Add the first one to get started.', noCustomersYet: 'No customers yet. They appear here after their first booking.', noHotelsYet: 'No hotels to show yet.', noCarsYet: 'No available cars to show yet.',
+    customRange: 'Custom range', rangeFrom: 'From', rangeTo: 'To', rangeInvalid: 'The start date must be on or before the end date.',
+    bookingDate: 'Date', noBookingsYet: 'No bookings yet. New bookings will appear here.', noRevenueInPeriod: 'No revenue in this period yet.', vsLastMonth: '{change} vs last month',
     collapseSidebar: 'Collapse sidebar', expandSidebar: 'Expand sidebar', jumpToPage: 'Go to page…',
     noDataYet: 'No data yet', usersLiveSubtitle: 'Customers who have at least one booking. A full user list needs a users API, which does not exist yet.',
     fromAirport: 'From (airport code)', toAirport: 'To (airport code)', departureTime: 'Departure', arrivalTime: 'Arrival', riyadhTime: 'Riyadh time', basePrice: 'Base price (SAR)',
@@ -169,6 +172,9 @@ export const translations = {
     dashboardSubtitle: 'الحجوزات والإيرادات والمستخدمون في لمحة.', flightsSubtitle: 'إدارة الرحلات والمسارات والأسعار.', hotelsSubtitle: 'إدارة الفنادق والغرف وأسعار الليلة.', carsSubtitle: 'إدارة السيارات والمواقع والأسعار اليومية.',
     bookingsSubtitle: 'راجع الحجوزات وحدّث حالتها.', revenueSubtitle: 'تابع الإيرادات حسب الخدمة والفترة.', usersSubtitle: 'إدارة حسابات العملاء وحالتها.',
     // Admin flight form, "no data" labels and API-backed listing filters.
+    sectionFlight: 'الرحلة', sectionSchedule: 'المواعيد', sectionPrice: 'السعر', noFlightsYet: 'لا توجد رحلات بعد. أضف أول رحلة للبدء.', noCustomersYet: 'لا يوجد عملاء بعد. سيظهرون هنا بعد أول حجز.', noHotelsYet: 'لا توجد فنادق للعرض بعد.', noCarsYet: 'لا توجد سيارات متاحة للعرض بعد.',
+    customRange: 'نطاق مخصص', rangeFrom: 'من', rangeTo: 'إلى', rangeInvalid: 'يجب أن يكون تاريخ البداية في تاريخ النهاية أو قبله.',
+    bookingDate: 'التاريخ', noBookingsYet: 'لا توجد حجوزات بعد. ستظهر الحجوزات الجديدة هنا.', noRevenueInPeriod: 'لا توجد إيرادات في هذه الفترة بعد.', vsLastMonth: '{change} مقارنة بالشهر الماضي',
     collapseSidebar: 'طي الشريط الجانبي', expandSidebar: 'توسيع الشريط الجانبي', jumpToPage: 'انتقل إلى صفحة…',
     noDataYet: 'لا توجد بيانات بعد', usersLiveSubtitle: 'العملاء الذين لديهم حجز واحد على الأقل. تتطلب القائمة الكاملة واجهة API للمستخدمين غير متوفرة بعد.',
     fromAirport: 'من (رمز المطار)', toAirport: 'إلى (رمز المطار)', departureTime: 'المغادرة', arrivalTime: 'الوصول', riyadhTime: 'بتوقيت الرياض', basePrice: 'السعر الأساسي (ريال)',

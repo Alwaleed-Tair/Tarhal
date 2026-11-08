@@ -18,6 +18,27 @@ export function bookingMetrics(bookings: Booking[], service: ServiceFilter = 'al
   };
 }
 
+/** Bookings, revenue and customers of each month of `year` so far (Riyadh time), for the dashboard's trend lines. */
+export function monthlyMetrics(bookings: Booking[], year: number, service: ServiceFilter = 'all') {
+  const scoped = service === 'all' ? bookings : bookings.filter((booking) => booking.type === service);
+  const months = Array.from({ length: new Date().getMonth() + 1 }, () => ({ bookings: 0, revenue: 0, users: new Set<string>() }));
+  for (const booking of scoped) {
+    const local = isoToRiyadhLocal(booking.date);
+    const month = months[Number(local.slice(5, 7)) - 1];
+    if (Number(local.slice(0, 4)) !== year || !month) continue;
+    month.bookings += 1;
+    if (earnsRevenue(booking)) { month.revenue += booking.price; month.users.add(booking.userId ?? booking.customer); }
+  }
+  return { bookings: months.map((m) => m.bookings), revenue: months.map((m) => m.revenue), users: months.map((m) => m.users.size) };
+}
+
+/** Whole-number change from last month to this month, or null when last month is empty or there is no last month. */
+export function monthChange(series: number[]): number | null {
+  const previous = series[series.length - 2];
+  if (!previous) return null;
+  return Math.round(((series[series.length - 1] - previous) / previous) * 100);
+}
+
 const SERIES: Record<Service, RevenueKey> = { flight: 'flights', hotel: 'hotels', car: 'cars' };
 
 /** Revenue (SAR) of each month of `year`, by service, in Riyadh time. Always returns 12 rows. */

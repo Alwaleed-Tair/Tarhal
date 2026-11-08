@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import type { ServiceFilter } from '@/data/demoData';
 import { Layout } from '@/components/layout';
 import { ContextBadge, PageHeader } from '@/components/page-header';
-import RevenueChart from '@/components/revenue-chart';
+import { ChartSkeleton } from '@/components/skeleton';
 import { useAdminBookings } from '@/hooks/use-admin-bookings';
 import { useT } from '@/i18n/use-i18n';
+
+const RevenueChart = lazy(() => import('@/components/revenue-chart'));
 
 export default function Revenue() {
   const t = useT();
@@ -32,7 +34,7 @@ export default function Revenue() {
           }
         />
         <section className="chart-panel">
-          <RevenueChart service={service} bookings={bookings} loading={status === 'loading'} offline={offline} showTotal />
+          <Suspense fallback={<ChartSkeleton />}><RevenueChart service={service} bookings={bookings} loading={status === 'loading'} offline={offline} showTotal /></Suspense>
         </section>
       </section>
     </Layout>

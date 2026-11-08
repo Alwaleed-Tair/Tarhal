@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type ReactNode, type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Accessibility, BriefcaseBusiness, CarFront, ChevronDown, CircleUserRound, FileText, Gauge, Hotel, Languages, LogOut, Menu, Moon, PanelLeftClose, PanelLeftOpen, Plane, Search, Settings2, Sun, Users, X } from 'lucide-react';
 import { useT } from '@/i18n/use-i18n';
@@ -299,9 +299,16 @@ export function Layout({ children }: { children: ReactNode }) {
     root.dataset.adminSidebar = collapsed ? 'collapsed' : 'open';
     return () => { delete root.dataset.adminSidebar; };
   }, [collapsed]);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') setMenuOpen(false); };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [menuOpen]);
   return (
     <div className={`app-shell${collapsed ? ' is-collapsed' : ''}`}>
       <Sidebar onNavClick={() => setMenuOpen(false)} />
+      {menuOpen && <div className="mobile-nav-backdrop" onClick={() => setMenuOpen(false)} aria-hidden="true" />}
       <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
       <main className="main-shell">
         <Topbar onOpenMobileMenu={() => setMenuOpen(true)} />

@@ -85,7 +85,7 @@ export default function RevenueChart({ service, bookings, loading, offline, show
         </select>
       </div>
 
-      {loading ? <ChartSkeleton /> : (
+      {loading ? <ChartSkeleton /> : total === 0 ? <p className="chart-no-data" data-testid="chart-empty">{t('noRevenueInPeriod')}</p> : (
         <div className="chart-scroll">
           <div className="chart-inner" style={{ '--months': rows.length, '--bar-max': `${barMaxWidth(rows.length)}px` } as CSSProperties}>
             <div className="chart-frame">
