@@ -696,3 +696,119 @@ html.accessibility-large { font-size: 125%; }
   .period-select { min-width: 0; width: 100%; }
   .filter-row { margin-top: 0; }
 }
+
+/* ==========================================================================
+   29. Admin redesign: design system and shell.
+   Everything here applies only inside the admin. :where() keeps specificity low, so the
+   Senior Mode and high-contrast rules above still win. Colours come only from the theme tokens.
+   ========================================================================== */
+.app-shell {
+  --adm-radius: 12px;
+  --adm-radius-sm: 8px;
+  --adm-line: hsl(var(--border) / .8);
+  --adm-shadow: 0 1px 2px hsl(var(--sidebar) / .05), 0 4px 14px hsl(var(--sidebar) / .05);
+  --adm-shadow-lift: 0 2px 4px hsl(var(--sidebar) / .07), 0 10px 26px hsl(var(--sidebar) / .1);
+  --adm-gutter: 28px;
+}
+.dark .app-shell { --adm-shadow: 0 1px 2px #0000004d, 0 4px 14px #00000033; --adm-shadow-lift: 0 2px 4px #00000059, 0 10px 26px #00000059; }
+.accessibility-contrast .app-shell { --adm-line: hsl(var(--border)); --adm-shadow: none; --adm-shadow-lift: none; }
+
+/* Sidebar width is on <html> because the chatbot, outside the shell, has to line up with it. */
+html[data-admin-sidebar] { --adm-sidebar: 248px; }
+html[data-admin-sidebar='collapsed'] { --adm-sidebar: 72px; }
+html.accessibility-large[data-admin-sidebar] { --adm-sidebar: 290px; }
+html.accessibility-large[data-admin-sidebar='collapsed'] { --adm-sidebar: 92px; }
+
+.app-shell { background: radial-gradient(1100px 460px at 100% -8%, hsl(var(--primary) / .08), transparent 62%), hsl(var(--background)); }
+[dir='rtl'] .app-shell { background: radial-gradient(1100px 460px at 0% -8%, hsl(var(--primary) / .08), transparent 62%), hsl(var(--background)); }
+.accessibility-contrast .app-shell { background: hsl(var(--background)); }
+
+/* Sidebar */
+html[data-admin-sidebar] .sidebar { width: var(--adm-sidebar); flex-basis: var(--adm-sidebar); }
+:where(.app-shell) .sidebar { position: sticky; top: 0; z-index: 25; height: 100dvh; padding: 14px 12px 84px; overflow-y: auto; border-inline-end: 1px solid hsl(var(--sidebar-border)); transition: width .2s ease, flex-basis .2s ease; }
+:where(.app-shell) .brand { height: 52px; margin-bottom: 14px; padding: 0 8px; }
+:where(.app-shell) .brand img { width: 36px; height: 34px; }
+:where(.app-shell) .nav-link { position: relative; min-height: 40px; padding: 8px 10px; border-radius: var(--adm-radius-sm); font-size: calc(14px * var(--text-scale)); font-weight: 500; color: hsl(var(--sidebar-foreground) / .8); transition: background-color .15s ease, color .15s ease; }
+:where(.app-shell) .nav-link:hover { transform: none; background: hsl(var(--sidebar-foreground) / .08); color: hsl(var(--sidebar-foreground)); }
+[dir='rtl'] :where(.app-shell) .nav-link:hover { transform: none; }
+:where(.app-shell) .nav-link:active { background: hsl(var(--sidebar-foreground) / .14); }
+:where(.app-shell) .nav-link.active { background: hsl(var(--sidebar-primary) / .3); color: #fff; font-weight: 600; }
+:where(.app-shell) .nav-link.active::before { content: ''; position: absolute; inset-block: 9px; inset-inline-start: -12px; width: 3px; border-start-end-radius: 3px; border-end-end-radius: 3px; background: hsl(var(--primary)); }
+.accessibility-contrast :where(.app-shell) .nav-link { color: #fff; }
+.accessibility-contrast :where(.app-shell) .nav-link.active { color: #000; }
+.accessibility-contrast :where(.app-shell) .nav-link.active::before { background: #fff; }
+
+/* Collapsed rail: labels stay available to screen readers and appear as tooltips. */
+.app-shell.is-collapsed .sidebar { overflow: visible; padding-inline: 12px; }
+.app-shell.is-collapsed .brand { justify-content: center; padding: 0; }
+.app-shell.is-collapsed .brand-text { display: none; }
+.app-shell.is-collapsed .nav-link { justify-content: center; padding-inline: 0; }
+.app-shell.is-collapsed .nav-link > span:not(.nav-icon) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.app-shell.is-collapsed .nav-link::after { content: attr(data-tip); position: absolute; z-index: 40; top: 50%; inset-inline-start: calc(100% + 12px); padding: 5px 9px; border-radius: 6px; background: hsl(var(--sidebar)); border: 1px solid hsl(var(--sidebar-border)); color: #fff; font-size: calc(12px * var(--text-scale)); font-weight: 600; white-space: nowrap; opacity: 0; pointer-events: none; transform: translateY(-50%); transition: opacity .12s ease; }
+.app-shell.is-collapsed .nav-link:hover::after, .app-shell.is-collapsed .nav-link:focus-visible::after { opacity: 1; }
+
+/* Chatbot launcher and panel follow the sidebar. Styling only: the chat component is not changed. */
+@media (min-width: 681px) {
+  html[data-admin-sidebar] .chat-launcher { inset-inline-start: 12px; width: calc(var(--adm-sidebar) - 24px); min-height: 44px; border-radius: var(--adm-radius-sm, 8px); box-shadow: none; }
+  html[data-admin-sidebar='collapsed'] .chat-launcher { justify-content: center; padding: 0; }
+  html[data-admin-sidebar='collapsed'] .chat-launcher > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  html[data-admin-sidebar] .chat-panel { inset-inline-start: calc(var(--adm-sidebar) + 16px); width: min(370px, calc(100vw - var(--adm-sidebar) - 32px)); }
+}
+
+/* Top bar: slim, sticky, with every control the same height */
+:where(.app-shell) .main-shell { min-height: 100dvh; }
+:where(.app-shell) .topbar { position: sticky; top: 0; z-index: 15; height: auto; min-height: 60px; flex-wrap: wrap; justify-content: flex-start; gap: 8px; padding: 10px var(--adm-gutter); background: hsl(var(--background) / .8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--adm-line); }
+.accessibility-contrast :where(.app-shell) .topbar { background: hsl(var(--background)); backdrop-filter: none; }
+:where(.topbar) .global-search-wrap { flex: 1 1 130px; max-width: 240px; min-width: 130px; margin-inline-end: auto; }
+:where(.topbar) .global-search { width: 100%; height: 36px; border-radius: var(--adm-radius-sm); border-color: var(--adm-line); }
+:where(.topbar) .top-action { display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border-radius: var(--adm-radius-sm); transition: background-color .15s ease; }
+:where(.topbar) .top-action:hover { background: hsl(var(--muted)); }
+:where(.topbar) .top-action:active { background: hsl(var(--border)); }
+:where(.topbar) .senior-toggle.active { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+:where(.topbar) .currency-select { height: 36px; border-radius: var(--adm-radius-sm); border-color: var(--adm-line); }
+:where(.topbar) .logo-controls { margin: 0; gap: 8px; align-items: stretch; }
+:where(.topbar) .theme-pill { width: auto; height: 36px; gap: 2px; padding: 3px; border: 1px solid var(--adm-line); border-radius: var(--adm-radius-sm); background: hsl(var(--card)); color: hsl(var(--muted-foreground)); }
+:where(.topbar) .theme-pill span { width: 28px; height: 28px; border-radius: 6px; }
+:where(.topbar) .theme-pill span.selected { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+:where(.topbar) .lang-pill { min-height: 36px; padding: 0 10px; border: 1px solid var(--adm-line); border-radius: var(--adm-radius-sm); background: hsl(var(--card)); color: hsl(var(--foreground)); font-weight: 600; }
+:where(.topbar) .lang-pill:hover { background: hsl(var(--muted)); }
+.accessibility-contrast :where(.topbar) :is(.theme-pill, .lang-pill) { border: 2px solid hsl(var(--foreground)); }
+:where(.topbar) .user-button { height: 36px; padding: 0 8px; border-radius: var(--adm-radius-sm); white-space: nowrap; font-size: calc(14px * var(--text-scale)); font-weight: 500; transition: background-color .15s ease; }
+:where(.topbar) .user-button:hover { background: hsl(var(--muted)); }
+.accessibility-large :where(.topbar) :is(.user-button, .top-action, .currency-select, .lang-pill, .theme-pill) { height: auto; min-height: 48px; min-width: 48px; }
+.accessibility-large :where(.topbar) .global-search { width: 100%; }
+
+/* Dropdowns: one elevation style */
+:where(.app-shell) .user-dropdown { top: calc(100% + 8px); padding: 6px; border-color: var(--adm-line); border-radius: var(--adm-radius); box-shadow: var(--adm-shadow-lift); }
+:where(.app-shell) .user-dropdown button { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: var(--adm-radius-sm); font-size: calc(14px * var(--text-scale)); }
+:where(.app-shell) .search-suggestions { border-color: var(--adm-line); border-radius: var(--adm-radius); box-shadow: var(--adm-shadow-lift); }
+html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box-shadow: 0 2px 4px hsl(var(--sidebar) / .08), 0 12px 30px hsl(var(--sidebar) / .16); }
+
+/* Page area: no big panel, content sits on the background */
+:where(.app-shell) .page-wrap { padding: 0; }
+:where(.app-shell) .page-panel { width: 100%; max-width: 1440px; min-height: 0; margin-inline: auto; padding: 24px var(--adm-gutter) 40px; border-radius: 0; background: transparent; box-shadow: none; }
+.accessibility-contrast :where(.app-shell) .page-panel { border: 0; }
+:where(.app-shell) .page-header { align-items: flex-end; margin: 0 0 20px; }
+:where(.app-shell) .page-title-row h1 { font-size: calc(24px * var(--text-scale)); font-weight: 650; line-height: 1.25; color: hsl(var(--card-foreground)); }
+:where(.app-shell) .page-subtitle { font-size: calc(14px * var(--text-scale)); }
+:where(.app-shell) .heading-actions .select-control { min-height: 36px; border-color: var(--adm-line); border-radius: var(--adm-radius-sm); background: hsl(var(--card)); }
+.accessibility-large :where(.app-shell) .heading-actions .select-control { min-height: 48px; }
+
+@media (max-width: 1120px) {
+  .app-shell { --adm-gutter: 20px; }
+  :where(.topbar) .user-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+}
+@media (max-width: 680px) {
+  .app-shell { --adm-gutter: 16px; }
+  :where(.app-shell) .topbar { position: static; padding-block: 8px; }
+  :where(.topbar) .sidebar-toggle, :where(.topbar) .logo-controls { display: none; }
+  :where(.topbar) .menu-toggle { margin-inline-end: auto; border: 0; border-radius: var(--adm-radius-sm); }
+  :where(.topbar) .global-search-wrap { order: 10; flex: 1 0 100%; max-width: none; margin-inline-end: 0; }
+  /* The large-text launcher width used to stretch the round phone button across the page. */
+  html[data-admin-sidebar] .chat-launcher-mobile { width: 52px; }
+  :where(.app-shell) .page-panel { padding-block: 16px 72px; }
+}
+@media (min-width: 681px) { :where(.topbar) .menu-toggle { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  :where(.app-shell) .sidebar { transition: none; }
+}

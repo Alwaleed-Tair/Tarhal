@@ -1,12 +1,14 @@
-import { useRef, useState, type ReactNode, type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Accessibility, BriefcaseBusiness, CarFront, ChevronDown, CircleUserRound, FileText, Gauge, Hotel, Languages, Menu, Moon, Plane, Search, Settings2, Sun, Users, X } from 'lucide-react';
+import { Accessibility, BriefcaseBusiness, CarFront, ChevronDown, CircleUserRound, FileText, Gauge, Hotel, Languages, LogOut, Menu, Moon, PanelLeftClose, PanelLeftOpen, Plane, Search, Settings2, Sun, Users, X } from 'lucide-react';
 import { useT } from '@/i18n/use-i18n';
 import { CurrencySelect } from '@/components/currency-select';
 import { NotificationsMenu } from '@/components/notifications-menu';
 import { setSeniorMode, updateSettings, useDemoState } from '@/store/demoStore';
 import { brand } from '@/config/branding';
 import { useDismiss } from '@/hooks/use-dismiss';
+import { useSignOut } from '@/hooks/use-sign-out';
+import { toggleSidebar, useSidebarCollapsed } from '@/hooks/use-sidebar';
 
 // Main navigation items shown in the sidebar, mobile menu, and search suggestions.
 const navItems = [
@@ -38,7 +40,7 @@ function Logo() {
   );
 }
 
-// Theme pill + language pill shown together under the logo (same look as the original theme pill).
+// Theme pill + language pill shown together: in the top bar, and in the phone menu.
 function LogoControls() {
   const t = useT();
   const { settings } = useDemoState();
@@ -76,7 +78,6 @@ function Sidebar({ onNavClick }: { onNavClick: () => void }) {
   return (
     <aside className="sidebar">
       <Logo />
-      <LogoControls />
       <nav className="nav-list" aria-label={t('mainNavigation')}>
         {navItems.map(({ href, key, icon: Icon }) => (
           <Link
@@ -85,6 +86,7 @@ function Sidebar({ onNavClick }: { onNavClick: () => void }) {
             className={`nav-link ${location === href ? 'active' : ''}`}
             aria-current={location === href ? 'page' : undefined}
             data-testid={`link-${key}`}
+            data-tip={t(key)}
             onClick={onNavClick}
           >
             <span className="nav-icon"><Icon size={17} /></span>
@@ -170,8 +172,8 @@ function GlobalSearch() {
           onFocus={() => setIsOpen(true)}
           onBlur={() => setTimeout(() => setIsOpen(false), 120)}
           onKeyDown={handleKeyDown}
-          placeholder={t('search')}
-          aria-label={t('search')}
+          placeholder={t('jumpToPage')}
+          aria-label={t('jumpToPage')}
           data-testid="input-global-search"
         />
       </label>
@@ -206,6 +208,7 @@ function UserMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const t = useT();
+  const signOut = useSignOut();
   useDismiss(menuRef, isOpen, () => setIsOpen(false));
 
   return (
@@ -214,10 +217,11 @@ function UserMenu() {
         className="user-button"
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
+        aria-label={t('admin')}
         data-testid="button-user-menu"
       >
         <CircleUserRound size={17} />
-        {t('admin')}
+        <span className="user-name">{t('admin')}</span>
         <ChevronDown size={15} />
       </button>
       {isOpen && (
@@ -228,6 +232,7 @@ function UserMenu() {
           >
             {t('settings')}
           </button>
+          <button onClick={() => { setIsOpen(false); signOut(); }} data-testid="button-user-logout"><LogOut size={15} aria-hidden="true" />{t('logout')}</button>
           <button onClick={() => setIsOpen(false)} data-testid="button-user-close">{t('close')}</button>
         </div>
       )}
@@ -254,6 +259,18 @@ function SeniorModeButton() {
   );
 }
 
+function SidebarToggle() {
+  const t = useT();
+  const collapsed = useSidebarCollapsed();
+  const label = collapsed ? t('expandSidebar') : t('collapseSidebar');
+  const Icon = collapsed ? PanelLeftOpen : PanelLeftClose;
+  return (
+    <button className="top-action sidebar-toggle" onClick={toggleSidebar} aria-expanded={!collapsed} aria-label={label} title={label} data-testid="button-sidebar-toggle">
+      <Icon size={17} className="rtl:-scale-x-100" aria-hidden="true" />
+    </button>
+  );
+}
+
 function Topbar({ onOpenMobileMenu }: { onOpenMobileMenu: () => void }) {
   const t = useT();
   return (
@@ -261,7 +278,9 @@ function Topbar({ onOpenMobileMenu }: { onOpenMobileMenu: () => void }) {
       <button className="menu-toggle" onClick={onOpenMobileMenu} aria-label={t('openNavigation')}>
         <Menu size={20} />
       </button>
+      <SidebarToggle />
       <GlobalSearch />
+      <LogoControls />
       <CurrencySelect />
       <SeniorModeButton />
       <NotificationsMenu />
@@ -272,8 +291,16 @@ function Topbar({ onOpenMobileMenu }: { onOpenMobileMenu: () => void }) {
 
 export function Layout({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const collapsed = useSidebarCollapsed();
+  // Toasts and the chatbot are rendered outside this shell. This marker lets index.css restyle and reposition
+  // them only while an admin page is open; it is removed again before any public page renders.
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    root.dataset.adminSidebar = collapsed ? 'collapsed' : 'open';
+    return () => { delete root.dataset.adminSidebar; };
+  }, [collapsed]);
   return (
-    <div className="app-shell">
+    <div className={`app-shell${collapsed ? ' is-collapsed' : ''}`}>
       <Sidebar onNavClick={() => setMenuOpen(false)} />
       <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
       <main className="main-shell">

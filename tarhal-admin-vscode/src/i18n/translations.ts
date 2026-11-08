@@ -42,6 +42,7 @@ export const translations = {
     dashboardSubtitle: 'Bookings, revenue and users at a glance.', flightsSubtitle: 'Manage flights, routes and prices.', hotelsSubtitle: 'Manage hotels, rooms and nightly prices.', carsSubtitle: 'Manage rental cars, locations and daily prices.',
     bookingsSubtitle: 'Review bookings and update their status.', revenueSubtitle: 'Track revenue by service and period.', usersSubtitle: 'Manage customer accounts and their status.',
     // Admin flight form, "no data" labels and API-backed listing filters.
+    collapseSidebar: 'Collapse sidebar', expandSidebar: 'Expand sidebar', jumpToPage: 'Go to page…',
     noDataYet: 'No data yet', usersLiveSubtitle: 'Customers who have at least one booking. A full user list needs a users API, which does not exist yet.',
     fromAirport: 'From (airport code)', toAirport: 'To (airport code)', departureTime: 'Departure', arrivalTime: 'Arrival', riyadhTime: 'Riyadh time', basePrice: 'Base price (SAR)',
     flightSeats: 'Seats', seatCode: 'Seat code', ticketClass: 'Ticket class', priceMultiplier: 'Price multiplier', addSeat: 'Add seat', removeSeat: 'Remove seat', ticketECONOMY: 'Economy', ticketBUSINESS: 'Business', ticketFIRST: 'First',
@@ -168,6 +169,7 @@ export const translations = {
     dashboardSubtitle: 'الحجوزات والإيرادات والمستخدمون في لمحة.', flightsSubtitle: 'إدارة الرحلات والمسارات والأسعار.', hotelsSubtitle: 'إدارة الفنادق والغرف وأسعار الليلة.', carsSubtitle: 'إدارة السيارات والمواقع والأسعار اليومية.',
     bookingsSubtitle: 'راجع الحجوزات وحدّث حالتها.', revenueSubtitle: 'تابع الإيرادات حسب الخدمة والفترة.', usersSubtitle: 'إدارة حسابات العملاء وحالتها.',
     // Admin flight form, "no data" labels and API-backed listing filters.
+    collapseSidebar: 'طي الشريط الجانبي', expandSidebar: 'توسيع الشريط الجانبي', jumpToPage: 'انتقل إلى صفحة…',
     noDataYet: 'لا توجد بيانات بعد', usersLiveSubtitle: 'العملاء الذين لديهم حجز واحد على الأقل. تتطلب القائمة الكاملة واجهة API للمستخدمين غير متوفرة بعد.',
     fromAirport: 'من (رمز المطار)', toAirport: 'إلى (رمز المطار)', departureTime: 'المغادرة', arrivalTime: 'الوصول', riyadhTime: 'بتوقيت الرياض', basePrice: 'السعر الأساسي (ريال)',
     flightSeats: 'المقاعد', seatCode: 'رمز المقعد', ticketClass: 'درجة التذكرة', priceMultiplier: 'معامل السعر', addSeat: 'إضافة مقعد', removeSeat: 'حذف المقعد', ticketECONOMY: 'السياحية', ticketBUSINESS: 'الأعمال', ticketFIRST: 'الأولى',
