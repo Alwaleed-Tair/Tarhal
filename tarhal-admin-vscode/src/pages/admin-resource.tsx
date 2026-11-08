@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { initialResources, type ResourceRow, type Service } from '@/data/demoData';
 import { DataTable, type Column } from '@/components/data-table';
@@ -10,10 +10,11 @@ import { Ltr } from '@/components/ltr';
 import { ErrorState } from '@/components/error-state';
 import { Money } from '@/components/money';
 import { StatusBadge } from '@/components/status-badge';
-import { Spinner } from '@/components/spinner';
+import { TableSkeleton } from '@/components/skeleton';
+import { StatCard } from '@/components/stat-card';
 import { useAdminBookings } from '@/hooks/use-admin-bookings';
 import { useLiveData } from '@/hooks/use-live-data';
-import { bookingMetrics } from '@/lib/booking-stats';
+import { bookingMetrics, monthlyMetrics } from '@/lib/booking-stats';
 import { parseApiError } from '@/services/api';
 import { flightService, TICKET_CLASSES, type Airline, type FlightUpdateInput, type TicketClass } from '@/services/flightService';
 import { hotelService } from '@/services/hotelService';
@@ -61,6 +62,7 @@ const WRITE_ACTIONS: Record<Kind, Record<ModalMode, boolean>> = {
 const heading: Record<Kind, TranslationKey> = { flight: 'flightManagement', hotel: 'hotelManagement', car: 'carManagement' };
 const singular: Record<Kind, TranslationKey> = { flight: 'flightSingular', hotel: 'hotelSingular', car: 'carSingular' };
 const sectionKey: Record<Kind, TranslationKey> = { flight: 'flights', hotel: 'hotels', car: 'cars' };
+const emptyKey: Record<Kind, TranslationKey> = { flight: 'noFlightsYet', hotel: 'noHotelsYet', car: 'noCarsYet' };
 const subtitleKey: Record<Kind, TranslationKey> = { flight: 'flightsSubtitle', hotel: 'hotelsSubtitle', car: 'carsSubtitle' };
 const actionKey: Record<ModalMode, TranslationKey> = { add: 'add', edit: 'edit', remove: 'remove' };
 const noticeKeys: Record<ModalMode, { title: TranslationKey; message: TranslationKey }> = {
@@ -185,23 +187,26 @@ export default function AdminResource({ kind }: { kind: Kind }) {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const attempt = useRef(0); // bumped when the modal closes/changes, so a late response cannot write into a newer modal
+  const [closing, setClosing] = useState(false);
+  const closeTimer = useRef<number | undefined>(undefined);
 
   // Computed from the API. Hotel and car booking APIs do not exist yet, and GET /api/cars only returns available cars,
   // so everything it cannot answer is labelled, never shown as zero.
-  const noData = <span className="metric-no-data">{t('noDataYet')}</span>;
-  const flightStats = bookingMetrics(bookings, 'flight');
-  const flightMetric = (value: ReactNode) => (bookingsStatus === 'loading' ? '…' : bookingsOffline && !offline ? noData : value);
-  const metrics: { label: string; value: ReactNode }[] = kind === 'flight'
+  const flightStats = useMemo(() => bookingMetrics(bookings, 'flight'), [bookings]);
+  const flightTrends = useMemo(() => monthlyMetrics(bookings, new Date().getFullYear(), 'flight'), [bookings]);
+  const flightState = { loading: bookingsStatus === 'loading', noData: bookingsOffline && !offline };
+  const count = (value: number) => format.number(value);
+  const metrics = kind === 'flight'
     ? [
-        { label: t('totalFlights'), value: flightMetric(format.number(flightStats.bookings)) },
-        { label: t('flightRevenue'), value: flightMetric(<Money sar={flightStats.revenue} />) },
-        { label: t('activeUsers'), value: flightMetric(format.number(flightStats.users)) },
+        { label: t('totalFlights'), value: flightStats.bookings, render: count, series: flightTrends.bookings, ...flightState },
+        { label: t('flightRevenue'), value: flightStats.revenue, render: (value: number) => <Money sar={value} />, series: flightTrends.revenue, ...flightState },
+        { label: t('activeUsers'), value: flightStats.users, render: count, series: flightTrends.users, ...flightState },
       ]
     : kind === 'hotel'
-      ? [{ label: t('totalRooms'), value: noData }, { label: t('hotelRevenue'), value: noData }, { label: t('guests'), value: noData }]
-      : [{ label: t('totalCars'), value: noData }, { label: t('carsRevenue'), value: noData }, { label: t('availableCars'), value: loadStatus === 'loading' ? '…' : format.number(fetched.total) }];
+      ? [{ label: t('totalRooms'), noData: true }, { label: t('hotelRevenue'), noData: true }, { label: t('guests'), noData: true }]
+      : [{ label: t('totalCars'), noData: true }, { label: t('carsRevenue'), noData: true }, { label: t('availableCars'), value: fetched.total, render: count, loading: loadStatus === 'loading' }];
   const needle = query.toLowerCase();
-  const filtered = rows.filter((row) => `${row.id} ${translateValue(row.id, lang)} ${translateValue(row.airline ?? '', lang)} ${row.airline ?? ''} ${row.airlineAr ?? ''} ${getRowDetails(kind, row, lang)}`.toLowerCase().includes(needle));
+  const filtered = useMemo(() => rows.filter((row) => `${row.id} ${translateValue(row.id, lang)} ${translateValue(row.airline ?? '', lang)} ${row.airline ?? ''} ${row.airlineAr ?? ''} ${getRowDetails(kind, row, lang)}`.toLowerCase().includes(needle)), [rows, needle, lang, kind]);
   const displayId = (row: ResourceRow) => kind === 'flight' ? <Ltr>{row.id}</Ltr> : translateValue(row.id, lang);
   const columns = resourceColumns({
     kind, t, lang, format, displayId, can,
@@ -227,14 +232,24 @@ export default function AdminResource({ kind }: { kind: Kind }) {
 
   function closeModal() {
     attempt.current += 1;
-    setModal(null);
-    setSelectedId('');
-    setFormError('');
-    setFieldErrors({});
     setSubmitting(false);
+    const finish = () => {
+      setClosing(false);
+      setModal(null);
+      setSelectedId('');
+      setFormError('');
+      setFieldErrors({});
+    };
+    // A short fade out; nothing to wait for when the user prefers reduced motion.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { finish(); return; }
+    setClosing(true);
+    window.clearTimeout(closeTimer.current);
+    closeTimer.current = window.setTimeout(finish, 130);
   }
 
   function openModal(mode: ModalMode, id = '') {
+    window.clearTimeout(closeTimer.current);
+    setClosing(false);
     attempt.current += 1;
     setSubmitting(false);
     setFieldErrors({});
@@ -361,34 +376,35 @@ export default function AdminResource({ kind }: { kind: Kind }) {
             {offline && <ContextBadge tone="warning">{t('demoBadge')} · {reason}</ContextBadge>}
           </>}
           actions={
-            <SuggestSearch value={query} onChange={setQuery} placeholder={t('search')} testId={`input-${kind}-search`}
+            <>
+              <SuggestSearch value={query} onChange={setQuery} placeholder={t('search')} testId={`input-${kind}-search`}
               matches={filtered} getKey={(row) => row.id} pickValue={(row) => row.id}
               renderItem={(row) => <><span className="search-suggestion-id">{displayId(row)}</span><span className="search-suggestion-details">{getRowDetails(kind, row, lang)}</span></>} />
+              {can.add && <button className="button button-primary" onClick={() => openModal('add')} data-testid={`button-add-${kind}`}><Plus size={15} aria-hidden="true" />{t('add')} {noun}</button>}
+            </>
           }
         />
 
         <div className="metric-grid">
-          {metrics.map(({ label, value }) => <Metric key={label} label={label} value={value} />)}
+          {metrics.map((metric) => <StatCard key={metric.label} {...metric} />)}
         </div>
 
-        {(can.add || can.edit || can.remove) && <div className="action-row">
-          {can.add && <button className="button button-soft" onClick={() => openModal('add')} data-testid={`button-add-${kind}`}><Plus size={15} aria-hidden="true" />{t('add')} {noun}</button>}
-          {can.edit && <button className="button button-soft" onClick={() => openModal('edit')} data-testid={`button-edit-${kind}`}><Pencil size={15} aria-hidden="true" />{t('edit')} {noun}</button>}
+        {/* Add sits by the title and Edit on each row (the edit form keeps its record chooser). Remove returns here once a DELETE route exists. */}
+        {can.remove && <div className="action-row">
           {can.remove && <button className="button button-soft" onClick={() => openModal('remove')} data-testid={`button-remove-${kind}`}><Trash2 size={15} aria-hidden="true" />{t('remove')} {noun}</button>}
         </div>}
 
         <section className="section-card">
           <div className="table-wrap overflow-x-auto w-full rounded-xl" tabIndex={0} role="region" aria-label={t(heading[kind])}>
-            {loadStatus === 'loading' ? <Spinner /> : loadStatus === 'error' ? <ErrorState onRetry={reload} /> : <>
-            <DataTable caption={t(heading[kind])} columns={columns} rows={filtered} getKey={(row) => row.id} minWidth={kind === 'flight' ? 920 : 640} />
-            {filtered.length === 0 && <EmptyState message={t('noResults')} actionLabel={query ? t('clearSearch') : undefined} onAction={() => setQuery('')} />}
-            </>}
+            {loadStatus === 'loading' ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={reload} /> : filtered.length === 0
+              ? <EmptyState message={query ? t('noResults') : t(emptyKey[kind])} actionLabel={query ? t('clearSearch') : undefined} onAction={() => setQuery('')} />
+              : <DataTable caption={t(heading[kind])} columns={columns} rows={filtered} getKey={(row) => row.id} minWidth={0} stackOnPhone />}
           </div>
         </section>
       </section>
 
       {modal && (
-        <div className="modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && closeModal()}>
+        <div className={`modal-backdrop${closing ? ' is-closing' : ''}`} role="presentation" onMouseDown={(event) => event.target === event.currentTarget && closeModal()}>
           <section className="modal-card" role="dialog" aria-modal="true" aria-labelledby="resource-modal-title">
             <div className="modal-header">
               <div><span className="modal-eyebrow">{t(heading[kind])}</span><h2 id="resource-modal-title">{title}</h2></div>
@@ -405,20 +421,37 @@ export default function AdminResource({ kind }: { kind: Kind }) {
                   {fieldErrors.selectedId && <small className="field-error" role="alert">{fieldErrors.selectedId}</small>}
                 </label>
               )}
-              {modal !== 'remove' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {modal === 'add' && (kind === 'flight'
-                    ? <Field label={t('flightNumber')} value={draft.id} onChange={(value) => updateDraft('id', value)} error={fieldErrors.id} required ltr />
-                    : <SelectField label={kind === 'hotel' ? t('hotelName') : t('carModel')} value={draft.id} onChange={(value) => updateDraft('id', value)} options={kind === 'hotel' ? OPTIONS.hotelName : OPTIONS.carModel} getLabel={(v) => translateValue(v, lang)} placeholder={t('select')} error={fieldErrors.id} required />)}
-                  {kind === 'flight' && modal === 'add' && (
-                    <>
-                      <SelectField label={t('airline')} value={draft.airline} onChange={(value) => updateDraft('airline', value)} options={airlines.map((a) => a.id)} getLabel={(id) => { const a = airlines.find((x) => x.id === id); return (lang === 'ar' ? a?.nameAr : a?.name) ?? id; }} placeholder={t('select')} error={fieldErrors.airline} required testId="select-flight-airline" />
-                      <Field label={t('fromAirport')} value={draft.from} onChange={(value) => updateDraft('from', value)} error={fieldErrors.from} required ltr testId="input-flight-from" />
-                      <Field label={t('toAirport')} value={draft.to} onChange={(value) => updateDraft('to', value)} error={fieldErrors.to} required ltr testId="input-flight-to" />
-                    </>
+              {modal !== 'remove' && kind === 'flight' && (
+                <>
+                  {modal === 'add' && (
+                    <section className="modal-section">
+                      <h3>{t('sectionFlight')}</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <Field label={t('flightNumber')} value={draft.id} onChange={(value) => updateDraft('id', value)} error={fieldErrors.id} required ltr />
+                        <SelectField label={t('airline')} value={draft.airline} onChange={(value) => updateDraft('airline', value)} options={airlines.map((a) => a.id)} getLabel={(id) => { const a = airlines.find((x) => x.id === id); return (lang === 'ar' ? a?.nameAr : a?.name) ?? id; }} placeholder={t('select')} error={fieldErrors.airline} required testId="select-flight-airline" />
+                        <Field label={t('fromAirport')} value={draft.from} onChange={(value) => updateDraft('from', value)} error={fieldErrors.from} required ltr testId="input-flight-from" />
+                        <Field label={t('toAirport')} value={draft.to} onChange={(value) => updateDraft('to', value)} error={fieldErrors.to} required ltr testId="input-flight-to" />
+                      </div>
+                    </section>
                   )}
-                  {kind === 'flight' && <Field label={`${t('departureTime')} (${t('riyadhTime')})`} type="datetime-local" value={draft.departureTime} onChange={(value) => updateDraft('departureTime', value)} error={fieldErrors.departureTime} required ltr testId="input-flight-departure" />}
-                  {kind === 'flight' && modal === 'add' && <Field label={`${t('arrivalTime')} (${t('riyadhTime')})`} type="datetime-local" value={draft.arrivalTime} onChange={(value) => updateDraft('arrivalTime', value)} error={fieldErrors.arrivalTime} required ltr testId="input-flight-arrival" />}
+                  <section className="modal-section">
+                    <h3>{t('sectionSchedule')}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Field label={`${t('departureTime')} (${t('riyadhTime')})`} type="datetime-local" value={draft.departureTime} onChange={(value) => updateDraft('departureTime', value)} error={fieldErrors.departureTime} required ltr testId="input-flight-departure" />
+                      {modal === 'add' && <Field label={`${t('arrivalTime')} (${t('riyadhTime')})`} type="datetime-local" value={draft.arrivalTime} onChange={(value) => updateDraft('arrivalTime', value)} error={fieldErrors.arrivalTime} required ltr testId="input-flight-arrival" />}
+                    </div>
+                  </section>
+                  <section className="modal-section">
+                    <h3>{t('sectionPrice')}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Field label={t('basePrice')} type="number" min="0" value={draft.price} onChange={(value) => updateDraft('price', value)} error={fieldErrors.price} required ltr testId="input-record-price" />
+                    </div>
+                  </section>
+                </>
+              )}
+              {modal !== 'remove' && kind !== 'flight' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {modal === 'add' && <SelectField label={kind === 'hotel' ? t('hotelName') : t('carModel')} value={draft.id} onChange={(value) => updateDraft('id', value)} options={kind === 'hotel' ? OPTIONS.hotelName : OPTIONS.carModel} getLabel={(v) => translateValue(v, lang)} placeholder={t('select')} error={fieldErrors.id} required />}
                   {kind === 'hotel' && (
                     <>
                       <SelectField label={t('city')} value={draft.city} onChange={(value) => updateDraft('city', value)} options={OPTIONS.city} getLabel={(v) => translateValue(v, lang)} placeholder={t('select')} error={fieldErrors.city} required />
@@ -431,12 +464,12 @@ export default function AdminResource({ kind }: { kind: Kind }) {
                       <SelectField label={t('availability')} value={draft.availability} onChange={(value) => updateDraft('availability', value)} options={OPTIONS.availability} getLabel={(v) => translateValue(v, lang)} placeholder={t('select')} error={fieldErrors.availability} required />
                     </>
                   )}
-                  <Field label={kind === 'flight' ? t('basePrice') : `${t('price')} (SAR)`} type="number" min="0" value={draft.price} onChange={(value) => updateDraft('price', value)} error={fieldErrors.price} required ltr testId="input-record-price" />
-                  {kind !== 'flight' && <SelectField label={t('status')} value={draft.status} onChange={(value) => updateDraft('status', value)} options={OPTIONS.status} getLabel={(v) => statusLabel(v, t)} placeholder={t('select')} error={fieldErrors.status} required />}
+                  <Field label={`${t('price')} (SAR)`} type="number" min="0" value={draft.price} onChange={(value) => updateDraft('price', value)} error={fieldErrors.price} required ltr testId="input-record-price" />
+                  <SelectField label={t('status')} value={draft.status} onChange={(value) => updateDraft('status', value)} options={OPTIONS.status} getLabel={(v) => statusLabel(v, t)} placeholder={t('select')} error={fieldErrors.status} required />
                 </div>
               )}
               {kind === 'flight' && modal === 'add' && (
-                <fieldset className="modal-seats">
+                <fieldset className="modal-section modal-seats">
                   <legend>{t('flightSeats')} *</legend>
                   {draft.seats.map((seat, index) => (
                     <div className="modal-seat-row" key={seat.key}>
@@ -525,10 +558,6 @@ function Field({ label, value, onChange, type = 'text', min, step, required = fa
       {error && <small className="field-error" role="alert">{error}</small>}
     </label>
   );
-}
-
-function Metric({ label, value }: { label: string; value: ReactNode }) {
-  return <div className="metric-card h-auto overflow-visible py-6"><span className="metric-label">{label}</span><strong className="metric-value block leading-tight">{value}</strong></div>;
 }
 
 function SelectField({ label, value, onChange, options, getLabel, placeholder, required = false, error, testId }: { label: string; value: string; onChange: (value: string) => void; options: string[]; getLabel: (value: string) => string; placeholder: string; required?: boolean; error?: string; testId?: string }) {
