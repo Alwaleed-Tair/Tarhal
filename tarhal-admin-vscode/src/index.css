@@ -951,6 +951,9 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 :where(.app-shell) .radio-option.selected { background: hsl(var(--primary)); border-color: hsl(var(--primary)); color: hsl(var(--primary-foreground)); font-weight: 600; }
 .accessibility-contrast :where(.app-shell) .radio-option.selected { border: 2px solid hsl(var(--foreground)); }
 
+:where(.settings-page) .setting-card-wide { grid-column: 1 / -1; }
+:where(.settings-page) .setting-card p { max-width: 58ch; }
+
 /* Phone drawer */
 @media (max-width: 680px) {
   :where(.app-shell) .mobile-nav { inset-inline-end: auto; inset-inline-start: 0; width: min(300px, 86vw); align-content: start; gap: 4px; padding: 14px 12px; overflow-y: auto; visibility: hidden; box-shadow: 0 0 40px hsl(var(--sidebar) / .4); transition: transform .22s ease, visibility .22s; }
