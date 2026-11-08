@@ -864,6 +864,7 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 .accessibility-large :where(.app-shell) .page-search { height: auto; min-height: 48px; }
 :where(.app-shell) .heading-actions { flex-wrap: nowrap; gap: 8px; }
 :where(.app-shell) .heading-actions .button { flex: 0 0 auto; white-space: nowrap; }
+:where(.app-shell) .heading-actions .page-search-wrap { flex: 0 1 240px; width: 240px; min-width: 0; }
 
 /* Segmented filters */
 :where(.app-shell) .filter-row { display: inline-flex; flex-wrap: wrap; gap: 2px; margin: 0 0 16px; padding: 3px; border: 1px solid var(--adm-line); border-radius: var(--adm-radius-sm); background: hsl(var(--card)); }
@@ -888,6 +889,8 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 :where(.app-shell) .data-table td.cell-muted { font-size: calc(12.5px * var(--text-scale)); }
 :where(.app-shell) .data-table td .status { white-space: nowrap; }
 :where(.app-shell) .cell-stack { display: block; min-width: 0; }
+:where(.app-shell) .data-table td [title] { white-space: nowrap; }
+.accessibility-large :where(.app-shell) .heading-actions .page-search { width: 100%; }
 :where(.app-shell) .table-skeleton { padding: 16px 18px; }
 
 /* Revenue chart: always fits its panel */
@@ -992,6 +995,7 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
   :where(.app-shell) .metric-main .sparkline { width: 64px; }
   :where(.app-shell) .heading-actions { flex-wrap: wrap; }
   :where(.app-shell) .heading-actions .button { flex: 1 1 100%; justify-content: center; }
+  :where(.app-shell) .heading-actions .page-search-wrap { flex: 1 1 100%; width: 100%; }
   :where(.app-shell) .filter-row { display: flex; }
   :where(.app-shell) .filter-chip { flex: 1 1 auto; }
   :where(.app-shell) .chart-panel { padding: 16px; }
@@ -1009,4 +1013,16 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
   :where(.app-shell) .modal-form { padding: 16px 16px 0; }
   :where(.app-shell) .modal-actions { margin-inline: -16px; padding: 10px 16px; }
   :where(.app-shell) .modal-actions .button { flex: 1 1 0; }
+}
+
+/* Tablets: tighter cells. With large text the tables need more room than a tablet has, so rows become cards here too. */
+@media (max-width: 1120px) {
+  :where(.app-shell) .data-table th, :where(.app-shell) .data-table td { padding-inline: 10px; }
+  .accessibility-large :where(.app-shell) .data-table-stack, .accessibility-large :where(.app-shell) .data-table-stack tbody, .accessibility-large :where(.app-shell) .data-table-stack tr { display: block; width: 100%; }
+  .accessibility-large :where(.app-shell) .data-table-stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .accessibility-large :where(.app-shell) .data-table-stack tr { padding: 8px 16px; border-bottom: 2px solid hsl(var(--foreground)); }
+  .accessibility-large :where(.app-shell) .data-table-stack tr:last-child { border-bottom: 0; }
+  .accessibility-large .app-shell .data-table-stack td, .accessibility-large .app-shell .data-table-stack tbody tr:last-child td { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 6px 0; border: 0; text-align: end; }
+  .accessibility-large :where(.app-shell) .data-table-stack td::before { content: attr(data-label); flex: 0 0 auto; color: hsl(var(--muted-foreground)); font-size: calc(12px * var(--text-scale)); font-weight: 500; text-align: start; }
+  .accessibility-large :where(.app-shell) .table-wrap { max-height: none; }
 }

@@ -50,7 +50,7 @@ export default function Bookings() {
   }
 
   // The status dropdown only exists in demo mode: the API has no route to change a booking's status.
-  const widths = offline ? ['10%', '12%', '17%', '19%', '12%', '12%'] : ['12%', '13%', '25%', '22%', '14%', '14%'];
+  const widths = offline ? ['10%', '12%', '17%', '19%', '12%', '12%'] : ['10%', '14%', '21%', '21%', '15%', '19%'];
   const columns: Column<Booking>[] = [
     { key: 'type', width: widths[0], header: t('type'), cell: (row) => t(row.type) },
     { key: 'id', width: widths[1], header: t('bookingId'), cell: (row) => <span title={row.id}><Ltr>{shortId(row.id)}</Ltr></span> },
