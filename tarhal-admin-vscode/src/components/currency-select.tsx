@@ -9,9 +9,10 @@ export function CurrencySelect({ className = '' }: { className?: string }) {
   const currency = useCurrency();
   return (
     <label className={`currency-select ${className}`}>
-      {currency === 'SAR' ? <SarSymbol className="text-[15px] leading-none" /> : <Coins size={15} aria-hidden="true" />}
+      {currency === 'SAR' ? <span className="inline-flex text-[15px]" aria-hidden="true"><SarSymbol /></span> : <Coins size={15} aria-hidden="true" />}
       <select value={currency} onChange={(event) => setCurrency(event.target.value as Currency)} aria-label={t('currency')} data-testid="select-currency">
-        {CURRENCIES.map((code) => <option key={code} value={code}>{code === 'USD' ? 'USD ($)' : 'SAR (\u20C1)'}</option>)}
+        {/* An <option> can only hold text, so it cannot show the symbol; the icon beside the select does. */}
+        {CURRENCIES.map((code) => <option key={code} value={code}>{code === 'USD' ? 'USD ($)' : 'SAR'}</option>)}
       </select>
     </label>
   );

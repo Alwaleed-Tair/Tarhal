@@ -29,14 +29,19 @@ export function createFormatters(language: Language, currency: Currency = 'SAR')
   /** All amounts are stored in SAR; they are converted only when the user picks USD. */
   const toDisplay = (sar: number) => (currency === 'USD' ? sar / USD_TO_SAR : sar);
 
-  /** Amount that is already in the display currency -> "$1,200" or "SAR 1,200". Whole amounts show no decimals, others show two. */
-  function money(value: number): string {
-    const rounded = Math.round(value * 100) / 100;
+  /** Whole amounts show no decimals, others show two. */
+  function moneyFormat(rounded: number, style: Intl.NumberFormatOptions = {}) {
     const digits = Number.isInteger(rounded) ? 0 : 2;
-    const options = { minimumFractionDigits: digits, maximumFractionDigits: digits };
-    if (currency === 'USD') return new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol', ...options }).format(rounded);
+    return new Intl.NumberFormat(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits, ...style }).format(rounded);
+  }
+  const round = (value: number) => Math.round(value * 100) / 100;
+
+  /** Amount already in the display currency, as plain text for labels that cannot hold the symbol: "$1,200" or "SAR 1,200". */
+  function money(value: number): string {
+    const rounded = round(value);
+    if (currency === 'USD') return moneyFormat(rounded, { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol' });
     // LRI...PDI keeps "SAR 1,200" in one left-to-right run, in both English and Arabic pages.
-    return `\u2066SAR\u00A0${new Intl.NumberFormat(locale, options).format(rounded)}\u2069`;
+    return `\u2066SAR\u00A0${moneyFormat(rounded)}\u2069`;
   }
   // `calendar: 'gregory'` stops ar-SA from switching to the Hijri calendar.
   const dateFormat = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric', calendar: 'gregory' });
@@ -57,18 +62,15 @@ export function createFormatters(language: Language, currency: Currency = 'SAR')
     rating: (value: number) => new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value),
     /** 2024 -> "2024" (no thousands separator). */
     year: (value: number) => String(value),
-    /** SAR amount (how data is stored) -> converted if needed and formatted in the active currency. */
+    /** SAR amount (how data is stored) -> converted if needed and formatted in the active currency. On screen use <Money>, which draws the riyal symbol. */
     currency: (sar: number) => money(toDisplay(sar)),
+    /** SAR amount -> the number alone in the display currency ("1,200"), for <Money> to put beside the symbol. */
+    amount: (sar: number) => moneyFormat(round(toDisplay(sar))),
     /** SAR -> display currency number, unformatted (used for chart scales). */
     convert: toDisplay,
     /** Accepts an ISO string; falls back to the raw text if it cannot be parsed. */
     date: (value: string) => { const date = parseDate(value); return date ? formatDateObject(date) : value; },
     dateTime: (value: string) => { const date = parseDate(value); return date ? `${formatDateObject(date)} · ${timeFormat.format(date)}` : value; },
-    /** Compact axis label for a value already in the display currency: $0, $2k / SAR 0, SAR 2k. Render inside <bdi dir="ltr">. */
-    axisCurrency: (value: number) => {
-      const short = value < 1000 ? String(value) : `${+(value / 1000).toFixed(1)}k`;
-      return currency === 'USD' ? `$${short}` : `SAR ${short}`;
-    },
     time: (timestamp: number) => timeFormat.format(new Date(timestamp)),
     month: (monthIndex: number) => monthFormat.format(new Date(2026, monthIndex, 1)),
     /** "2026-11-03" -> "3 Nov" (chart label). */

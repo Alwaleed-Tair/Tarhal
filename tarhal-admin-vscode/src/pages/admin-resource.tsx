@@ -464,7 +464,7 @@ export default function AdminResource({ kind }: { kind: Kind }) {
                       <SelectField label={t('availability')} value={draft.availability} onChange={(value) => updateDraft('availability', value)} options={OPTIONS.availability} getLabel={(v) => translateValue(v, lang)} placeholder={t('select')} error={fieldErrors.availability} required />
                     </>
                   )}
-                  <Field label={`${t('price')} (SAR)`} type="number" min="0" value={draft.price} onChange={(value) => updateDraft('price', value)} error={fieldErrors.price} required ltr testId="input-record-price" />
+                  <Field label={t('priceSar')} type="number" min="0" value={draft.price} onChange={(value) => updateDraft('price', value)} error={fieldErrors.price} required ltr testId="input-record-price" />
                   <SelectField label={t('status')} value={draft.status} onChange={(value) => updateDraft('status', value)} options={OPTIONS.status} getLabel={(v) => statusLabel(v, t)} placeholder={t('select')} error={fieldErrors.status} required />
                 </div>
               )}

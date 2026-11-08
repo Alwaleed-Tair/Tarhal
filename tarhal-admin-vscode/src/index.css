@@ -648,16 +648,13 @@ html.accessibility-large { font-size: 125%; }
 .data-table-fixed th { overflow-wrap: anywhere; }
 
 
-/* ===== 28. Saudi Riyal sign (Unicode U+20C1, inherits the surrounding text color) ===== */
-.sar-symbol { display: inline-block; font-style: normal; font-weight: inherit; line-height: 1; }
+/* ===== 28. Saudi Riyal symbol (official shape, inherits the surrounding text color). Same height as the digits, sitting on the baseline. ===== */
+.sar-symbol { display: inline-block; height: .72em; width: auto; aspect-ratio: 1124.14 / 1256.39; vertical-align: baseline; flex: none; }
 
 /* Responsive QA: let header controls wrap on mid-size screens */
 .page-heading { flex-wrap: wrap; }
 .heading-actions { flex-wrap: wrap; }
 
-/* Revenue numbers: keep the SAR sign proportional to the larger text */
-.metric-value bdi, .chart-total bdi, .chart-summary bdi { gap: .18em; }
-.metric-value .sar-symbol, .chart-total .sar-symbol, .chart-summary .sar-symbol { font-size: 1em; line-height: inherit; }
 .metric-value bdi, .chart-total bdi { line-height: inherit; }
 
 /* Labels for numbers the API cannot give yet */

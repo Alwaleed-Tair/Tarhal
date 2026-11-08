@@ -53,6 +53,8 @@ export function CarCard({ car }: { car: Car }) {
   const { language } = useDemoState().settings;
   const title = `${translateValue(car.make, language)} ${translateValue(car.model, language)}`;
   const spec = 'inline-flex items-center gap-1.5 text-sm text-muted-foreground';
+  // Split the sentence around {price} so <Money> can draw the symbol inside it, in either language's word order.
+  const [insuranceBefore, insuranceAfter] = t('insurancePerDay', { price: '\0' }).split('\0');
 
   return (
     <Card className="flex flex-col transition-shadow hover:shadow-lg" data-testid={`car-card-${car.id}`}>
@@ -67,7 +69,7 @@ export function CarCard({ car }: { car: Car }) {
         </div>
         <div className="grid gap-1 border-t pt-3">
           <p className="text-xl font-bold text-foreground"><Money sar={car.pricePerDay} /><span className="text-sm font-normal text-muted-foreground"> {t('perDay')}</span></p>
-          <p className="flex items-center gap-1.5 text-sm text-muted-foreground"><ShieldCheck className="size-4 text-primary" aria-hidden="true" />{t('insurancePerDay', { price: format.currency(car.insurancePerDay) })}</p>
+          <p className="flex items-center gap-1.5 text-sm text-muted-foreground"><ShieldCheck className="size-4 text-primary" aria-hidden="true" /><span>{insuranceBefore}<Money sar={car.insurancePerDay} />{insuranceAfter}</span></p>
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
