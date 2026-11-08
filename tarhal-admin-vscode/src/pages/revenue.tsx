@@ -34,7 +34,7 @@ export default function Revenue() {
           }
         />
         <section className="chart-panel">
-          <Suspense fallback={<ChartSkeleton />}><RevenueChart service={service} bookings={bookings} loading={status === 'loading'} offline={offline} showTotal /></Suspense>
+          <Suspense fallback={<ChartSkeleton />}><RevenueChart service={service} bookings={bookings} loading={status === 'loading'} offline={offline} showTotal allowCustomRange /></Suspense>
         </section>
       </section>
     </Layout>

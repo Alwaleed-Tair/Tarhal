@@ -51,6 +51,30 @@ export function monthlyRevenue(bookings: Booking[], year: number): MonthlyRevenu
   return months;
 }
 
+export type RevenueBucket = { key: string } & Record<RevenueKey, number>;
+
+/**
+ * Revenue (SAR) between two Riyadh days, inclusive ("YYYY-MM-DD"). The bucket size follows the length of the range,
+ * so the chart stays readable: days up to a month, months up to two years, then years.
+ */
+export function revenueBetween(bookings: Booking[], from: string, to: string): { unit: 'day' | 'month' | 'year'; buckets: RevenueBucket[] } {
+  const DAY = 86_400_000;
+  const start = Date.parse(`${from}T00:00:00Z`), end = Date.parse(`${to}T00:00:00Z`);
+  const days = Math.round((end - start) / DAY) + 1;
+  const unit = days <= 31 ? 'day' : days <= 731 ? 'month' : 'year';
+  const length = unit === 'day' ? 10 : unit === 'month' ? 7 : 4;
+  const buckets = new Map<string, RevenueBucket>();
+  for (let time = start; time <= end; time += DAY) {
+    const key = new Date(time).toISOString().slice(0, length);
+    if (!buckets.has(key)) buckets.set(key, { key, cars: 0, flights: 0, hotels: 0 });
+  }
+  for (const booking of bookings.filter(earnsRevenue)) {
+    const day = isoToRiyadhLocal(booking.date).slice(0, 10);
+    if (day && day >= from && day <= to) buckets.get(day.slice(0, length))![SERIES[booking.type]] += booking.price;
+  }
+  return { unit, buckets: [...buckets.values()] };
+}
+
 /** API booking ids are 36-character UUIDs: tables show the start (with the full id as a tooltip). Demo ids are short and stay as they are. */
 export const shortId = (id: string) => (id.length > 12 ? `${id.slice(0, 8)}…` : id);
 

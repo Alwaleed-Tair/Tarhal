@@ -42,6 +42,8 @@ export function createFormatters(language: Language, currency: Currency = 'SAR')
   const dateFormat = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric', calendar: 'gregory' });
   const timeFormat = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
   const monthFormat = new Intl.DateTimeFormat(locale, { month: 'short', calendar: 'gregory' });
+  const dayMonthFormat = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', calendar: 'gregory' });
+  const monthYearFormat = new Intl.DateTimeFormat(locale, { month: 'short', year: '2-digit', calendar: 'gregory' });
 
   function formatDateObject(date: Date): string {
     if (language === 'ar') return dateFormat.format(date);
@@ -69,6 +71,10 @@ export function createFormatters(language: Language, currency: Currency = 'SAR')
     },
     time: (timestamp: number) => timeFormat.format(new Date(timestamp)),
     month: (monthIndex: number) => monthFormat.format(new Date(2026, monthIndex, 1)),
+    /** "2026-11-03" -> "3 Nov" (chart label). */
+    dayMonth: (value: string) => { const date = parseDate(value); return date ? dayMonthFormat.format(date) : value; },
+    /** "2026-11" -> "Nov 26" (chart label). */
+    monthYear: (value: string) => { const date = parseDate(`${value}-01`); return date ? monthYearFormat.format(date) : value; },
   };
 }
 
