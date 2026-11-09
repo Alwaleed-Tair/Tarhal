@@ -26,7 +26,7 @@ export default function Bookings() {
   const t = useT();
   const format = useFormat();
   // GET /api/admin/bookings. Only when the server cannot be reached: the demo store, with the "Demo data" badge.
-  const { bookings, status: loadStatus, offline, reload } = useAdminBookings();
+  const { bookings, status: loadStatus, offline, reload, error } = useAdminBookings();
   const [filter, setFilter] = useState<ServiceFilter>('all');
   const [query, setQuery] = useState('');
   const needle = query.trim().toLowerCase();
@@ -84,7 +84,7 @@ export default function Bookings() {
         </div>
         <div className="section-card">
           <div className="table-wrap overflow-x-auto w-full rounded-xl" tabIndex={0} role="region" aria-label={t('allBookings')}>
-            {loadStatus === 'loading' ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={reload} /> : <>
+            {loadStatus === 'loading' ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={reload} error={error} /> : <>
             {list.length > 0 && <DataTable caption={t('allBookings')} columns={columns} rows={pageItems} getKey={(row) => row.id} minWidth={0} stackOnPhone />}
             {list.length === 0 && <EmptyState message={query ? t('noResults') : !offline && (filter === 'hotel' || filter === 'car') ? t('noDataYet') : t('noBookingsYet')} actionLabel={filter !== 'all' || query ? t('clearFilters') : undefined} onAction={resetFilters} />}
             </>}

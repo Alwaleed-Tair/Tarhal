@@ -12,7 +12,7 @@ const RevenueChart = lazy(() => import('@/components/revenue-chart'));
 export default function Revenue() {
   const t = useT();
   const [service, setService] = useState<ServiceFilter>('all');
-  const { bookings, status, offline, reload } = useAdminBookings();
+  const { bookings, status, offline, reload, error } = useAdminBookings();
 
   return (
     <Layout>
@@ -35,7 +35,7 @@ export default function Revenue() {
           }
         />
         <section className="chart-panel">
-          {status === 'error' ? <ErrorState onRetry={reload} /> : <Suspense fallback={<ChartSkeleton />}><RevenueChart service={service} bookings={bookings} loading={status === 'loading'} offline={offline} showTotal allowCustomRange /></Suspense>}
+          {status === 'error' ? <ErrorState onRetry={reload} error={error} /> : <Suspense fallback={<ChartSkeleton />}><RevenueChart service={service} bookings={bookings} loading={status === 'loading'} offline={offline} showTotal allowCustomRange /></Suspense>}
         </section>
       </section>
     </Layout>

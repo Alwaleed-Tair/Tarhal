@@ -8,11 +8,11 @@ type Status = 'loading' | 'ready' | 'error';
 /**
  * Loads the data of an admin page. What happens when the request fails depends on why:
  * - 401 / 403: the session is over. It is cleared, and the AdminOnly guard in App.tsx sends the visitor to the login page.
- * - The server cannot be reached: the demo rows, with `offline: true` so the page shows the Demo data badge.
- * - Any other answer (400, 404, 500...): `status: 'error'` and no rows, so the page shows its error state. Demo rows are never shown as if they were real.
+ * - The server cannot be reached (see isServerUnreachable): the demo rows, with `offline: true` so the page shows the Demo data badge.
+ * - Anything else (a timeout, 400, 404, 500, 503...): `status: 'error'` and no rows, and `error` says why. Demo rows are never shown as if they were real.
  */
 export function useAdminData<T>(load: () => Promise<T>, demo: () => T, empty: T, key: unknown = null) {
-  const [state, setState] = useState<{ data: T; status: Status; offline: boolean }>({ data: empty, status: 'loading', offline: false });
+  const [state, setState] = useState<{ data: T; status: Status; offline: boolean; error?: unknown }>({ data: empty, status: 'loading', offline: false });
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export function useAdminData<T>(load: () => Promise<T>, demo: () => T, empty: T,
           return;
         }
         if (isServerUnreachable(error)) setState({ data: demo(), status: 'ready', offline: true });
-        else setState({ data: empty, status: 'error', offline: false });
+        else setState({ data: empty, status: 'error', offline: false, error });
       });
     return () => { cancelled = true; };
   }, [key, attempt]);

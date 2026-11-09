@@ -36,14 +36,15 @@ export function httpStatus(error: unknown): number | undefined {
 }
 
 /**
- * True only when no answer came from the API: no response at all, a gateway error, or the empty 500 that
- * Vite's dev proxy sends when the backend is down. Any other error is a real answer from the server.
+ * True only when the API truly cannot be reached: the connection failed, a gateway says it cannot reach the API (502, 504),
+ * or Vite's dev proxy sends its empty 500 because the backend is down. A timeout is not in this list: the server may be up but slow,
+ * so it gets an error message instead of demo data. Any other status (401, 403, 404, 500, 503...) is a real answer from the server.
  */
 export function isServerUnreachable(error: unknown): boolean {
   if (!axios.isAxiosError(error)) return false;
   const response = error.response;
-  if (!response) return true;
-  if ([502, 503, 504].includes(response.status)) return true;
+  if (!response) return error.code !== 'ECONNABORTED' && error.code !== 'ETIMEDOUT';
+  if (response.status === 502 || response.status === 504) return true;
   return import.meta.env.DEV && response.status === 500 && !response.data;
 }
 

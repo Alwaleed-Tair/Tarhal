@@ -77,7 +77,7 @@ function ResourcePage({ kind }: { kind: Service }) {
     setRequest((current) => (JSON.stringify(current.query) === JSON.stringify(query) ? current : { query, page: 1 }));
   }, [kind, settled]);
 
-  const { data, status: loadStatus, offline, reload } = useAdminData<Listing>(
+  const { data, status: loadStatus, offline, reload, error } = useAdminData<Listing>(
     () => {
       if (kind === 'flight') return flightService.adminList().then((rows) => ({ rows, total: rows.length, totalPages: 1 }));
       const params = { ...request.query, page: request.page, pageSize: PAGE_SIZE };
@@ -113,19 +113,20 @@ function ResourcePage({ kind }: { kind: Service }) {
   const filtered = Object.values(filters).some(Boolean);
 
   const loading = loadStatus === 'loading';
+  const dataState = { loading, noData: loadStatus === 'error', noDataLabel: t('couldNotLoad') };
   const count = (value: number) => format.number(value);
   const totals = useMemo(() => flightMetrics(data.rows), [data.rows]);
   // Computed from what the API returns. Hotel and car booking APIs do not exist yet, and GET /api/cars only returns available cars,
   // so everything it cannot answer is labelled, never shown as zero.
   const metrics = kind === 'flight'
     ? [
-        { label: t('totalFlights'), value: totals.flights, render: count, loading },
-        { label: t('upcomingFlights'), value: totals.upcoming, render: count, loading },
-        { label: t('averageBasePrice'), value: totals.averagePrice, render: (value: number) => <Money sar={value} />, loading },
+        { label: t('totalFlights'), value: totals.flights, render: count, ...dataState },
+        { label: t('upcomingFlights'), value: totals.upcoming, render: count, ...dataState },
+        { label: t('averageBasePrice'), value: totals.averagePrice, render: (value: number) => <Money sar={value} />, ...dataState },
       ]
     : kind === 'hotel'
-      ? [{ label: t('hotelsFound'), value: data.total, render: count, loading }, { label: t('hotelRevenue'), noData: true }, { label: t('guests'), noData: true }]
-      : [{ label: t('availableCars'), value: data.total, render: count, loading }, { label: t('carsRevenue'), noData: true }, { label: t('totalCars'), noData: true }];
+      ? [{ label: t('hotelsFound'), value: data.total, render: count, ...dataState }, { label: t('hotelRevenue'), noData: true }, { label: t('guests'), noData: true }]
+      : [{ label: t('availableCars'), value: data.total, render: count, ...dataState }, { label: t('carsRevenue'), noData: true }, { label: t('totalCars'), noData: true }];
 
   const columns = resourceColumns({ kind, t, lang, format, can, onEdit: (key) => setModal({ mode: 'edit', key }), onRemove: (key) => setModal({ mode: 'remove', key }) });
   const subtitle: Record<Service, TranslationKey> = { flight: 'flightsSubtitle', hotel: can.add ? 'hotelsSubtitle' : 'hotelsReadOnlySubtitle', car: can.add ? 'carsSubtitle' : 'carsReadOnlySubtitle' };
@@ -158,7 +159,7 @@ function ResourcePage({ kind }: { kind: Service }) {
 
         <section className="section-card">
           <div className="table-wrap overflow-x-auto w-full rounded-xl" tabIndex={0} role="region" aria-label={t(heading[kind])} aria-busy={loading}>
-            {loading ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={reload} /> : visible.length === 0
+            {loading ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={reload} error={error} /> : visible.length === 0
               ? <EmptyState message={query || filtered ? t('noResults') : t(emptyKey[kind])} actionLabel={query ? t('clearSearch') : filtered ? t('clearFilters') : undefined} onAction={() => { setQuery(''); clearFilters(); }} />
               : <DataTable caption={t(heading[kind])} columns={columns} rows={visible} getKey={rowKey} minWidth={0} stackOnPhone />}
           </div>
@@ -195,23 +196,24 @@ function RowActions({ kind, row, t, can, onEdit, onRemove }: Pick<ColumnOptions,
 /** Columns of the three tables, from the real fields of each model. The header and the cells come from this one list. */
 function resourceColumns({ kind, t, lang, format, can, onEdit, onRemove }: ColumnOptions): Column<ResourceRow>[] {
   const hasActions = can.edit || can.remove;
+  // With an Actions column the other columns give up 16% of the width. Without any button there is no such column.
+  const share = (full: number) => `${hasActions ? (full * 84) / 100 : full}%`;
   const actions: Column<ResourceRow> = { key: 'actions', width: '16%', header: t('actions'), align: 'end', cell: (row) => <RowActions kind={kind} row={row} t={t} can={can} onEdit={onEdit} onRemove={onRemove} /> };
   const text = (value: string | undefined): ReactNode => (value ? translateValue(value, lang) : '—');
   const price = (width: string, header: string): Column<ResourceRow> => ({ key: 'price', width, header, align: 'end', cell: (row) => <Money sar={row.price} /> });
 
   if (kind === 'flight') {
     const airlineName = (row: ResourceRow) => (lang === 'ar' ? row.airlineAr || translateValue(row.airline ?? '', lang) : row.airline) || '—';
-    return [
-      { key: 'name', width: '14%', header: t('flightNumber'), cell: (row) => <Ltr>{row.id}</Ltr> },
-      { key: 'airline', width: '18%', header: t('airline'), cell: airlineName },
-      { key: 'details', width: '18%', header: t('route'), cell: (row) => <Ltr>{row.route ?? ''}</Ltr> },
-      { key: 'departure', width: '20%', header: t('departureTime'), muted: true, cell: (row) => (row.departureTime ? format.dateTime(isoToRiyadhLocal(row.departureTime)) : '—') },
-      price('14%', t('price')),
-      actions,
+    const flightColumns: Column<ResourceRow>[] = [
+      { key: 'name', width: share(17), header: t('flightNumber'), cell: (row) => <Ltr>{row.id}</Ltr> },
+      { key: 'airline', width: share(21), header: t('airline'), cell: airlineName },
+      { key: 'details', width: share(21), header: t('route'), cell: (row) => <Ltr>{row.route ?? ''}</Ltr> },
+      { key: 'departure', width: share(24), header: t('departureTime'), muted: true, cell: (row) => (row.departureTime ? format.dateTime(isoToRiyadhLocal(row.departureTime)) : '—') },
+      price(share(17), t('price')),
     ];
+    if (hasActions) flightColumns.push(actions);
+    return flightColumns;
   }
-  // With an Actions column (once WRITE_ACTIONS allows it) the other columns give up 16% of the width.
-  const share = (full: number) => `${hasActions ? (full * 84) / 100 : full}%`;
   const columns: Column<ResourceRow>[] = kind === 'hotel'
     ? [
         { key: 'name', width: share(30), header: t('hotelName'), cell: (row) => text(row.id) },

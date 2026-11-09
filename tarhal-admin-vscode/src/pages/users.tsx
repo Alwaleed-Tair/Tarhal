@@ -26,7 +26,7 @@ export default function Users() {
   // There is no users endpoint yet, so live rows are the customers found in GET /api/admin/bookings.
   // The demo store (with its status filters and status changes) is only used when the server cannot be reached, with the Demo data badge.
   const { users: demoUsers } = useDemoState();
-  const { bookings, status: loadStatus, offline, reload } = useAdminBookings();
+  const { bookings, status: loadStatus, offline, reload, error } = useAdminBookings();
   const liveUsers = useMemo(() => customersFromBookings(bookings), [bookings]);
   const users = offline ? demoUsers : liveUsers;
   const [filter, setFilter] = useState<'all' | UserStatus>('all');
@@ -92,7 +92,7 @@ export default function Users() {
         </div>}
         <div className="section-card">
           <div className="table-wrap overflow-x-auto w-full rounded-xl" tabIndex={0} role="region" aria-label={t('usersManagement')}>
-            {loadStatus === 'loading' ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={reload} /> : <>
+            {loadStatus === 'loading' ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={reload} error={error} /> : <>
             {list.length > 0 && <DataTable caption={t('usersManagement')} columns={columns} rows={pageItems} getKey={(row) => row.id} minWidth={0} stackOnPhone />}
             {list.length === 0 && <EmptyState message={!offline && !query ? t('noCustomersYet') : t('noResults')} actionLabel={filter !== 'all' || query ? t('clearFilters') : undefined} onAction={resetFilters} />}
             </>}
