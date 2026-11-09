@@ -50,7 +50,7 @@ export default function Login() {
             onChange={(value) => form.setValue('password', value)} onBlur={() => form.touch('password')} />}
         </FormField>
         <Button type="submit" loading={submitting} className="w-full">{submitting ? t('pleaseWait') : t('login')}</Button>
-        <p className="text-center text-xs text-muted-foreground">{t('demoLoginHint')}</p>
+        {import.meta.env.DEV && <p className="text-center text-xs text-muted-foreground">{t('demoLoginHint')}</p>}
       </form>
     </AuthShell>
   );

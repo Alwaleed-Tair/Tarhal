@@ -14,8 +14,10 @@ function readSession(body: Raw, fallback: AuthUser): { user: AuthUser; token?: s
   };
 }
 
-/** True when there is no usable backend answer (offline, 404 wrong path, 5xx): we then use the demo login. */
-const backendUnavailable = (error: unknown) => { const s = httpStatus(error); return s === undefined || s === 404 || s >= 500; };
+/** Local development only: no usable backend answer (offline, 404 wrong path, 5xx) falls back to the demo login. Never in a production build. */
+const useDemoAuth = (error: unknown) => { const s = httpStatus(error); return import.meta.env.DEV && (s === undefined || s === 404 || s >= 500); };
+/** The server looked at the sign-in details and refused them. Anything else is not the visitor's mistake. */
+const credentialsRefused = (error: unknown) => { const s = httpStatus(error); return s === 400 || s === 401 || s === 403; };
 
 export const authService = {
   /** Clears the local session right away, then asks the server to drop the cookie (POST /auth/logout). */
@@ -31,8 +33,8 @@ export const authService = {
       saveSession(user, token);
       return user;
     } catch (error) {
-      if (!backendUnavailable(error)) throw new AuthError('invalidCredentials'); // 400 / 401 / 403
-      console.warn('[auth] backend unavailable, using demo login');
+      if (credentialsRefused(error)) throw new AuthError('invalidCredentials');
+      if (!useDemoAuth(error)) throw error; // The page shows the generic error.
       return mockLogin(input.email);
     }
   },
@@ -45,8 +47,7 @@ export const authService = {
       return user;
     } catch (error) {
       if (httpStatus(error) === 409) throw new AuthError('emailTaken');
-      if (!backendUnavailable(error)) throw error; // 400 / 422: page shows the generic error
-      console.warn('[auth] backend unavailable, using demo register');
+      if (!useDemoAuth(error)) throw error; // 400 / 422: page shows the generic error
       return mockRegister({ name: input.name, email: input.email });
     }
   },

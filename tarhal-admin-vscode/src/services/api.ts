@@ -13,7 +13,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export type Pagination = { page: number; pageSize: number; total: number };
+export type Pagination = { page: number; pageSize: number; total: number; totalPages?: number };
 export type Paginated<T> = { success?: boolean; data: T[]; pagination?: Pagination };
 export type Envelope<T> = { success?: boolean; data: T };
 export type Raw = Record<string, unknown>;
@@ -25,6 +25,18 @@ export const num = (v: unknown, d = 0): number => { const n = Number(v); return 
 /** HTTP status of a failed request, or undefined when there was no response (server offline / network). */
 export function httpStatus(error: unknown): number | undefined {
   return axios.isAxiosError(error) ? error.response?.status : undefined;
+}
+
+/**
+ * True only when no answer came from the API: no response at all, a gateway error, or the empty 500 that
+ * Vite's dev proxy sends when the backend is down. Any other error is a real answer from the server.
+ */
+export function isServerUnreachable(error: unknown): boolean {
+  if (!axios.isAxiosError(error)) return false;
+  const response = error.response;
+  if (!response) return true;
+  if ([502, 503, 504].includes(response.status)) return true;
+  return import.meta.env.DEV && response.status === 500 && !response.data;
 }
 
 /** Reads one message out of the many shapes backends use for errors. Returns undefined when there is nothing usable. */

@@ -79,6 +79,9 @@ export function saveSession(user: AuthUser, token?: string) {
   } catch { /* storage unavailable */ }
 }
 
+/** The user saved in this browser, for code outside React. */
+export const currentSession = () => currentUser;
+
 export function logout() {
   setUser(null);
   try { localStorage.removeItem('token'); } catch { /* storage unavailable */ }
