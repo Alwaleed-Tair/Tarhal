@@ -1,7 +1,24 @@
-import { api, assertSuccess, num, pick, str, toList, type Envelope, type Raw } from '@/services/api';
+import { api, assertSuccess, assertWrite, num, pick, str, toList, type Envelope, type Raw } from '@/services/api';
 
 export type BookingTraveler = { seatId: string; fullName: string; passportNumber: string; dateOfBirth: string };
-export type CreateBookingPayload = { userId: string; flightId: string | number; travelers: BookingTraveler[] };
+/** Body of POST /api/bookings. The server takes the user from the session cookie and calculates the price itself. */
+export type CreateBookingPayload = { flightId: string; travelers: BookingTraveler[] };
+
+/** One booking of GET /api/bookings (the logged-in traveler's own bookings, newest first). Amounts are SAR. */
+export type MyBooking = {
+  id: string; createdAt: string; totalPrice: number; paymentStatus: string; active: boolean;
+  flight: { id: string; flightNumber: string; from: string; to: string; departureTime: string; arrivalTime: string; airline: string; airlineAr: string };
+  travelers: { fullName: string; seatCode: string; ticketClass: string }[];
+};
+
+const toMyBooking = (r: Raw): MyBooking => {
+  const f = asRaw(r.flight), a = asRaw(f.airline);
+  return {
+    id: str(r.id), createdAt: str(r.createdAt), totalPrice: num(r.totalPrice), paymentStatus: str(r.paymentStatus, 'PENDING'), active: r.isActive !== false,
+    flight: { id: str(f.id), flightNumber: str(f.flightNumber), from: str(f.from), to: str(f.to), departureTime: str(f.departureTime), arrivalTime: str(f.arrivalTime), airline: str(a.name), airlineAr: str(a.nameAr) || str(a.name) },
+    travelers: ((r.travelers as Raw[]) ?? []).map((t) => ({ fullName: str(t.fullName), seatCode: str(asRaw(t.seat).seatCode), ticketClass: str(asRaw(t.seat).ticketClass) })),
+  };
+};
 
 export type BookingRow = { id: string; type: string; customer: string; date: string; price: number; status: string; userId?: string; email?: string; phone?: string; paymentStatus?: string };
 
@@ -39,10 +56,23 @@ export const bookingService = {
     return toList(data).map(toBookingRow);
   },
 
-  /** A 409 means a seat was taken: callers check `httpStatus(err) === 409`. */
-  async create(payload: CreateBookingPayload): Promise<{ id?: string }> {
+  /** POST /api/bookings. 401 without a login, 400 for missing traveler details, 404 unknown flight, 409 when a seat was taken. */
+  async create(payload: CreateBookingPayload): Promise<{ id: string; totalPrice: number }> {
     const { data } = await api.post<Envelope<Raw>>('/bookings', payload);
+    assertWrite(data);
+    const d = asRaw(data.data);
+    return { id: str(pick(d, 'id')), totalPrice: num(d.totalPrice) };
+  },
+
+  /** GET /api/bookings: only the logged-in traveler's bookings (401 without a login). */
+  async mine(): Promise<MyBooking[]> {
+    const { data } = await api.get<Envelope<Raw[]>>('/bookings');
     assertSuccess(data);
-    return { id: str(pick(data.data ?? {}, 'id', 'bookingId', 'reference')) || undefined };
+    return toList(data).map(toMyBooking);
+  },
+
+  /** POST /api/bookings/:id/cancel: releases the seats. 404 when it is not this traveler's booking, 400 when already cancelled. */
+  async cancel(id: string): Promise<void> {
+    assertWrite((await api.post<Envelope<Raw>>(`/bookings/${encodeURIComponent(id)}/cancel`)).data);
   },
 };

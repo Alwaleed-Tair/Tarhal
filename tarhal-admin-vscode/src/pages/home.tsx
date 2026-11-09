@@ -3,13 +3,14 @@ import { Link } from 'wouter';
 import { Car, Hotel, Plane, ShieldCheck, Tag, Headset, type LucideIcon } from 'lucide-react';
 import { PublicLayout } from '@/components/public-layout';
 import { SearchFormSlot } from '@/components/search-form-slot';
+import { buttonClasses } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { routes } from '@/config/routes';
 import type { TranslationKey } from '@/i18n/translations';
 import { useT } from '@/i18n/use-i18n';
 
 const SERVICES: { href: string; icon: LucideIcon; title: TranslationKey; text: TranslationKey }[] = [
-  { href: '#search', icon: Plane, title: 'flights', text: 'serviceFlightsDesc' },
+  { href: routes.passenger.flights, icon: Plane, title: 'flights', text: 'serviceFlightsDesc' },
   { href: routes.stays, icon: Hotel, title: 'hotels', text: 'serviceHotelsDesc' },
   { href: routes.rentals, icon: Car, title: 'cars', text: 'serviceCarsDesc' },
 ];
@@ -35,8 +36,15 @@ export default function Home() {
             <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-5xl">{t('heroTitle')}</h1>
             <p className="text-base text-muted-foreground sm:text-lg">{t('heroSubtitle')}</p>
           </div>
-          {/* TODO / INTEGRATION POINT: Connect Tariq's Search API here. Render his form as the child: <SearchFormSlot><TripSearchForm /></SearchFormSlot> */}
-          <SearchFormSlot />
+          {/* Tariq's flight search lives on its own page (pages/passenger/flight-booking.tsx); the slot leads there. */}
+          <SearchFormSlot>
+            <div className="grid min-h-40 place-items-center gap-3 px-4 py-6 text-center">
+              <Plane className="size-7 text-primary" aria-hidden="true" />
+              <h2 className="text-lg font-semibold text-foreground">{t('searchSlotTitle')}</h2>
+              <p className="max-w-md text-sm text-muted-foreground">{t('tpHomeSearchNote')}</p>
+              <Link href={routes.passenger.flights} className={buttonClasses({ size: 'lg' })} data-testid="link-home-search-flights">{t('tpSearchFlights')}</Link>
+            </div>
+          </SearchFormSlot>
         </section>
 
         <section aria-labelledby="explore-title" className="grid gap-5">

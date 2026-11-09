@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, Redirect, useLocation } from 'wouter';
+import { Link, Redirect, useLocation, useSearch } from 'wouter';
 import { AuthShell } from '@/components/auth-shell';
 import { Button } from '@/components/ui/button';
 import { FormField, PasswordInput } from '@/components/ui/form-field';
@@ -12,15 +12,22 @@ import { authService } from '@/services/authService';
 import { AuthError, useAuth } from '@/store/authStore';
 import { notify } from '@/store/notificationStore';
 
+/** Where to go back after logging in (?next=/travel/flights). Only a path inside this site, never another address. */
+function nextPath(search: string): string | null {
+  const next = new URLSearchParams(search).get('next');
+  return next && next.startsWith('/') && !next.startsWith('//') && !next.startsWith('/\\') ? next : null;
+}
+
 export default function Login() {
   const t = useT();
   const [, setLocation] = useLocation();
+  const next = nextPath(useSearch());
   const { isLoggedIn } = useAuth();
   const form = useForm({ email: '', password: '' }, validateLogin);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  if (isLoggedIn && !submitting) return <Redirect to={routes.home} />;
+  if (isLoggedIn && !submitting) return <Redirect to={next ?? routes.home} />;
 
   // API calls live in src/services/authService.ts (paths + response shape: ask Mohammed).
   const submit = form.handleSubmit(async ({ email, password }) => {
@@ -29,7 +36,8 @@ export default function Login() {
     try {
       const user = await authService.login({ email, password });
       notify({ tone: 'success', titleKey: 'loginSuccessTitle', messageKey: 'loginSuccessMessage' });
-      setLocation(user.role?.toUpperCase() === 'ADMIN' ? routes.admin.dashboard : routes.home);
+      // Admins always land on the Dashboard; travelers go back to the page that asked them to log in, or home.
+      setLocation(user.role?.toUpperCase() === 'ADMIN' ? routes.admin.dashboard : next ?? routes.home);
     } catch (error) {
       setFormError(error instanceof AuthError ? t('errInvalidCredentials') : t('errorMessage'));
       setSubmitting(false);

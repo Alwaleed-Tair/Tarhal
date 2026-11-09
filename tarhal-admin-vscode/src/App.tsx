@@ -20,6 +20,9 @@ import { routes } from '@/config/routes';
 import { canUseAdmin, useAuth } from '@/store/authStore';
 
 // Tariq's passenger pages (src/pages/passenger). Loaded on demand: their photos and styles stay out of the admin bundle.
+const TravelHome = lazy(() => import('@/pages/passenger/travel-home'));
+const FlightBooking = lazy(() => import('@/pages/passenger/flight-booking'));
+const MyBookings = lazy(() => import('@/pages/passenger/my-bookings'));
 const TravelGuide = lazy(() => import('@/pages/passenger/travel-guide'));
 const CityGuide = lazy(() => import('@/pages/passenger/city-guide'));
 const Passenger = ({ children }: { children: ReactNode }) => <Suspense fallback={<div className="min-h-dvh bg-background" role="status" aria-busy="true" />}>{children}</Suspense>;
@@ -47,7 +50,10 @@ function Routes() {
         <Route path="/register" component={Register} />
         <Route path="/stays" component={Stays} />
         <Route path="/rentals" component={Rentals} />
-        {/* Passenger (Tariq): travel guide. */}
+        {/* Passenger (Tariq). My bookings sends signed-out visitors to /login and back. */}
+        <Route path={routes.passenger.home}><Passenger><TravelHome /></Passenger></Route>
+        <Route path={routes.passenger.flights}><Passenger><FlightBooking /></Passenger></Route>
+        <Route path={routes.passenger.bookings}><Passenger><MyBookings /></Passenger></Route>
         <Route path={routes.passenger.guide}><Passenger><TravelGuide /></Passenger></Route>
         <Route path="/travel/guide/:slug"><Passenger><CityGuide /></Passenger></Route>
         {/* Admin (see routes.admin in config/routes.ts) */}

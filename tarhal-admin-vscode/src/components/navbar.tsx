@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { ChevronDown, Languages, LayoutDashboard, LogOut, Menu, Moon, Sun, X } from 'lucide-react';
+import { ChevronDown, Languages, LayoutDashboard, LogOut, Menu, Moon, Plane, Sun, Ticket, X } from 'lucide-react';
 import { CurrencySelect } from '@/components/currency-select';
 import { Button, buttonClasses } from '@/components/ui/button';
 import { brand } from '@/config/branding';
@@ -39,9 +39,9 @@ function AccountMenu() {
   const itemClass = 'flex w-full items-center gap-2 rounded-md px-3 py-2 text-start text-sm transition-colors hover:bg-muted';
   return (
     <div className="relative" ref={ref}>
-      <Button variant="outline" size="sm" onClick={() => setOpen((current) => !current)} aria-expanded={open} aria-haspopup="menu" data-testid="button-account-menu">
+      <Button variant="outline" size="sm" onClick={() => setOpen((current) => !current)} aria-expanded={open} aria-haspopup="menu" aria-label={user.name} data-testid="button-account-menu">
         <span className="grid size-6 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground" aria-hidden="true">{user.name[0]?.toUpperCase()}</span>
-        <span className="hidden max-w-32 truncate sm:inline">{user.name}</span>
+        <span className="hidden max-w-32 truncate 2xl:inline">{user.name}</span>
         <ChevronDown className="size-4" aria-hidden="true" />
       </Button>
       {open && (
@@ -52,6 +52,12 @@ function AccountMenu() {
               <LayoutDashboard className="size-4" aria-hidden="true" />{t('adminDashboard')}
             </Link>
           )}
+          <Link href={routes.passenger.home} role="menuitem" className={itemClass} onClick={() => setOpen(false)} data-testid="link-my-trips">
+            <Plane className="size-4" aria-hidden="true" />{t('tpNavHome')}
+          </Link>
+          <Link href={routes.passenger.bookings} role="menuitem" className={itemClass} onClick={() => setOpen(false)} data-testid="link-my-bookings">
+            <Ticket className="size-4" aria-hidden="true" />{t('tpNavBookings')}
+          </Link>
           <button role="menuitem" className={cn(itemClass, 'text-destructive')} onClick={() => { setOpen(false); signOut(); }} data-testid="button-logout">
             <LogOut className="size-4" aria-hidden="true" />{t('logout')}
           </button>
@@ -72,8 +78,10 @@ export function Navbar() {
 
   const links = [
     { href: routes.home, label: t('home') },
+    { href: routes.passenger.flights, label: t('tpNavFlights') },
     { href: routes.stays, label: t('hotels') },
     { href: routes.rentals, label: t('cars') },
+    { href: routes.passenger.guide, label: t('tpNavGuide') },
   ];
   const linkClass = (href: string) => cn(
     'rounded-full px-3.5 py-2 text-sm font-medium transition-colors hover:bg-muted',
@@ -86,7 +94,7 @@ export function Navbar() {
       <div className="mx-auto flex min-h-16 w-full max-w-6xl flex-wrap items-center gap-2 px-4 py-2 sm:px-6">
         <BrandLink />
 
-        <nav aria-label={t('mainNavigation')} className="ms-6 hidden items-center gap-1 md:flex">
+        <nav aria-label={t('mainNavigation')} className="ms-6 hidden items-center gap-1 lg:flex">
           {links.map(({ href, label }) => (
             <Link key={href} href={href} className={linkClass(href)} aria-current={location === href ? 'page' : undefined}>{label}</Link>
           ))}
@@ -113,7 +121,7 @@ export function Navbar() {
             </div>
           )}
 
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMenuOpen((current) => !current)}
+          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMenuOpen((current) => !current)}
             aria-expanded={menuOpen} aria-label={menuOpen ? t('closeNavigation') : t('openNavigation')}>
             {menuOpen ? <X className="size-5" aria-hidden="true" /> : <Menu className="size-5" aria-hidden="true" />}
           </Button>
@@ -121,7 +129,7 @@ export function Navbar() {
       </div>
 
       {menuOpen && (
-        <div className="border-t bg-background md:hidden">
+        <div className="border-t bg-background lg:hidden">
           <nav aria-label={t('mainNavigation')} className="mx-auto grid max-w-6xl gap-1 px-4 py-3 sm:px-6">
             {links.map(({ href, label }) => (
               <Link key={href} href={href} className={linkClass(href)} onClick={() => setMenuOpen(false)}>{label}</Link>
