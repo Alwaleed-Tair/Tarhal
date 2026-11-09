@@ -979,7 +979,7 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 /* Phone drawer */
 @media (max-width: 680px) {
   :where(.app-shell) .mobile-nav { inset-inline-end: auto; inset-inline-start: 0; width: min(300px, 86vw); align-content: start; gap: 4px; padding: 14px 12px; overflow-y: auto; visibility: hidden; box-shadow: 0 0 40px hsl(var(--sidebar) / .4); transition: transform .22s ease, visibility .22s; }
-  :where(.app-shell) .mobile-nav.open { visibility: visible; }
+  :where(.app-shell) .mobile-nav.open { visibility: visible; transition: transform .22s ease, visibility 0s; }
   :where(.app-shell) .mobile-nav .nav-list { gap: 2px; }
   :where(.app-shell) .mobile-nav .logo-controls { margin-block: 4px 12px; }
   :where(.app-shell) .mobile-nav .brand { height: 44px; margin-bottom: 8px; }
@@ -1089,3 +1089,11 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 }
 .chart-period-note { display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 0 0 12px; color: hsl(var(--muted-foreground)); font-size: calc(12px * var(--text-scale)); }
 .chart-period-note span { font-weight: 700; color: hsl(var(--foreground)); }
+
+/* ===== 32. Dashboard: the two panels end at the same height; "nothing here" sits in the middle of either one ===== */
+:where(.app-shell) .content-grid { align-items: stretch; }
+:where(.app-shell) .content-grid > .section-card { display: flex; flex-direction: column; }
+:where(.app-shell) .content-grid > .section-card > .table-wrap, :where(.app-shell) .content-grid > .section-card > .section-body { flex: 1 1 auto; }
+:where(.app-shell) .content-grid .table-wrap:has(> .empty-state), :where(.app-shell) .content-grid .section-body:has(> .chart-no-data) { display: grid; place-items: center; }
+:where(.app-shell) .data-table-stack td > * { min-width: 0; overflow-wrap: anywhere; }
+:where(.app-shell) .modal-seats legend { padding-bottom: 8px; }
