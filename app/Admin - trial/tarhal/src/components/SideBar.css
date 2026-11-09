@@ -1,0 +1,96 @@
+.sidebar {
+  position: fixed;
+  z-index: 10;
+  top: 122px;
+  bottom: 16px;
+  left: 62px;
+  width: 67px;
+  padding: 118px 0 14px;
+  border-radius: 30px;
+  background: #102b43;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-links,
+.sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.sidebar-link {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  color: #f4f6fc;
+  text-decoration: none;
+  font-size: 21px;
+}
+
+.sidebar-link.active {
+  background: #2b66a3;
+}
+
+.sidebar-settingicon {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
+.sidebar-icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  background-color: #F3F7FF; /* change this to your desired hex */
+  mask: var(--icon-image) center / contain no-repeat;
+  -webkit-mask: var(--icon-image) center / contain no-repeat;
+}
+
+.sidebar-avatar {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(#5786b3, #244e79);
+  font-size: 23px;
+  /* added so the <button> looks like your old circle and is clickable */
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+}
+.sidebar-bottom .sidebar-avatar,
+.sidebar-bottom .login-badge {
+  position: static;      /* cancels any absolute/fixed positioning */
+  inset: auto;
+  transform: none;
+  margin: 0;
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  min-width: 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;   /* centers the camel inside the circle */
+  border: none;
+  border-radius: 50%;
+  font-size: 23px;
+  cursor: pointer;
+}
+
+/* if your camel is an <img> instead of an emoji */
+.sidebar-bottom .sidebar-avatar img,
+.sidebar-bottom .login-badge img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  display: block;
+}

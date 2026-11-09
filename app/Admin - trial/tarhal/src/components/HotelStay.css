@@ -1,0 +1,48 @@
+.hotel-nights-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; padding: 14px 16px; border: 1px solid #e2e8ee; border-radius: 15px; background: #f1f4f8; }
+.hotel-stepper { display: flex; align-items: center; gap: 12px; margin-top: 2px; }
+.hotel-stepper button { display: grid; width: 28px; height: 28px; place-items: center; padding: 0; color: #4a82b6; border: 1px solid #d5e0e8; border-radius: 50%; background: #fff; cursor: pointer; }
+.hotel-stepper button:disabled { opacity: .35; cursor: not-allowed; }
+.hotel-stepper strong { min-width: 22px; color: #294c6b; font-family: 'Manrope', sans-serif; font-size: 18px; text-align: center; }
+.hotel-dates strong { display: block; color: #294c6b; font-family: 'Manrope', sans-serif; font-size: 13px; }
+.hotel-suggestion { flex: 1 1 100%; margin: 0; color: #5f7a90; font-size: 11px; line-height: 1.5; }
+.hotel-suggestion button { margin-left: 8px; padding: 4px 9px; color: #355c7b; border: 1px solid #cddce6; border-radius: 8px; background: #e5eef4; font: inherit; font-size: 10px; font-weight: 700; cursor: pointer; }
+
+.hotel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.hotel-card { position: relative; display: flex; flex-direction: column; overflow: hidden; padding: 0; color: #203b55; text-align: left; border: 1px solid #e3e8ee; border-radius: 14px; background: rgba(255, 255, 255, .6); font: inherit; cursor: pointer; transition: border-color 160ms ease, transform 160ms ease; }
+.hotel-card:hover { border-color: #b7cadb; transform: translateY(-1px); }
+.hotel-card.selected { border-color: #82a8c7; background: #edf4f9; box-shadow: inset 0 0 0 1px rgba(81, 131, 174, .1); }
+.hotel-photo { display: block; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #e3ebf1; }
+.hotel-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.hotel-photo-placeholder { display: grid; place-items: center; color: #7f9db4; }
+.hotel-body { display: flex; flex-direction: column; gap: 4px; padding: 11px 12px 12px; }
+.hotel-name-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.hotel-name-row strong { color: #26445e; font-family: 'Manrope', sans-serif; font-size: 12px; line-height: 1.3; }
+.hotel-rating { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 3px; padding: 3px 6px; color: #527b64; border-radius: 6px; background: #eaf3ec; font-size: 10px; font-weight: 700; }
+.hotel-price { color: #7a8b99; font-size: 10px; }
+.hotel-price strong { color: #294c6b; font-family: 'Manrope', sans-serif; font-size: 13px; }
+.hotel-body small { color: #8493a0; font-size: 9px; }
+.hotel-check { position: absolute; top: 8px; right: 8px; display: grid; width: 22px; height: 22px; place-items: center; color: #fff; border-radius: 50%; background: #5d8db2; }
+
+.hotel-total { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 14px 4px 6px; margin-top: 12px; border-top: 1px solid #e5eaf0; }
+.hotel-total > div { display: grid; gap: 2px; }
+.hotel-total .field-label { margin: 0; font-size: 8px; }
+.hotel-total strong { color: #294c6b; font-family: 'Manrope', sans-serif; font-size: 17px; }
+.hotel-total small { color: #788a99; font-size: 9px; }
+.hotel-total > p { max-width: 210px; margin: 0; color: #83919d; font-size: 9px; line-height: 1.5; text-align: right; }
+.hotel-error { min-height: 16px; max-width: 100%; margin: 0 0 2px; padding-left: 3px; font-size: 10px; }
+.hotel-actions-right { display: flex; align-items: center; gap: 14px; }
+
+/* Room for the extra Hotel step and summary card */
+.journey-progress { width: min(580px, 100%); }
+@media (min-width: 681px) {
+  .complete-itinerary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 680px) {
+  .journey-progress .progress-line { width: 10px; }
+}
+@media (max-width: 520px) {
+  .hotel-grid { grid-template-columns: 1fr; }
+  .hotel-total { align-items: flex-start; }
+  .hotel-total > p { max-width: 130px; }
+  .hotel-actions-right { gap: 8px; }
+}
