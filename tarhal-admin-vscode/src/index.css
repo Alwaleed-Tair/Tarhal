@@ -66,7 +66,7 @@
   --sidebar: 216 63% 12%;
   --sidebar-foreground: 213 32% 92%;
   --sidebar-border: 215 46% 22%;
-  --sidebar-primary: 216 86% 53%;
+  --sidebar-primary: 216 86% 50%; /* White text needs 4.5:1. */
   --app-font-sans: 'DM Sans', 'Noto Sans Arabic', sans-serif;
   --app-font-mono: 'SFMono-Regular', Consolas, monospace;
   --radius: 1.35rem;
@@ -1023,3 +1023,30 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
   .accessibility-large :where(.app-shell) .data-table-stack td::before { content: attr(data-label); flex: 0 0 auto; color: hsl(var(--muted-foreground)); font-size: calc(12px * var(--text-scale)); font-weight: 500; text-align: start; }
   .accessibility-large :where(.app-shell) .table-wrap { max-height: none; }
 }
+
+/* ===== 29. Admin Hotels and Cars: filters, pager, and the honest notes under the numbers ===== */
+.filter-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; align-items: start; margin: 0 0 21px; padding: 16px; border: 1px solid hsl(var(--border)); border-radius: 16px; background: hsl(var(--card)); }
+.filter-bar .modal-field { min-width: 0; }
+.filter-bar-clear { align-self: end; min-height: 40px; }
+.field-hint { margin: 0; color: hsl(var(--muted-foreground)); font-size: calc(12px * var(--text-scale)); line-height: 1.4; }
+.table-pager { padding: 14px 12px; border-top: 1px solid hsl(var(--border)); }
+.metric-hint { display: block; margin-top: 6px; opacity: .9; font-size: calc(12px * var(--text-scale)); }
+.metric-note { margin: -11px 0 27px; color: hsl(var(--muted-foreground)); font-size: calc(13px * var(--text-scale)); }
+.modal-check { display: flex; align-items: center; gap: 8px; min-height: 40px; font-weight: 600; }
+.modal-check input { width: 18px; height: 18px; accent-color: hsl(var(--primary)); }
+.label-with-symbol { display: inline-flex; align-items: center; gap: 5px; }
+@media (max-width: 680px) {
+  .filter-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 14px; }
+  .filter-bar > :first-child, .filter-bar-clear { grid-column: 1 / -1; }
+  .accessibility-large .filter-bar { grid-template-columns: minmax(0, 1fr); }
+  /* The phone grid has two columns and one wide card: with six cards the last one takes the empty place. */
+  :where(.app-shell) .metric-card:nth-child(6):last-child { grid-column: 1 / -1; }
+}
+
+/* ===== 30. Readable contrast (same hues, WCAG AA). High contrast mode keeps its own stronger rules. ===== */
+:where(.app-shell) .button-primary, :where(.app-shell) .radio-option.selected { background: hsl(216 86% 50%); color: #fff; }
+.button[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+:where(:root:not(.dark) .app-shell) .data-table th { color: hsl(215 28% 32%); }
+:where(.app-shell) :is(.status-pending, .status-boarding, .status-limited), :where(.app-shell) .context-badge-warning { color: #8a5a00; }
+.dark :where(.app-shell) :is(.status-pending, .status-boarding, .status-limited), .dark :where(.app-shell) .context-badge-warning { color: #f0b84f; }
+.accessibility-large :where(.app-shell) .chart-months span { overflow: visible; white-space: normal; overflow-wrap: anywhere; font-size: 11px; line-height: 1.15; }
