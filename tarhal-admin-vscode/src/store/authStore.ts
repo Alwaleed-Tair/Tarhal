@@ -6,13 +6,16 @@ import { useSyncExternalStore } from 'react';
 
 /** `role` comes from the real login response ('ADMIN' or 'TRAVELER'). The demo login has none. */
 export type AuthUser = { name: string; email: string; role?: string };
-export type AuthErrorCode = 'invalidCredentials' | 'emailTaken';
+export type AuthErrorCode = 'invalidCredentials' | 'emailTaken' | 'invalidField';
 
 export class AuthError extends Error {
   code: AuthErrorCode;
-  constructor(code: AuthErrorCode) {
+  /** For 'invalidField': which form field the API rejected (name, email, phone, password, dateOfBirth). */
+  field?: string;
+  constructor(code: AuthErrorCode, field?: string) {
     super(code);
     this.code = code;
+    this.field = field;
   }
 }
 
