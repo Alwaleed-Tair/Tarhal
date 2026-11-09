@@ -11,7 +11,7 @@ export default function Settings() {
 
   return (
     <Layout>
-      <section className="page-panel">
+      <section className="page-panel settings-page">
         <PageHeader section={t('settings')} title={t('settingsTitle')} subtitle={t('preferencesSaved')} />
         <div className="settings-grid">
           <Setting title={t('language')} help={t('languageHelp')}>

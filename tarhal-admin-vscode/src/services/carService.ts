@@ -1,4 +1,4 @@
-import { sarToUsd, usdToSar, api, assertSuccess, assertWrite, toList, num, pick, str, type Envelope, type Paginated, type Raw } from '@/services/api';
+import { api, assertSuccess, assertWrite, toList, num, pick, str, type Envelope, type Paginated, type Raw } from '@/services/api';
 import type { ResourceRow } from '@/data/demoData';
 import type { Car } from '@/data/listings';
 
@@ -9,7 +9,7 @@ const toRow = (r: Raw): ResourceRow => {
     apiId: pick(r, 'id') as string | number | undefined,
     location: str(pick(r, 'location', 'city')),
     availability: typeof count === 'number' ? `${count} available` : str(pick(r, 'availability'), 'Available Now'),
-    price: sarToUsd(num(pick(r, 'pricePerDay', 'price'))),
+    price: num(pick(r, 'pricePerDay', 'price')),
     status: str(pick(r, 'status'), 'Available'),
   };
 };
@@ -22,13 +22,13 @@ const toCar = (r: Raw): Car => ({
   year: num(pick(r, 'year')),
   seats: num(pick(r, 'seats', 'seatCount', 'capacity')),
   transmission: /man/i.test(str(pick(r, 'transmission'))) ? 'Manual' : 'Automatic',
-  city: str(pick(r, 'city', 'location')),
-  pricePerDay: sarToUsd(num(pick(r, 'pricePerDay', 'price'))),
-  insurancePerDay: sarToUsd(num(pick(r, 'insurancePerDay', 'insurancePricePerDay', 'insurancePrice'))),
+  city: str(pick(r, 'city', 'location')) || undefined,
+  pricePerDay: num(pick(r, 'pricePerDay', 'price')),
+  insurancePerDay: num(pick(r, 'insurancePerDay', 'insurancePricePerDay', 'insurancePrice')),
 });
 
 export type CarInput = { name: string; location: string; availability: string; price: number; status: string };
-const toBody = (i: CarInput) => ({ name: i.name, location: i.location, availability: i.availability, pricePerDay: usdToSar(i.price), status: i.status });
+const toBody = (i: CarInput) => ({ name: i.name, location: i.location, availability: i.availability, pricePerDay: i.price, status: i.status });
 
 export const carService = {
   /**
@@ -47,8 +47,9 @@ export const carService = {
     assertWrite((await api.delete<Envelope<Raw>>(`/cars/${encodeURIComponent(String(apiId))}`)).data);
   },
   /**
-   * Public Rentals page, server side: GET /api/cars with the filters the API supports (city, make, category,
-   * transmission AUTOMATIC|MANUAL, minSeats, minYear, minPrice, maxPrice in SAR) plus page/pageSize. Sorted by price.
+   * Public Rentals page: one page from GET /api/cars (only available cars). Filters the API really supports (lib/catalog-filters.ts):
+   * city, make, category, transmission (AUTOMATIC | MANUAL), minSeats, minYear, minPrice, maxPrice, page, pageSize.
+   * Anything else is answered with 400. Sorted by price.
    */
   async listPage(params: { page: number; pageSize: number } & Record<string, string | number>): Promise<{ items: Car[]; total: number }> {
     const { data } = await api.get<Paginated<Raw>>('/cars', { params });
@@ -56,7 +57,7 @@ export const carService = {
     const items = toList(data).map(toCar);
     return { items, total: data.pagination?.total ?? items.length };
   },
-  /** First 100 cars, unfiltered: used for the filter options (cities, makes) and as the offline fallback. */
+  /** First 100 cars, unfiltered: the source of the filter choices (cities, makes) and of the list when the API is offline. */
   async listPublic(): Promise<Car[]> {
     const { data } = await api.get<Paginated<Raw>>('/cars', { params: { page: 1, pageSize: 100 } });
     assertSuccess(data);

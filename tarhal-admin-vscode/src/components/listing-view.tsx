@@ -12,19 +12,33 @@ import type { Language, TranslationKey, TranslationParams } from '@/i18n/transla
 import { useFormat, useT } from '@/i18n/use-i18n';
 import { useDemoState } from '@/store/demoStore';
 
-/** An option is either a translated label (`labelKey`, optional `params`) or a raw `label` (city and make names from the data). */
+/** An option has a translated label (`labelKey`, optional `params`) or a raw `label` (city and make names from the data). */
 export type FilterOption = { value: string; labelKey?: TranslationKey; params?: TranslationParams; label?: string };
 /**
- * One dropdown filter. `matches` is used when the data is filtered in the browser (demo data); `param` turns the chosen
- * value into the API query parameters (e.g. rating "4" -> { minRating: 4 }) when the list is served by the API.
+ * One dropdown filter. `param` turns the chosen value into API query parameters (rating "4" -> { minRating: "4" }).
+ * `matches` is only used for the demo list when the API is offline, and that list always shows the Demo data badge.
  */
-export type FilterDef<T> = {
-  key: string;
-  labelKey: TranslationKey;
-  options: FilterOption[];
-  matches: (item: T, value: string) => boolean;
-  param?: (value: string) => Record<string, string | number>;
-};
+export type FilterDef<T> = { key: string; labelKey: TranslationKey; options: FilterOption[]; matches: (item: T, value: string) => boolean; param: (value: string) => Record<string, string | number> };
+
+/** Price dropdown sent to the API as minPrice + maxPrice (always SAR, the API's currency). The value is "min-max" or "min-". */
+export function priceFilter<T>(ranges: [number, number][], from: number, price: (item: T) => number | undefined): FilterDef<T> {
+  return {
+    key: 'price', labelKey: 'filterPrice',
+    options: [
+      ...ranges.map(([min, max]) => ({ value: `${min}-${max}`, labelKey: 'priceRange' as const, params: { min, max } })),
+      { value: `${from}-`, labelKey: 'priceFrom' as const, params: { min: from } },
+    ],
+    matches: (item, value) => {
+      const [min, max] = value.split('-');
+      const amount = price(item);
+      return amount === undefined || (amount >= Number(min) && (!max || amount <= Number(max)));
+    },
+    param: (value) => {
+      const [min, max] = value.split('-');
+      return { minPrice: min, ...(max ? { maxPrice: max } : {}) };
+    },
+  };
+}
 
 export type SortOption<T> = { value: string; labelKey: TranslationKey; compare: (a: T, b: T) => number };
 
@@ -33,62 +47,58 @@ export type ListingSource<T> = {
   load: (query: { params: Record<string, string | number>; page: number; pageSize: number }) => Promise<{ items: T[]; total: number }>;
 };
 
-/** The API lets us ask for at most this many rows per request. */
+/** The API allows at most this many rows per request. */
 const MAX_API_PAGE_SIZE = 100;
 
 type ListingViewProps<T> = {
   title: string;
   subtitle: string;
-  /** Demo/fallback items (also the data shown when the API is unreachable). */
+  /** Shown (and filtered in the browser, with the Demo data badge) only when the API cannot be reached. */
   items: T[];
   getKey: (item: T) => string;
   /** Text the search box matches against (include both languages if you have them). */
   searchText: (item: T, language: Language) => string;
-  /** The FIRST sort must be the order the API returns (price, ascending): that is what makes server paging correct. */
+  /** The FIRST sort must be the order the API returns: that is what makes server paging correct. */
   sorts: SortOption<T>[];
   /** Optional dropdown filters shown under the search box. */
   filters?: FilterDef<T>[];
-  /** Pass true while the page's own request is running (shows the card skeletons). */
-  loading?: boolean;
   renderItem: (item: T) => ReactNode;
   pageSize?: number;
   /** Placeholder card shown while loading. */
   skeleton: ReactNode;
   /**
-   * When given, filters and pagination are done by the API. Typing in the search box or choosing another sort
-   * switches to "local" handling over up to 100 API rows, because the API cannot search text or sort by rating/name.
-   * If the request fails, the demo `items` are shown and filtered in the browser.
+   * Filters and paging are done by the API. It has no text search and no other sort order, so typing in the search box
+   * or choosing another sort works on up to 100 rows that the API has already filtered.
    */
-  source?: ListingSource<T>;
+  source: ListingSource<T>;
 };
 
 type Remote<T> = { status: 'loading' | 'ready' | 'offline'; items: T[]; total: number };
 
-/** Search + sort + filters + loading/error/empty states + pagination for a grid of cards. */
-export function ListingView<T>({ title, subtitle, items, getKey, searchText, sorts, filters = [], loading = false, renderItem, pageSize = 6, skeleton, source }: ListingViewProps<T>) {
+/** Search + sort + loading/error/empty states + pagination for a grid of cards. */
+export function ListingView<T>({ title, subtitle, items, getKey, searchText, sorts, filters = [], renderItem, pageSize = 6, skeleton, source }: ListingViewProps<T>) {
   const t = useT();
   const format = useFormat();
   const { language } = useDemoState().settings;
+  // TODO / INTEGRATION POINT: Connect Tariq's Search API here (this local text filter becomes the search request).
   const [query, setQuery] = useState('');
   const [sortValue, setSortValue] = useState(sorts[0].value);
   const [filterValues, setFilterValues] = useState<Record<string, string>>({});
   const { status: mockStatus, empty, retry } = useMockStatus();
 
-  // ---- API mode ------------------------------------------------------------------------------------------
   const [remote, setRemote] = useState<Remote<T>>({ status: 'loading', items: [], total: 0 });
   const [serverPage, setServerPage] = useState(1);
   const [attempt, setAttempt] = useState(0);
   const serverParams = useMemo(() => {
     const params: Record<string, string | number> = {};
-    for (const f of filters) if (filterValues[f.key] && f.param) Object.assign(params, f.param(filterValues[f.key]));
+    for (const f of filters) if (filterValues[f.key]) Object.assign(params, f.param(filterValues[f.key]));
     return params;
   }, [filters, filterValues]);
   const paramsKey = JSON.stringify(serverParams);
-  const localMode = Boolean(source) && (query.trim() !== '' || sortValue !== sorts[0].value);
+  const localMode = query.trim() !== '' || sortValue !== sorts[0].value;
 
   useEffect(() => { setServerPage(1); }, [paramsKey, localMode]);
   useEffect(() => {
-    if (!source) return;
     let cancelled = false;
     setRemote((current) => ({ ...current, status: 'loading' }));
     source.load({ params: serverParams, page: localMode ? 1 : serverPage, pageSize: localMode ? MAX_API_PAGE_SIZE : pageSize })
@@ -98,23 +108,22 @@ export function ListingView<T>({ title, subtitle, items, getKey, searchText, sor
         if (!cancelled) setRemote({ status: 'offline', items: [], total: 0 });
       });
     return () => { cancelled = true; };
-  }, [source, paramsKey, localMode, serverPage, pageSize, attempt]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [source, paramsKey, localMode, serverPage, pageSize, attempt]);
 
-  const useApi = Boolean(source) && remote.status !== 'offline';
-  const serverPaging = useApi && !localMode;
-  const status = loading || (useApi && remote.status === 'loading') ? 'loading' : mockStatus;
+  const offline = remote.status === 'offline';
+  const serverPaging = !offline && !localMode;
+  const status = remote.status === 'loading' ? 'loading' : mockStatus;
 
-  // ---- local pipeline (demo data, offline fallback, text search / custom sort over API rows) ---------------
   const localVisible = useMemo(() => {
     const term = query.trim().toLowerCase();
     const compare = sorts.find((sort) => sort.value === sortValue)?.compare ?? sorts[0].compare;
-    const source_ = empty ? [] : useApi ? remote.items : items;
-    return source_
+    const rows = empty ? [] : offline ? items : remote.items;
+    return rows
       .filter((item) => !term || searchText(item, language).toLowerCase().includes(term))
-      // With the API the rows are already filtered by the server; only demo data is filtered here.
-      .filter((item) => useApi || filters.every((f) => !filterValues[f.key] || f.matches(item, filterValues[f.key])))
+      // API rows are already filtered by the server; only the demo list (with its badge) is filtered here.
+      .filter((item) => !offline || filters.every((f) => !filterValues[f.key] || f.matches(item, filterValues[f.key])))
       .sort(compare);
-  }, [items, remote.items, useApi, query, sortValue, sorts, filters, filterValues, searchText, language, empty]);
+  }, [items, remote.items, offline, query, sortValue, sorts, filters, filterValues, searchText, language, empty]);
 
   const local = usePagination(localVisible, pageSize, `${query}|${sortValue}|${JSON.stringify(filterValues)}`);
   const pageItems = serverPaging && !empty ? remote.items : local.pageItems;
@@ -122,7 +131,7 @@ export function ListingView<T>({ title, subtitle, items, getKey, searchText, sor
   const total = serverPaging && !empty ? remote.total : localVisible.length;
   const totalPages = serverPaging ? Math.max(1, Math.ceil(total / pageSize)) : local.totalPages;
   const filtersActive = Object.values(filterValues).some(Boolean);
-  const offline = Boolean(source) && remote.status === 'offline';
+  const visibleFilters = filters.filter((f) => f.options.length > 0);
 
   function changePage(next: number) {
     if (serverPaging) setServerPage(next); else local.setPage(next);
@@ -140,7 +149,6 @@ export function ListingView<T>({ title, subtitle, items, getKey, searchText, sor
   }
 
   const grid = 'grid gap-5 sm:grid-cols-2 lg:grid-cols-3';
-  const visibleFilters = filters.filter((f) => f.options.length > 0);
 
   return (
     <div className="grid gap-6">

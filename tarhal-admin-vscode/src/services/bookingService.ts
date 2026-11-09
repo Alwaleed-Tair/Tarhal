@@ -3,7 +3,7 @@ import { sarToUsd, api, assertSuccess, num, pick, str, toList, type Envelope, ty
 export type BookingTraveler = { seatId: string; fullName: string; passportNumber: string; dateOfBirth: string };
 export type CreateBookingPayload = { userId: string; flightId: string | number; travelers: BookingTraveler[] };
 
-export type BookingRow = { id: string; type: string; customer: string; date: string; price: number; status: string };
+export type BookingRow = { id: string; type: string; customer: string; date: string; price: number; status: string; userId?: string; email?: string; phone?: string; paymentStatus?: string };
 
 const asRaw = (v: unknown): Raw => (v && typeof v === 'object' ? (v as Raw) : {});
 
@@ -23,6 +23,10 @@ const toBookingRow = (r: Raw): BookingRow => ({
   date: str(pick(r, 'date', 'createdAt')),
   price: sarToUsd(num(pick(r, 'totalPrice', 'price', 'amount'))),
   status: bookingStatus(r),
+  userId: str(pick(asRaw(r.user), 'id')) || str(r.userId) || undefined,
+  email: str(asRaw(r.user).email) || undefined,
+  phone: str(asRaw(r.user).phoneNumber) || undefined,
+  paymentStatus: str(r.paymentStatus) || undefined,
 });
 
 export const bookingService = {

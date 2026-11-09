@@ -27,9 +27,9 @@ export default function Login() {
     setSubmitting(true);
     setFormError(null);
     try {
-      await authService.login({ email, password });
+      const user = await authService.login({ email, password });
       notify({ tone: 'success', titleKey: 'loginSuccessTitle', messageKey: 'loginSuccessMessage' });
-      setLocation(routes.home);
+      setLocation(user.role?.toUpperCase() === 'ADMIN' ? routes.admin.dashboard : routes.home);
     } catch (error) {
       setFormError(error instanceof AuthError ? t('errInvalidCredentials') : t('errorMessage'));
       setSubmitting(false);

@@ -43,6 +43,16 @@ export const translations = {
     breadcrumb: 'Breadcrumb', breadcrumbAdmin: 'Admin', recordsCount: '{count} records', pendingCount: '{count} pending', activeCount: '{count} active', demoBadge: 'Demo data', currency: 'Currency',
     dashboardSubtitle: 'Bookings, revenue and users at a glance.', flightsSubtitle: 'Manage flights, routes and prices.', hotelsSubtitle: 'Manage hotels, rooms and nightly prices.', carsSubtitle: 'Manage rental cars, locations and daily prices.',
     bookingsSubtitle: 'Review bookings and update their status.', revenueSubtitle: 'Track revenue by service and period.', usersSubtitle: 'Manage customer accounts and their status.',
+    // Admin flight form, "no data" labels and API-backed listing filters.
+    sectionFlight: 'Flight', sectionSchedule: 'Schedule', sectionPrice: 'Price', noFlightsYet: 'No flights yet. Add the first one to get started.', noCustomersYet: 'No customers yet. They appear here after their first booking.', noHotelsYet: 'No hotels to show yet.', noCarsYet: 'No available cars to show yet.',
+    customRange: 'Custom range', rangeFrom: 'From', rangeTo: 'To', rangeInvalid: 'The start date must be on or before the end date.',
+    bookingDate: 'Date', noBookingsYet: 'No bookings yet. New bookings will appear here.', noRevenueInPeriod: 'No revenue in this period yet.', vsLastMonth: '{change} vs last month',
+    collapseSidebar: 'Collapse sidebar', expandSidebar: 'Expand sidebar', jumpToPage: 'Go to page…',
+    noDataYet: 'No data yet', usersLiveSubtitle: 'Customers who have at least one booking. A full user list needs a users API, which does not exist yet.',
+    fromAirport: 'From (airport code)', toAirport: 'To (airport code)', departureTime: 'Departure', arrivalTime: 'Arrival', riyadhTime: 'Riyadh time', basePrice: 'Base price (SAR)', priceSar: 'Price (SAR)', saudiRiyal: 'Saudi Riyal',
+    flightSeats: 'Seats', seatCode: 'Seat code', ticketClass: 'Ticket class', priceMultiplier: 'Price multiplier', addSeat: 'Add seat', removeSeat: 'Remove seat', ticketECONOMY: 'Economy', ticketBUSINESS: 'Business', ticketFIRST: 'First',
+    airportInvalid: 'Enter a 3-letter airport code, such as RUH.', airportsSame: 'Departure and arrival airports must be different.', arrivalAfterDeparture: 'Arrival must be after departure.', seatsRequired: 'Add at least one seat.', seatDuplicate: 'This seat code is used twice.', multiplierInvalid: 'Enter a number above 0 and up to 99.99.', airlinesUnavailable: 'The airline list could not be loaded. Try again later.',
+    filterCity: 'City', filterMake: 'Make', filterPrice: 'Price', filterYear: 'Year', priceRange: 'SAR {min} to {max}', priceFrom: 'SAR {min} or more', yearFrom: '{year} or newer', perNight: '/ night',
     // Public site, auth and listings: every key the pages use exists in both languages.
     filterCity: 'City', filterPrice: 'Price', filterMake: 'Make', filterYear: 'Year', priceUpTo: 'Up to {price} SAR', yearFrom: '{year} or newer',
     benefit1Title: 'Clear prices', benefit1Text: 'See the price per night or per day up front, with no surprises.',
@@ -166,6 +176,16 @@ export const translations = {
     breadcrumb: 'مسار التنقل', breadcrumbAdmin: 'الإدارة', recordsCount: '{count} سجل', pendingCount: '{count} قيد الانتظار', activeCount: '{count} نشط', demoBadge: 'بيانات تجريبية', currency: 'العملة',
     dashboardSubtitle: 'الحجوزات والإيرادات والمستخدمون في لمحة.', flightsSubtitle: 'إدارة الرحلات والمسارات والأسعار.', hotelsSubtitle: 'إدارة الفنادق والغرف وأسعار الليلة.', carsSubtitle: 'إدارة السيارات والمواقع والأسعار اليومية.',
     bookingsSubtitle: 'راجع الحجوزات وحدّث حالتها.', revenueSubtitle: 'تابع الإيرادات حسب الخدمة والفترة.', usersSubtitle: 'إدارة حسابات العملاء وحالتها.',
+    // Admin flight form, "no data" labels and API-backed listing filters.
+    sectionFlight: 'الرحلة', sectionSchedule: 'المواعيد', sectionPrice: 'السعر', noFlightsYet: 'لا توجد رحلات بعد. أضف أول رحلة للبدء.', noCustomersYet: 'لا يوجد عملاء بعد. سيظهرون هنا بعد أول حجز.', noHotelsYet: 'لا توجد فنادق للعرض بعد.', noCarsYet: 'لا توجد سيارات متاحة للعرض بعد.',
+    customRange: 'نطاق مخصص', rangeFrom: 'من', rangeTo: 'إلى', rangeInvalid: 'يجب أن يكون تاريخ البداية في تاريخ النهاية أو قبله.',
+    bookingDate: 'التاريخ', noBookingsYet: 'لا توجد حجوزات بعد. ستظهر الحجوزات الجديدة هنا.', noRevenueInPeriod: 'لا توجد إيرادات في هذه الفترة بعد.', vsLastMonth: '{change} مقارنة بالشهر الماضي',
+    collapseSidebar: 'طي الشريط الجانبي', expandSidebar: 'توسيع الشريط الجانبي', jumpToPage: 'انتقل إلى صفحة…',
+    noDataYet: 'لا توجد بيانات بعد', usersLiveSubtitle: 'العملاء الذين لديهم حجز واحد على الأقل. تتطلب القائمة الكاملة واجهة API للمستخدمين غير متوفرة بعد.',
+    fromAirport: 'من (رمز المطار)', toAirport: 'إلى (رمز المطار)', departureTime: 'المغادرة', arrivalTime: 'الوصول', riyadhTime: 'بتوقيت الرياض', basePrice: 'السعر الأساسي (ريال)', priceSar: 'السعر (ريال)', saudiRiyal: 'ريال سعودي',
+    flightSeats: 'المقاعد', seatCode: 'رمز المقعد', ticketClass: 'درجة التذكرة', priceMultiplier: 'معامل السعر', addSeat: 'إضافة مقعد', removeSeat: 'حذف المقعد', ticketECONOMY: 'السياحية', ticketBUSINESS: 'الأعمال', ticketFIRST: 'الأولى',
+    airportInvalid: 'أدخل رمز مطار من 3 أحرف مثل RUH.', airportsSame: 'يجب أن يختلف مطار المغادرة عن مطار الوصول.', arrivalAfterDeparture: 'يجب أن يكون الوصول بعد المغادرة.', seatsRequired: 'أضف مقعداً واحداً على الأقل.', seatDuplicate: 'رمز المقعد هذا مستخدم مرتين.', multiplierInvalid: 'أدخل رقماً أكبر من 0 وحتى 99.99.', airlinesUnavailable: 'تعذر تحميل قائمة شركات الطيران. حاول لاحقاً.',
+    filterCity: 'المدينة', filterMake: 'الشركة المصنعة', filterPrice: 'السعر', filterYear: 'السنة', priceRange: '{min} إلى {max} ريال', priceFrom: '{min} ريال أو أكثر', yearFrom: '{year} أو أحدث', perNight: '/ الليلة',
     // Public site, auth and listings: every key the pages use exists in both languages.
     filterCity: 'المدينة', filterPrice: 'السعر', filterMake: 'الشركة المصنّعة', filterYear: 'سنة الصنع', priceUpTo: 'حتى {price} ريال', yearFrom: '{year} فأحدث',
     benefit1Title: 'أسعار واضحة', benefit1Text: 'اطّلع على السعر لكل ليلة أو يوم من البداية بدون مفاجآت.',

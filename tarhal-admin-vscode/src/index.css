@@ -233,7 +233,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .metric-label { font-size: calc(14px * var(--text-scale)); font-weight: 600; }
 .metric-value { margin-top: 6px; font-size: clamp(calc(30px * var(--text-scale)), 3vw, calc(38px * var(--text-scale))); font-weight: 700; letter-spacing: -.02em; }
 
-.action-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px; margin: 0 18px 38px; }
+.action-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 36px; margin: 0 18px 38px; }
 .action-row .button { width: 100%; }
 
 /* ==========================================================================
@@ -308,7 +308,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .chart-total strong { display: block; letter-spacing: -.03em; } /* size, weight and line-height come from text-5xl sm:text-6xl font-bold leading-tight in revenue-chart.tsx */
 .chart-total > span { font-size: calc(27px * var(--text-scale)); font-weight: 700; color: hsl(var(--foreground)); }
 
-.revenue-chart { --axis-width: calc(48px * var(--text-scale)); }
+.revenue-chart { --axis-width: calc(66px * var(--text-scale)); }
 .chart-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 16px; margin-bottom: 14px; }
 .period-select { margin-inline-start: auto; min-width: 190px; cursor: pointer; }
 .chart-summary { display: flex; align-items: baseline; gap: 10px; font-size: calc(13px * var(--text-scale)); color: hsl(var(--muted-foreground)); }
@@ -564,7 +564,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .page-panel { min-height: calc(100dvh - 77px); padding: 23px 13px; border-radius: 26px; }
   .page-heading { align-items: flex-start; flex-direction: column; margin-bottom: 21px; }
   .metric-card { min-height: 105px; }
-  .action-row { grid-template-columns: 1fr; margin-bottom: 24px; }
+  .action-row { grid-auto-flow: row; margin-bottom: 24px; }
   .action-row .button { width: 100%; }
   .modal-backdrop { padding: 12px; }
   .modal-card { border-radius: 19px; }
@@ -670,14 +670,378 @@ html.accessibility-large { font-size: 125%; }
 .data-table-fixed th { overflow-wrap: anywhere; }
 
 
-/* ===== 28. Saudi Riyal sign (Unicode U+20C1, inherits the surrounding text color) ===== */
-.sar-symbol { display: inline-block; font-style: normal; font-weight: inherit; line-height: 1; }
+/* ===== 28. Saudi Riyal symbol (official shape, inherits the surrounding text color). Same height as the digits, sitting on the baseline. ===== */
+.sar-symbol { display: inline-block; height: .72em; width: auto; aspect-ratio: 1124.14 / 1256.39; vertical-align: baseline; flex: none; }
 
 /* Responsive QA: let header controls wrap on mid-size screens */
 .page-heading { flex-wrap: wrap; }
 .heading-actions { flex-wrap: wrap; }
 
-/* Revenue numbers: keep the SAR sign proportional to the larger text */
-.metric-value bdi, .chart-total bdi, .chart-summary bdi { gap: .18em; }
-.metric-value .sar-symbol, .chart-total .sar-symbol, .chart-summary .sar-symbol { font-size: 1em; line-height: inherit; }
 .metric-value bdi, .chart-total bdi { line-height: inherit; }
+
+/* Labels for numbers the API cannot give yet */
+.metric-no-data { font-size: calc(16px * var(--text-scale)); font-weight: 600; letter-spacing: 0; }
+.chart-no-data { margin: 0; padding: 46px 20px; text-align: center; font-weight: 600; color: hsl(var(--muted-foreground)); }
+.chart-legend-note { font-weight: 500; color: hsl(var(--muted-foreground)); }
+
+/* Flight form: seat rows */
+.modal-seats { display: grid; gap: 12px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.modal-seats legend { padding: 0 0 8px; color: hsl(var(--muted-foreground)); font-size: calc(12px * var(--text-scale)); font-weight: 700; }
+.modal-seat-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; align-items: start; gap: 10px; }
+.modal-seat-remove { margin-top: calc(12px * var(--text-scale) + 12px); min-height: 40px; padding-inline: 12px; }
+.modal-seat-add { justify-self: start; }
+.accessibility-large .modal-seat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* Responsive QA: date inputs have a wide built-in minimum, so the field tracks must be able to shrink and the modal needs the room. */
+.modal-card { width: min(620px, 100%); }
+.accessibility-large .modal-card { width: min(760px, 100%); }
+.modal-field { grid-template-columns: minmax(0, 1fr); }
+.modal-field .input-control, .modal-field .select-control { min-width: 0; }
+.user-button { white-space: nowrap; }
+/* Fixed-width columns: long real values wrap inside their cell instead of running into the next column. */
+.data-table-fixed td { white-space: normal; overflow-wrap: anywhere; }
+.data-table-fixed td :is(.button, .status) { white-space: nowrap; overflow-wrap: normal; }
+
+/* Responsive QA (375px): the top bar wraps, with search on its own row, so it can never widen the page. */
+@media (max-width: 680px) {
+  .topbar { height: auto; min-height: 62px; flex-wrap: wrap; justify-content: flex-end; gap: 8px 10px; padding-block: 8px; }
+  .menu-toggle { margin-inline-end: auto; }
+  .global-search-wrap { order: 10; flex: 1 0 100%; min-width: 0; }
+  .global-search, .accessibility-large .global-search { width: 100%; max-width: none; }
+  .accessibility-large .topbar { gap: 8px 6px; }
+  .data-table th, .data-table td { padding-inline: 12px; }
+  .modal-seat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .modal-actions { flex-wrap: wrap; }
+  .period-select { min-width: 0; width: 100%; }
+  .filter-row { margin-top: 0; }
+}
+
+/* ==========================================================================
+   29. Admin redesign: design system and shell.
+   Everything here applies only inside the admin. :where() keeps specificity low, so the
+   Senior Mode and high-contrast rules above still win. Colours come only from the theme tokens.
+   ========================================================================== */
+.app-shell {
+  --adm-radius: 12px;
+  --adm-radius-sm: 8px;
+  --adm-line: hsl(var(--border) / .8);
+  --adm-shadow: 0 1px 2px hsl(var(--sidebar) / .05), 0 4px 14px hsl(var(--sidebar) / .05);
+  --adm-shadow-lift: 0 2px 4px hsl(var(--sidebar) / .07), 0 10px 26px hsl(var(--sidebar) / .1);
+  --adm-gutter: 28px;
+}
+.dark .app-shell { --adm-shadow: 0 1px 2px #0000004d, 0 4px 14px #00000033; --adm-shadow-lift: 0 2px 4px #00000059, 0 10px 26px #00000059; }
+.accessibility-contrast .app-shell { --adm-line: hsl(var(--border)); --adm-shadow: none; --adm-shadow-lift: none; }
+
+/* Sidebar width is on <html> because the chatbot, outside the shell, has to line up with it. */
+html[data-admin-sidebar] { --adm-sidebar: 248px; }
+html[data-admin-sidebar='collapsed'] { --adm-sidebar: 72px; }
+html.accessibility-large[data-admin-sidebar] { --adm-sidebar: 290px; }
+html.accessibility-large[data-admin-sidebar='collapsed'] { --adm-sidebar: 92px; }
+
+.app-shell { background: linear-gradient(135deg, hsl(var(--shell-start) / .55), hsl(var(--shell-end) / .55)), hsl(var(--background)); background-attachment: fixed; }
+.accessibility-contrast .app-shell { background: hsl(var(--background)); }
+
+/* Sidebar */
+html[data-admin-sidebar] .sidebar { width: var(--adm-sidebar); flex-basis: var(--adm-sidebar); }
+:where(.app-shell) .sidebar { position: sticky; top: 0; z-index: 25; height: 100dvh; padding: 14px 12px 84px; overflow-y: auto; border-inline-end: 1px solid hsl(var(--sidebar-border)); transition: width .2s ease, flex-basis .2s ease; }
+:where(.app-shell) .brand { height: 52px; margin-bottom: 14px; padding: 0 8px; }
+:where(.app-shell) .brand img { width: 36px; height: 34px; }
+:where(.app-shell) .nav-link { position: relative; min-height: 40px; padding: 8px 10px; border-radius: var(--adm-radius-sm); font-size: calc(14px * var(--text-scale)); font-weight: 500; color: hsl(var(--sidebar-foreground) / .8); transition: background-color .15s ease, color .15s ease; }
+:where(.app-shell) .nav-link:hover { transform: none; background: hsl(var(--sidebar-foreground) / .08); color: hsl(var(--sidebar-foreground)); }
+[dir='rtl'] :where(.app-shell) .nav-link:hover { transform: none; }
+:where(.app-shell) .nav-link:active { background: hsl(var(--sidebar-foreground) / .14); }
+:where(.app-shell) .nav-link.active { background: hsl(var(--sidebar-primary)); color: #fff; font-weight: 600; box-shadow: 0 1px 2px hsl(var(--sidebar) / .4); }
+.accessibility-contrast :where(.app-shell) .nav-link { color: #fff; }
+.accessibility-contrast :where(.app-shell) .nav-link.active { color: #000; }
+
+/* Collapsed rail: labels stay available to screen readers and appear as tooltips. */
+.app-shell.is-collapsed .sidebar { overflow: visible; padding-inline: 12px; }
+.app-shell.is-collapsed .brand { justify-content: center; padding: 0; }
+.app-shell.is-collapsed .brand-text { display: none; }
+.app-shell.is-collapsed .nav-link { justify-content: center; padding-inline: 0; }
+.app-shell.is-collapsed .nav-link > span:not(.nav-icon) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.app-shell.is-collapsed .nav-link::after { content: attr(data-tip); position: absolute; z-index: 40; top: 50%; inset-inline-start: calc(100% + 12px); padding: 5px 9px; border-radius: 6px; background: hsl(var(--sidebar)); border: 1px solid hsl(var(--sidebar-border)); color: #fff; font-size: calc(12px * var(--text-scale)); font-weight: 600; white-space: nowrap; opacity: 0; pointer-events: none; transform: translateY(-50%); transition: opacity .12s ease; }
+.app-shell.is-collapsed .nav-link:hover::after, .app-shell.is-collapsed .nav-link:focus-visible::after { opacity: 1; }
+
+/* Chatbot launcher and panel follow the sidebar. Styling only: the chat component is not changed. */
+@media (min-width: 681px) {
+  html[data-admin-sidebar] .chat-launcher { inset-inline-start: 12px; width: calc(var(--adm-sidebar) - 24px); min-height: 44px; border-radius: var(--adm-radius-sm, 8px); box-shadow: none; }
+  html[data-admin-sidebar='collapsed'] .chat-launcher { justify-content: center; padding: 0; }
+  html[data-admin-sidebar='collapsed'] .chat-launcher > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  html[data-admin-sidebar] .chat-panel { inset-inline-start: calc(var(--adm-sidebar) + 16px); width: min(370px, calc(100vw - var(--adm-sidebar) - 32px)); }
+}
+
+/* Top bar: slim, sticky, with every control the same height */
+:where(.app-shell) .main-shell { min-height: 100dvh; }
+:where(.app-shell) .topbar { position: sticky; top: 0; z-index: 15; height: auto; min-height: 60px; flex-wrap: wrap; justify-content: flex-start; gap: 8px; padding: 10px var(--adm-gutter); background: hsl(var(--background) / .8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--adm-line); }
+.accessibility-contrast :where(.app-shell) .topbar { background: hsl(var(--background)); backdrop-filter: none; }
+:where(.topbar) .global-search-wrap { flex: 1 1 130px; max-width: 240px; min-width: 130px; margin-inline-end: auto; }
+:where(.topbar) .global-search { width: 100%; height: 36px; border-radius: var(--adm-radius-sm); border-color: var(--adm-line); }
+:where(.topbar) .top-action { display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border-radius: var(--adm-radius-sm); transition: background-color .15s ease; }
+:where(.topbar) .top-action:hover { background: hsl(var(--muted)); }
+:where(.topbar) .top-action:active { background: hsl(var(--border)); }
+:where(.topbar) .senior-toggle.active { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+:where(.topbar) .currency-select { height: 36px; border-radius: var(--adm-radius-sm); border-color: var(--adm-line); }
+:where(.topbar) .logo-controls { margin: 0; gap: 8px; align-items: stretch; }
+:where(.topbar) .theme-pill { width: auto; height: 36px; gap: 2px; padding: 3px; border: 1px solid var(--adm-line); border-radius: var(--adm-radius-sm); background: hsl(var(--card)); color: hsl(var(--muted-foreground)); }
+:where(.topbar) .theme-pill span { width: 28px; height: 28px; border-radius: 6px; }
+:where(.topbar) .theme-pill span.selected { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+:where(.topbar) .lang-pill { min-height: 36px; padding: 0 10px; border: 1px solid var(--adm-line); border-radius: var(--adm-radius-sm); background: hsl(var(--card)); color: hsl(var(--foreground)); font-weight: 600; }
+:where(.topbar) .lang-pill:hover { background: hsl(var(--muted)); }
+.accessibility-contrast :where(.topbar) :is(.theme-pill, .lang-pill) { border: 2px solid hsl(var(--foreground)); }
+:where(.topbar) .user-button { height: 36px; padding: 0 8px; border-radius: var(--adm-radius-sm); white-space: nowrap; font-size: calc(14px * var(--text-scale)); font-weight: 500; transition: background-color .15s ease; }
+:where(.topbar) .user-button:hover { background: hsl(var(--muted)); }
+.accessibility-large :where(.topbar) :is(.user-button, .top-action, .currency-select, .lang-pill, .theme-pill) { height: auto; min-height: 48px; min-width: 48px; }
+.accessibility-large :where(.topbar) .global-search { width: 100%; }
+
+/* Dropdowns: one elevation style */
+:where(.app-shell) .user-dropdown { top: calc(100% + 8px); padding: 6px; border-color: var(--adm-line); border-radius: var(--adm-radius); box-shadow: var(--adm-shadow-lift); }
+:where(.app-shell) .user-dropdown button { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: var(--adm-radius-sm); font-size: calc(14px * var(--text-scale)); }
+:where(.app-shell) .search-suggestions { border-color: var(--adm-line); border-radius: var(--adm-radius); box-shadow: var(--adm-shadow-lift); }
+html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box-shadow: 0 2px 4px hsl(var(--sidebar) / .08), 0 12px 30px hsl(var(--sidebar) / .16); }
+
+/* Page area: no big panel, content sits on the background */
+:where(.app-shell) .page-wrap { padding: 0; }
+:where(.app-shell) .page-panel { width: 100%; max-width: 1440px; min-height: 0; margin-inline: auto; padding: 24px var(--adm-gutter) 40px; border-radius: 0; background: transparent; box-shadow: none; }
+.accessibility-contrast :where(.app-shell) .page-panel { border: 0; }
+:where(.app-shell) .page-header { align-items: flex-end; margin: 0 0 20px; }
+:where(.app-shell) .page-title-row h1 { font-size: calc(24px * var(--text-scale)); font-weight: 650; line-height: 1.25; color: hsl(var(--card-foreground)); }
+:where(.app-shell) .page-subtitle { font-size: calc(14px * var(--text-scale)); }
+:where(.app-shell) .heading-actions .select-control { min-height: 36px; border-color: var(--adm-line); border-radius: var(--adm-radius-sm); background: hsl(var(--card)); }
+.accessibility-large :where(.app-shell) .heading-actions .select-control { min-height: 48px; }
+
+@media (max-width: 1120px) {
+  .app-shell { --adm-gutter: 20px; }
+  :where(.topbar) .user-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+}
+@media (max-width: 680px) {
+  .app-shell { --adm-gutter: 16px; }
+  :where(.app-shell) .topbar { position: static; padding-block: 8px; }
+  :where(.topbar) .sidebar-toggle, :where(.topbar) .logo-controls { display: none; }
+  :where(.topbar) .menu-toggle { margin-inline-end: auto; border: 0; border-radius: var(--adm-radius-sm); }
+  :where(.topbar) .global-search-wrap { order: 10; flex: 1 0 100%; max-width: none; margin-inline-end: 0; }
+  /* The large-text launcher width used to stretch the round phone button across the page. */
+  html[data-admin-sidebar] .chat-launcher-mobile { width: 52px; }
+  :where(.app-shell) .page-panel { padding-block: 16px 72px; }
+}
+@media (min-width: 681px) { :where(.topbar) .menu-toggle { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  :where(.app-shell) .sidebar { transition: none; }
+}
+
+/* ==========================================================================
+   30. Admin redesign: shared components. One stat card, panel, table, button,
+   filter and form style for every admin page. Only applies inside .app-shell.
+   Spacing scale: 4 8 12 16 20 24. Radius: 12 for surfaces, 8 for controls.
+   ========================================================================== */
+:where(.app-shell) :is(button, a, input, select, .table-wrap):focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
+
+/* Stat cards keep today's blue surface, with navy text for stronger contrast */
+:where(.app-shell) .metric-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 16px; margin: 0 0 20px; }
+:where(.app-shell) .metric-card { min-height: 0; padding: 16px 18px; border: 1px solid hsl(var(--sidebar) / .08); border-radius: var(--adm-radius); background: hsl(var(--metric-surface)); color: hsl(var(--sidebar)); text-align: start; box-shadow: var(--adm-shadow); transition: box-shadow .2s ease, transform .2s ease; }
+:where(.app-shell) .metric-card:hover { transform: translateY(-1px); box-shadow: var(--adm-shadow-lift); }
+:where(.app-shell) .metric-label { font-size: calc(13px * var(--text-scale)); font-weight: 600; opacity: .86; }
+:where(.app-shell) .metric-main { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 12px; min-height: calc(36px * var(--text-scale)); margin-top: 8px; }
+:where(.app-shell) .metric-value { min-width: 0; margin: 0; font-size: calc(26px * var(--text-scale)); font-weight: 650; letter-spacing: -.02em; white-space: nowrap; }
+[dir='rtl'] :where(.app-shell) .metric-value { letter-spacing: normal; }
+:where(.app-shell) .metric-skeleton { display: block; width: 96px; height: calc(26px * var(--text-scale)); opacity: .55; }
+:where(.app-shell) .metric-no-data { font-size: calc(15px * var(--text-scale)); font-weight: 600; opacity: .8; }
+.sparkline { flex: 0 0 auto; margin-inline-start: auto; color: currentColor; }
+[dir='rtl'] .sparkline { transform: scaleX(-1); }
+:where(.app-shell) .metric-change { display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; font-size: calc(12px * var(--text-scale)); font-weight: 500; opacity: .86; }
+
+/* Panels: card surface with today's navy header */
+:where(.app-shell) .section-card, :where(.app-shell) .chart-panel { padding: 0; overflow: visible; border: 1px solid var(--adm-line); border-radius: var(--adm-radius); background: hsl(var(--card)); box-shadow: var(--adm-shadow); }
+:where(.app-shell) .section-card:hover { box-shadow: var(--adm-shadow); }
+:where(.app-shell) .section-title { padding: 12px 18px; border-radius: calc(var(--adm-radius) - 1px) calc(var(--adm-radius) - 1px) 0 0; font-size: calc(14px * var(--text-scale)); font-weight: 600; }
+:where(.app-shell) .section-body { padding: 16px 18px; }
+:where(.app-shell) .chart-panel { padding: 20px; }
+:where(.app-shell) .empty-state { padding: 44px 20px; }
+:where(.app-shell) .empty-state svg { opacity: .55; }
+:where(.app-shell) .content-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 430px), 1fr)); gap: 16px; align-items: start; }
+@media (min-width: 1200px) { :where(.app-shell) .content-grid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); } }
+.accessibility-large :where(.app-shell) .content-grid { grid-template-columns: 1fr; }
+
+/* Buttons and controls */
+:where(.app-shell) .button { min-height: 36px; padding: 7px 14px; border-radius: var(--adm-radius-sm); font-size: calc(13.5px * var(--text-scale)); font-weight: 600; transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .1s ease; }
+:where(.app-shell) .button:hover { transform: none; filter: none; }
+:where(.app-shell) .button:active { transform: scale(.98); filter: none; }
+:where(.app-shell) .button-primary { box-shadow: 0 1px 2px hsl(var(--primary) / .35); }
+:where(.app-shell) .button-primary:hover { background: hsl(var(--primary) / .9); }
+:where(.app-shell) .button-ghost { background: hsl(var(--card)); border-color: var(--adm-line); }
+:where(.app-shell) .button-ghost:hover { background: hsl(var(--muted)); }
+:where(.app-shell) .button-ghost-danger { color: hsl(var(--destructive)); }
+:where(.app-shell) .button-ghost-danger:hover { background: hsl(var(--destructive) / .1); }
+.accessibility-large :where(.app-shell) .button { min-height: 48px; }
+:where(.app-shell) .row-actions { justify-content: flex-end; gap: 6px; }
+:where(.app-shell) .row-actions .button { min-height: 32px; padding: 4px 10px; }
+.accessibility-large :where(.app-shell) .row-actions .button { min-height: 44px; }
+:where(.app-shell) .select-control, :where(.app-shell) .input-control { border-color: var(--adm-line); border-radius: var(--adm-radius-sm); background: hsl(var(--card)); font-size: calc(14px * var(--text-scale)); transition: border-color .15s ease, box-shadow .15s ease; }
+:where(.app-shell) .select-control:hover, :where(.app-shell) .input-control:hover { border-color: hsl(var(--muted-foreground) / .55); }
+:where(.app-shell) .page-search-wrap { min-width: min(240px, 100%); }
+:where(.app-shell) .page-search { width: 100%; height: 36px; border-color: var(--adm-line); border-radius: var(--adm-radius-sm); }
+.accessibility-large :where(.app-shell) .page-search { height: auto; min-height: 48px; }
+:where(.app-shell) .heading-actions { flex-wrap: nowrap; gap: 8px; }
+:where(.app-shell) .heading-actions .button { flex: 0 0 auto; white-space: nowrap; }
+:where(.app-shell) .heading-actions .page-search-wrap { flex: 0 1 240px; width: 240px; min-width: 0; }
+
+/* Segmented filters */
+:where(.app-shell) .filter-row { display: inline-flex; flex-wrap: wrap; gap: 2px; margin: 0 0 16px; padding: 3px; border: 1px solid var(--adm-line); border-radius: var(--adm-radius-sm); background: hsl(var(--card)); }
+:where(.app-shell) .filter-chip { padding: 5px 12px; border-radius: 6px; background: transparent; font-size: calc(13px * var(--text-scale)); font-weight: 600; transition: background-color .15s ease, color .15s ease; }
+:where(.app-shell) .filter-chip:hover:not(.active) { background: hsl(var(--muted)); }
+
+/* Tables: sticky header, comfortable rows, no heavy grid */
+:where(.app-shell) .table-wrap { max-height: min(72dvh, 680px); border-radius: var(--adm-radius); }
+:where(.app-shell) .section-title + .table-wrap { max-height: none; border-radius: 0 0 var(--adm-radius) var(--adm-radius); }
+:where(.app-shell) .data-table th { position: sticky; top: 0; z-index: 2; padding: 10px 16px; background: hsl(var(--muted)); backdrop-filter: none; border-bottom: 0; box-shadow: inset 0 -1px 0 var(--adm-line); color: hsl(var(--muted-foreground)); font-size: calc(11.5px * var(--text-scale)); font-weight: 600; }
+.app-shell .data-table th:first-child, .app-shell .data-table th:last-child { border-radius: 0; }
+:where(.app-shell) .data-table td { padding: 12px 16px; border-bottom: 1px solid var(--adm-line); color: hsl(var(--card-foreground)); font-size: calc(13.5px * var(--text-scale)); }
+.app-shell .data-table :is(th, td):not(:last-child) { border-inline-end: 0; }
+.app-shell .data-table tbody tr:nth-child(even) td { background: transparent; }
+.app-shell .data-table tbody tr:hover td { background: hsl(var(--muted) / .55); }
+.app-shell .data-table tbody tr:last-child td { border-bottom: 0; }
+.app-shell .data-table .col-center { text-align: start; }
+.accessibility-contrast .app-shell .data-table th { background: #000; color: #fff; }
+.dark.accessibility-contrast .app-shell .data-table th { background: #fff; color: #000; }
+.accessibility-contrast .app-shell .data-table td { border-bottom: 2px solid hsl(var(--foreground)); }
+.accessibility-contrast .app-shell .data-table tbody tr:last-child td { border-bottom: 0; }
+:where(.app-shell) .data-table td.cell-muted { font-size: calc(12.5px * var(--text-scale)); }
+:where(.app-shell) .data-table td .status { white-space: nowrap; }
+:where(.app-shell) .cell-stack { display: block; min-width: 0; }
+:where(.app-shell) .data-table td [title] { white-space: nowrap; }
+.accessibility-large :where(.app-shell) .heading-actions .page-search { width: 100%; }
+:where(.app-shell) .table-skeleton { padding: 16px 18px; }
+
+/* Revenue chart: always fits its panel */
+:where(.app-shell) .revenue-chart { --axis-width: calc(74px * var(--text-scale)); container-type: inline-size; }
+:where(.app-shell) .chart-total { display: flex; flex-direction: column-reverse; gap: 2px; margin: 0 0 16px; text-align: start; }
+:where(.app-shell) .chart-total strong { font-size: calc(32px * var(--text-scale)); font-weight: 650; line-height: 1.2; color: hsl(var(--card-foreground)); }
+:where(.app-shell) .chart-total > span { font-size: calc(13px * var(--text-scale)); font-weight: 500; color: hsl(var(--muted-foreground)); }
+:where(.app-shell) .chart-summary strong { font-size: calc(22px * var(--text-scale)); font-weight: 650; color: hsl(var(--card-foreground)); }
+:where(.app-shell) .period-select { min-width: 0; min-height: 36px; }
+.accessibility-large :where(.app-shell) .period-select { min-height: 48px; }
+:where(.app-shell) .chart-scroll { overflow: visible; }
+:where(.app-shell) .chart-inner { min-width: 0; }
+:where(.app-shell) .chart-frame { height: 220px; }
+:where(.app-shell) .chart-panel .chart-frame { height: 300px; }
+:where(.app-shell) .chart-skeleton { height: 220px; }
+:where(.app-shell) .chart-legend { justify-content: flex-start; margin-top: 12px; font-weight: 500; }
+:where(.app-shell) .chart-no-data { padding: 56px 16px; font-weight: 500; }
+:where(.app-shell) .chart-tooltip { border-color: var(--adm-line); border-radius: var(--adm-radius-sm); box-shadow: var(--adm-shadow-lift); }
+:where(.app-shell) .bar { min-width: 2px; }
+@container (max-width: 520px) {
+  :where(.app-shell) .chart-months span { display: flex; justify-content: center; overflow: visible; text-overflow: clip; }
+  :where(.app-shell) .chart-months:not([data-dense]) span:nth-child(even) { visibility: hidden; }
+  :where(.app-shell) .bar-group { padding-inline: 1px; }
+}
+:where(.app-shell) .chart-months[data-dense] span { display: flex; justify-content: center; overflow: visible; text-overflow: clip; white-space: nowrap; }
+:where(.app-shell) .custom-range { flex: 1 1 100%; justify-content: flex-end; gap: 8px 12px; }
+:where(.app-shell) .custom-range label { color: hsl(var(--muted-foreground)); }
+:where(.app-shell) .custom-range .input-control { min-height: 36px; }
+.accessibility-large :where(.app-shell) .custom-range .input-control { min-height: 48px; }
+:where(.app-shell) .custom-range .field-error { flex: 1 1 100%; text-align: end; }
+
+/* Modal and form sections, with Save always visible */
+:where(.app-shell) .modal-backdrop { background: hsl(var(--sidebar) / .5); backdrop-filter: blur(2px); }
+:where(.app-shell) .modal-card { display: flex; flex-direction: column; width: min(640px, 100%); max-height: min(90dvh, 780px); overflow: hidden; border-color: var(--adm-line); border-radius: 14px; box-shadow: 0 4px 10px hsl(var(--sidebar) / .12), 0 24px 60px hsl(var(--sidebar) / .28); }
+.accessibility-large :where(.app-shell) .modal-card { width: min(780px, 100%); }
+:where(.app-shell) .modal-header { flex: 0 0 auto; align-items: center; padding: 16px 20px; background: transparent; border-bottom: 1px solid var(--adm-line); }
+:where(.app-shell) .modal-header h2 { font-size: calc(18px * var(--text-scale)); font-weight: 650; color: hsl(var(--card-foreground)); }
+:where(.app-shell) .modal-close { width: 32px; height: 32px; border-radius: var(--adm-radius-sm); background: transparent; transition: background-color .15s ease; }
+:where(.app-shell) .modal-close:hover { background: hsl(var(--muted)); }
+:where(.app-shell) .modal-form { flex: 1 1 auto; min-height: 0; gap: 20px; padding: 20px 20px 0; overflow-y: auto; }
+:where(.app-shell) .modal-section { display: grid; gap: 12px; min-width: 0; margin: 0; padding: 0; border: 0; }
+:where(.app-shell) .modal-section h3, :where(.app-shell) .modal-section legend { margin: 0; padding: 0 0 2px; color: hsl(var(--card-foreground)); font-size: calc(13px * var(--text-scale)); font-weight: 650; }
+:where(.app-shell) .modal-field { grid-template-columns: minmax(0, 1fr); }
+:where(.app-shell) .modal-field > span { font-weight: 600; }
+:where(.app-shell) .modal-field :is(.input-control, .select-control) { min-width: 0; min-height: 40px; }
+.accessibility-large :where(.app-shell) .modal-field :is(.input-control, .select-control) { min-height: 48px; }
+:where(.app-shell) .modal-actions { position: sticky; bottom: 0; z-index: 3; margin: 4px -20px 0; padding: 12px 20px; border-top: 1px solid var(--adm-line); background: hsl(var(--card)); }
+:where(.app-shell) .modal-seats { gap: 10px; }
+.modal-backdrop.is-closing { animation: adm-fade-out .13s ease-in forwards; }
+.modal-backdrop.is-closing .modal-card { animation: adm-pop-out .13s ease-in forwards; }
+@keyframes adm-fade-out { to { opacity: 0; } }
+@keyframes adm-pop-out { to { opacity: 0; transform: translateY(6px) scale(.985); } }
+
+/* Settings */
+:where(.app-shell) .settings-grid { max-width: 880px; gap: 16px; }
+:where(.app-shell) .setting-card { padding: 18px 20px; border-color: var(--adm-line); border-radius: var(--adm-radius); background: hsl(var(--card)); box-shadow: var(--adm-shadow); }
+:where(.app-shell) .setting-card:hover { box-shadow: var(--adm-shadow); }
+:where(.app-shell) .setting-card h2 { margin-bottom: 4px; font-size: calc(15px * var(--text-scale)); font-weight: 650; color: hsl(var(--card-foreground)); }
+:where(.app-shell) .radio-option { min-height: 36px; padding: 6px 14px; border-color: var(--adm-line); border-radius: var(--adm-radius-sm); font-weight: 500; transition: background-color .15s ease, border-color .15s ease, color .15s ease; }
+:where(.app-shell) .radio-option:hover:not(.selected) { background: hsl(var(--muted)); }
+:where(.app-shell) .radio-option.selected { background: hsl(var(--primary)); border-color: hsl(var(--primary)); color: hsl(var(--primary-foreground)); font-weight: 600; }
+.accessibility-contrast :where(.app-shell) .radio-option.selected { border: 2px solid hsl(var(--foreground)); }
+
+:where(.settings-page) .setting-card-wide { grid-column: auto; }
+:where(.settings-page) .setting-card p { max-width: 58ch; }
+
+/* Phone drawer */
+@media (max-width: 680px) {
+  :where(.app-shell) .mobile-nav { inset-inline-end: auto; inset-inline-start: 0; width: min(300px, 86vw); align-content: start; gap: 4px; padding: 14px 12px; overflow-y: auto; visibility: hidden; box-shadow: 0 0 40px hsl(var(--sidebar) / .4); transition: transform .22s ease, visibility .22s; }
+  :where(.app-shell) .mobile-nav.open { visibility: visible; }
+  :where(.app-shell) .mobile-nav .nav-list { gap: 2px; }
+  :where(.app-shell) .mobile-nav .logo-controls { margin-block: 4px 12px; }
+  :where(.app-shell) .mobile-nav .brand { height: 44px; margin-bottom: 8px; }
+  :where(.app-shell) .mobile-close { display: grid; place-items: center; width: 36px; height: 36px; padding: 0; cursor: pointer; }
+  .mobile-nav-backdrop { position: fixed; z-index: 29; inset: 0; background: hsl(var(--sidebar) / .5); animation: fade-in .16s ease-out; }
+}
+@media (min-width: 681px) { .mobile-nav-backdrop { display: none; } }
+
+/* Entrance: quick and gentle */
+@keyframes adm-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+:where(.app-shell) .page-panel > :not(.metric-grid), :where(.app-shell) .metric-card { animation: adm-rise .32s ease-out backwards; }
+:where(.app-shell) .metric-card:nth-child(2) { animation-delay: 40ms; }
+:where(.app-shell) .metric-card:nth-child(3) { animation-delay: 80ms; }
+:where(.app-shell) .page-panel > :nth-child(n + 3):not(.metric-grid) { animation-delay: 110ms; }
+:where(.app-shell) .content-grid > .section-card { animation: adm-rise .32s ease-out backwards; animation-delay: 130ms; }
+:where(.app-shell) .content-grid > .section-card:nth-child(2) { animation-delay: 170ms; }
+:where(.app-shell) .setting-card { animation: adm-rise .32s ease-out backwards; }
+:where(.app-shell) .setting-card:nth-child(2) { animation-delay: 40ms; }
+:where(.app-shell) .setting-card:nth-child(3) { animation-delay: 80ms; }
+:where(.app-shell) .setting-card:nth-child(4) { animation-delay: 120ms; }
+@media (prefers-reduced-motion: reduce) {
+  :where(.app-shell) .page-panel > *, :where(.app-shell) .metric-card, :where(.app-shell) .content-grid > .section-card, :where(.app-shell) .setting-card, :where(.app-shell) .mobile-nav, .mobile-nav-backdrop, .modal-backdrop.is-closing, .modal-backdrop.is-closing .modal-card { animation: none; transition: none; }
+  :where(.app-shell) .metric-card:hover { transform: none; }
+  :where(.app-shell) .button:active { transform: none; }
+}
+
+/* Phones: two stats across with revenue on top where it applies; table rows become cards */
+@media (max-width: 680px) {
+  :where(.app-shell) .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  :where(.app-shell) .metric-card:nth-child(2) { grid-column: 1 / -1; order: -1; }
+  .accessibility-large :where(.app-shell) .metric-grid { grid-template-columns: 1fr; }
+  :where(.app-shell) .metric-main .sparkline { width: 64px; }
+  :where(.app-shell) .heading-actions { flex-wrap: wrap; }
+  :where(.app-shell) .heading-actions .button { flex: 1 1 100%; justify-content: center; }
+  :where(.app-shell) .heading-actions .page-search-wrap { flex: 1 1 100%; width: 100%; }
+  :where(.app-shell) .filter-row { display: flex; }
+  :where(.app-shell) .filter-chip { flex: 1 1 auto; }
+  :where(.app-shell) .chart-panel { padding: 16px; }
+  :where(.app-shell) .chart-panel .chart-frame { height: 220px; }
+  :where(.app-shell) .table-wrap { max-height: none; }
+  :where(.app-shell) .data-table-stack, :where(.app-shell) .data-table-stack tbody, :where(.app-shell) .data-table-stack tr { display: block; width: 100%; }
+  :where(.app-shell) .data-table-stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  :where(.app-shell) .data-table-stack tr { padding: 8px 16px; border-bottom: 1px solid var(--adm-line); }
+  :where(.app-shell) .data-table-stack tr:last-child { border-bottom: 0; }
+  .app-shell .data-table-stack td, .app-shell .data-table-stack tbody tr:last-child td { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 5px 0; border: 0; text-align: end; }
+  :where(.app-shell) .data-table-stack td::before { content: attr(data-label); flex: 0 0 auto; color: hsl(var(--muted-foreground)); font-size: calc(12px * var(--text-scale)); font-weight: 500; text-align: start; }
+  :where(.app-shell) .modal-backdrop { padding: 0; place-items: end stretch; }
+  :where(.app-shell) .modal-card { width: 100%; max-height: 94dvh; border-radius: 14px 14px 0 0; }
+  :where(.app-shell) .modal-header { padding: 14px 16px; }
+  :where(.app-shell) .modal-form { padding: 16px 16px 0; }
+  :where(.app-shell) .modal-actions { margin-inline: -16px; padding: 10px 16px; }
+  :where(.app-shell) .modal-actions .button { flex: 1 1 0; }
+}
+
+/* Tablets: tighter cells. With large text the tables need more room than a tablet has, so rows become cards here too. */
+@media (max-width: 1120px) {
+  :where(.app-shell) .data-table th, :where(.app-shell) .data-table td { padding-inline: 10px; }
+  .accessibility-large :where(.app-shell) .data-table-stack, .accessibility-large :where(.app-shell) .data-table-stack tbody, .accessibility-large :where(.app-shell) .data-table-stack tr { display: block; width: 100%; }
+  .accessibility-large :where(.app-shell) .data-table-stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .accessibility-large :where(.app-shell) .data-table-stack tr { padding: 8px 16px; border-bottom: 2px solid hsl(var(--foreground)); }
+  .accessibility-large :where(.app-shell) .data-table-stack tr:last-child { border-bottom: 0; }
+  .accessibility-large .app-shell .data-table-stack td, .accessibility-large .app-shell .data-table-stack tbody tr:last-child td { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 6px 0; border: 0; text-align: end; }
+  .accessibility-large :where(.app-shell) .data-table-stack td::before { content: attr(data-label); flex: 0 0 auto; color: hsl(var(--muted-foreground)); font-size: calc(12px * var(--text-scale)); font-weight: 500; text-align: start; }
+  .accessibility-large :where(.app-shell) .table-wrap { max-height: none; }
+}

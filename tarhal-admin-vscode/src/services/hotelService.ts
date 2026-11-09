@@ -1,4 +1,4 @@
-import { sarToUsd, usdToSar, api, assertSuccess, assertWrite, toList, num, pick, str, type Envelope, type Paginated, type Raw } from '@/services/api';
+import { api, assertSuccess, assertWrite, toList, num, pick, str, type Envelope, type Paginated, type Raw } from '@/services/api';
 import type { ResourceRow } from '@/data/demoData';
 import type { Hotel } from '@/data/listings';
 
@@ -7,7 +7,7 @@ const toRow = (r: Raw): ResourceRow => ({
   apiId: pick(r, 'id') as string | number | undefined,
   city: str(pick(r, 'city', 'location')),
   room: str(pick(r, 'roomType', 'room')),
-  price: sarToUsd(num(pick(r, 'pricePerNight', 'price'))),
+  price: num(pick(r, 'pricePerNight', 'price')),
   status: str(pick(r, 'status'), 'Available'),
 });
 
@@ -24,12 +24,12 @@ const toHotel = (r: Raw): Hotel => {
     rating: num(pick(r, 'rating', 'stars')),
     image: str(pick(r, 'imageUrl', 'image', 'thumbnail', 'photo')) || '/images/hotels/none.jpg', // missing file -> gradient placeholder
     city: str(pick(r, 'city')) || undefined,
-    pricePerNightSar: num(pick(r, 'pricePerNight', 'price'), NaN) || undefined,
+    pricePerNight: pick(r, 'pricePerNight', 'price') === undefined ? undefined : num(pick(r, 'pricePerNight', 'price')),
   };
 };
 
 export type HotelInput = { name: string; city: string; room: string; price: number; status: string };
-const toBody = (i: HotelInput) => ({ name: i.name, city: i.city, roomType: i.room, pricePerNight: usdToSar(i.price), status: i.status });
+const toBody = (i: HotelInput) => ({ name: i.name, city: i.city, roomType: i.room, pricePerNight: i.price, status: i.status });
 
 export const hotelService = {
   /**
@@ -48,8 +48,8 @@ export const hotelService = {
     assertWrite((await api.delete<Envelope<Raw>>(`/hotels/${encodeURIComponent(String(apiId))}`)).data);
   },
   /**
-   * Public Stays page, server side: GET /api/hotels with the filters the API supports
-   * (city, roomType, minPrice, maxPrice in SAR, minRating) plus page/pageSize. The API sorts by price.
+   * Public Stays page: one page from GET /api/hotels. Filters the API really supports (lib/catalog-filters.ts):
+   * city, roomType, minPrice, maxPrice, minRating, page, pageSize. Anything else is answered with 400. Sorted by price.
    */
   async listPage(params: { page: number; pageSize: number } & Record<string, string | number>): Promise<{ items: Hotel[]; total: number }> {
     const { data } = await api.get<Paginated<Raw>>('/hotels', { params });
@@ -57,7 +57,7 @@ export const hotelService = {
     const items = toList(data).map(toHotel);
     return { items, total: data.pagination?.total ?? items.length };
   },
-  /** First 100 hotels, unfiltered: used for the filter options (cities) and as the offline fallback. */
+  /** First 100 hotels, unfiltered: the source of the filter choices (cities) and of the list when the API is offline. */
   async listPublic(): Promise<Hotel[]> {
     const { data } = await api.get<Paginated<Raw>>('/hotels', { params: { page: 1, pageSize: 100 } });
     assertSuccess(data);

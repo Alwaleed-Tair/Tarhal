@@ -9,7 +9,7 @@ import { useDismiss } from '@/hooks/use-dismiss';
 import { useSignOut } from '@/hooks/use-sign-out';
 import { useT } from '@/i18n/use-i18n';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/store/authStore';
+import { canUseAdmin, useAuth } from '@/store/authStore';
 import { updateSettings, useDemoState } from '@/store/demoStore';
 
 // Shared look for the language + theme controls so they read as one unified pair.
@@ -47,9 +47,11 @@ function AccountMenu() {
       {open && (
         <div role="menu" className="absolute end-0 top-full z-50 mt-2 w-56 rounded-xl border bg-card p-1.5 shadow-lg">
           <p className="truncate px-3 py-2 text-xs text-muted-foreground" dir="ltr">{user.email}</p>
-          <Link href={routes.admin.dashboard} role="menuitem" className={itemClass} onClick={() => setOpen(false)}>
-            <LayoutDashboard className="size-4" aria-hidden="true" />{t('adminDashboard')}
-          </Link>
+          {canUseAdmin(user) && (
+            <Link href={routes.admin.dashboard} role="menuitem" className={itemClass} onClick={() => setOpen(false)}>
+              <LayoutDashboard className="size-4" aria-hidden="true" />{t('adminDashboard')}
+            </Link>
+          )}
           <button role="menuitem" className={cn(itemClass, 'text-destructive')} onClick={() => { setOpen(false); signOut(); }} data-testid="button-logout">
             <LogOut className="size-4" aria-hidden="true" />{t('logout')}
           </button>
@@ -80,7 +82,8 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:px-6">
+      {/* Wraps instead of overflowing on phones and with Senior Mode's larger text. */}
+      <div className="mx-auto flex min-h-16 w-full max-w-6xl flex-wrap items-center gap-2 px-4 py-2 sm:px-6">
         <BrandLink />
 
         <nav aria-label={t('mainNavigation')} className="ms-6 hidden items-center gap-1 md:flex">
@@ -89,8 +92,8 @@ export function Navbar() {
           ))}
         </nav>
 
-        <div className="ms-auto flex items-center gap-1.5 sm:gap-3">
-          <CurrencySelect className="navbar-currency" />
+        <div className="ms-auto flex flex-wrap items-center justify-end gap-1.5 sm:gap-3">
+          <CurrencySelect />
           <div className="flex items-center gap-1.5 sm:gap-3">
             <Button variant="ghost" size="sm" className={controlClass} onClick={() => updateSettings({ language: isArabic ? 'en' : 'ar' })}
               aria-label={isArabic ? 'Switch to English' : 'التبديل إلى العربية'} data-testid="button-navbar-language">
@@ -120,8 +123,6 @@ export function Navbar() {
       {menuOpen && (
         <div className="border-t bg-background md:hidden">
           <nav aria-label={t('mainNavigation')} className="mx-auto grid max-w-6xl gap-1 px-4 py-3 sm:px-6">
-            {/* On phones the currency switch lives here: the top bar has no room for it. */}
-            <div className="navbar-currency-menu mb-1"><CurrencySelect /></div>
             {links.map(({ href, label }) => (
               <Link key={href} href={href} className={linkClass(href)} onClick={() => setMenuOpen(false)}>{label}</Link>
             ))}
