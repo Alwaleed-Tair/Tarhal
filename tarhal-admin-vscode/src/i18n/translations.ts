@@ -1,6 +1,9 @@
+import { passengerAr, passengerEn } from '@/i18n/passenger-translations';
+
 export type Language = 'en' | 'ar';
 export const translations = {
   en: {
+    ...passengerEn,
     dashboard: 'Overview Dashboard', flights: 'Flights', hotels: 'Hotels', cars: 'Car Rentals', bookings: 'Bookings', revenue: 'Revenue', users: 'Users', settings: 'Settings',
     search: 'Search', admin: 'Admin User', totalBookings: 'Total bookings', totalRevenue: 'Booked value', activeUsers: 'Customers with active bookings',
     recentTransactions: 'Recent Transactions', revenueByService: 'Booked value by service', actions: 'Actions', add: 'Add', edit: 'Edit', remove: 'Remove', price: 'Price', status: 'Status', save: 'Save', cancel: 'Cancel', close: 'Close',
@@ -146,6 +149,7 @@ export const translations = {
     sortRating: 'Top rated',
   },
   ar: {
+    ...passengerAr,
     dashboard: 'لوحة النظرة العامة', flights: 'الرحلات', hotels: 'الفنادق', cars: 'تأجير السيارات', bookings: 'الحجوزات', revenue: 'الإيرادات', users: 'المستخدمون', settings: 'الإعدادات',
     search: 'بحث', admin: 'المستخدم المسؤول', totalBookings: 'إجمالي الحجوزات', totalRevenue: 'قيمة الحجوزات', activeUsers: 'عملاء لديهم حجوزات نشطة',
     recentTransactions: 'أحدث المعاملات', revenueByService: 'قيمة الحجوزات حسب الخدمة', actions: 'الإجراءات', add: 'إضافة', edit: 'تعديل', remove: 'حذف', price: 'السعر', status: 'الحالة', save: 'حفظ', cancel: 'إلغاء', close: 'إغلاق',

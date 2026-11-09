@@ -1,0 +1,453 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap");
+
+* {
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+#root {
+  max-width: none;
+  padding: 0;
+}
+
+.Whole-Container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: linear-gradient(to bottom, #10263d, #2b66a3);
+}
+
+.Stage {
+  width: min(100%, 1440px);
+  min-height: 1024px;
+  margin: 0 auto;
+  padding: 122px 90px 48px 200px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.86fr) minmax(0, 1fr);
+  grid-template-rows: 222px 267px 286px;
+  grid-template-areas:
+    "greeting guide"
+    "destinations guide"
+    "bookings bookings";
+  gap: 38px 60px;
+  align-content: start;
+}
+
+.First-Container {
+  grid-area: greeting;
+  position: relative;
+  min-width: 0;
+}
+
+.Panelfirst {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 36px;
+  background: linear-gradient(to right, #10263d33, #2a639f33);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+}
+
+.PanelTop {
+  height: 108px;
+  border-radius: 36px;
+  background: linear-gradient(to right, #314c69, #245a91);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+}
+
+.Panelfirst h2,
+.Panelfirst p {
+  position: relative;
+  z-index: 1;
+  margin-left: 22px;
+}
+
+.Panelfirst h2 {
+  margin-top: 18px;
+  margin-bottom: 0;
+  color: #f4f6fc;
+  font-size: 30px;
+  font-weight: 600;
+}
+
+.Panelfirst p {
+  margin-top: 3px;
+  color: #9fb0c4;
+  font-size: 14px;
+}
+
+.Dashboard-Airplane {
+  position: absolute;
+  z-index: 2;
+  top: -10px;
+  right: 14px;
+  width: 237px;
+  height: 237px;
+  object-fit: contain;
+  transform: rotate(90deg);
+}
+
+.Travel-Card {
+  grid-area: guide;
+  position: relative;
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 28px;
+  background: #1a3a5c;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.Travel-Card:hover,
+.Destination-Card:hover {
+  transform: translateY(-3px);
+}
+
+.Travel-Card-Image {
+  position: absolute;
+  inset: 44px 0 0;
+  width: 100%;
+  height: calc(100% - 44px);
+  object-fit: cover;
+}
+
+.Travel-Card::after {
+  content: "";
+  position: absolute;
+  inset: 44px 0 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(16, 38, 61, 0.32), rgba(16, 38, 61, 0.04)),
+    linear-gradient(180deg, rgba(16, 38, 61, 0.05), rgba(16, 38, 61, 0.48));
+}
+
+.Travel-Card-Tab,
+.Booking-Tab {
+  position: relative;
+  z-index: 2;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(to right, #314c69, #6196cf);
+}
+
+.Travel-Card-Tab span,
+.Booking-Tab span {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  border-radius: 22px;
+  background: #314c69;
+  color: #f1f4fa;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.Travel-Card-Title {
+  position: absolute;
+  z-index: 2;
+  top: 116px;
+  left: clamp(28px, 5.8vw, 84px);
+  width: 70%;
+  margin: 0;
+  color: #f1f4fa;
+  font-size: 42px;
+  font-weight: 600;
+  line-height: 1.15;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.Destination-Cards {
+  grid-area: destinations;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(24px, 4.3vw, 62px);
+}
+
+.Destination-Card {
+  position: relative;
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #1a3a5c;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease;
+}
+
+.Destination-Image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.Destination-Card::after {
+  content: "";
+  position: absolute;
+  inset: 40% 0 0;
+  background: linear-gradient(transparent, rgba(10, 25, 42, 0.82));
+}
+
+.Destination-Label {
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  color: #f1f4fa;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.Destination-Arrow {
+  font-size: 28px;
+  font-weight: 400;
+}
+
+.Booking-Cards {
+  grid-area: bookings;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 0.64fr) minmax(0, 1fr);
+  gap: 38px;
+}
+
+.Booking-Panel {
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 32px;
+  background: #f1f4fa;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+}
+
+.Booking-Tab {
+  height: 58px;
+}
+
+.Booking-Tab span {
+  padding: 0 22px;
+  border-radius: 28px;
+  font-size: 16px;
+}
+
+.Last-Booking-Content {
+  height: calc(100% - 58px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 10px 24px 18px;
+}
+
+.Booking-Route {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(40px, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  color: #344d68;
+}
+
+.Route-Endpoint,
+.Flight-Place {
+  display: flex;
+  flex-direction: column;
+  color: #344d68;
+}
+
+.Route-Endpoint small,
+.Flight-Place small {
+  color: #7c8da2;
+  font-size: 11px;
+}
+
+.Route-Endpoint strong {
+  font-size: 22px;
+}
+
+.Route-Endpoint--right,
+.Flight-Place--right {
+  text-align: right;
+}
+
+.Route-Track {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.Route-Line {
+  height: 2px;
+  min-width: 4px;
+  flex: 1;
+  background: #91a1b5;
+}
+
+.Route-Dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #91a1b5;
+}
+
+.Route-Plane {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  margin: 0 5px;
+  border-radius: 50%;
+  background: #91a1b5;
+  color: #f1f4fa;
+  font-size: 15px;
+}
+
+.Barcode {
+  width: 44%;
+  height: 100px;
+  background: repeating-linear-gradient(
+    90deg,
+    #344d68 0 12px,
+    transparent 12px 18px,
+    #344d68 18px 24px,
+    transparent 24px 31px
+  );
+}
+
+.Upcoming-Flight-List {
+  height: calc(100% - 58px);
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  gap: 4px;
+  padding: 12px 28px 18px;
+}
+
+.Flight-Row {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(76px, 1fr) minmax(70px, 1.2fr) minmax(76px, 1fr);
+  align-items: center;
+  gap: 14px;
+}
+
+.Flight-Place strong {
+  font-size: 22px;
+  line-height: 1.15;
+}
+
+@media (max-width: 1100px) {
+  .Stage {
+    min-height: auto;
+    padding: 100px 32px 36px 132px;
+    grid-template-columns: minmax(0, 1.5fr) minmax(245px, 1fr);
+    grid-template-rows: 200px 230px 250px;
+    gap: 24px 28px;
+  }
+
+  .Travel-Card-Title {
+    top: 104px;
+    left: 32px;
+    font-size: clamp(30px, 3.4vw, 38px);
+  }
+
+  .Booking-Cards {
+    gap: 24px;
+  }
+}
+
+@media (max-width: 760px) {
+  .Stage {
+    padding: 96px 20px 32px 104px;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 180px 400px auto auto;
+    grid-template-areas:
+      "greeting"
+      "guide"
+      "destinations"
+      "bookings";
+    gap: 22px;
+  }
+
+  .Travel-Card {
+    min-height: 400px;
+  }
+
+  .Travel-Card-Title {
+    top: 100px;
+    left: 32px;
+  }
+
+  .Destination-Cards {
+    gap: 22px;
+  }
+
+  .Booking-Cards {
+    gap: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .Stage {
+    padding: 90px 14px 28px 86px;
+    grid-template-rows: 170px 340px auto auto;
+  }
+
+  .Travel-Card {
+    min-height: 340px;
+  }
+
+  .Travel-Card-Title {
+    top: 84px;
+    left: 24px;
+    font-size: 32px;
+  }
+
+  .Destination-Cards,
+  .Booking-Cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .Destination-Card {
+    min-height: 190px;
+  }
+
+  .Last-Booking {
+    min-height: 260px;
+  }
+
+  .Upcoming-Flights {
+    min-height: 330px;
+  }
+
+  .Flight-Row {
+    grid-template-columns: 72px minmax(45px, 1fr) 72px;
+    gap: 8px;
+  }
+
+  .Flight-Place strong {
+    font-size: 17px;
+  }
+}
+

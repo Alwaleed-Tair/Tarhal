@@ -1,0 +1,146 @@
+/*
+ * Added for the API connection (Omar), not part of Tariq's original styles: loading, empty and error states,
+ * "not available yet" notes, the traveler form, the cancel button. Same colours as his pages.
+ * Like his files, it is scoped to .passenger-app and gets dark mode, RTL and Senior Mode from vite-plugins/passenger-css.ts.
+ */
+.passenger-state {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin: 18px 0;
+  padding: 22px 16px;
+  border: 1px dashed #c9d5e3;
+  border-radius: 16px;
+  color: #203b55;
+  background: #f7f8fc;
+  font-size: 14px;
+  text-align: center;
+}
+.passenger-state p { margin: 0; }
+
+.passenger-note {
+  margin: 12px 0 16px;
+  padding: 10px 14px;
+  border-left: 3px solid #e9d6aa;
+  border-radius: 10px;
+  color: #203b55;
+  background: #fbf6ea;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.passenger-seat-total { margin: 12px 0 0; color: #203b55; font-size: 13px; }
+
+.seat-button.other-class { opacity: .45; }
+
+.traveler-card {
+  margin: 0 0 16px;
+  padding: 14px;
+  border: 1px solid #e2e7ef;
+  border-radius: 16px;
+  background: #ffffff;
+  min-width: 0;
+}
+.traveler-card legend { padding: 0 6px; }
+.traveler-card .rental-fields { margin: 0; }
+.traveler-error { display: block; margin-top: 6px; color: #a61b1b; font-size: 12px; }
+
+.booking-status.booking-status-cancelled { color: #ffd6d3; background: rgba(166, 27, 27, .45); }
+.bookings-loading { margin: 24px 0; color: #f8f9fc; font-size: 14px; }
+.booking-cancel-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(227, 237, 246, .25);
+  font-size: 13px;
+}
+.booking-cancel-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid rgba(233, 214, 170, .7);
+  border-radius: 999px;
+  color: #f8f9fc;
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.booking-cancel-button.danger { border-color: #ff9a94; background: #a61b1b; color: #ffffff; }
+.booking-cancel-button:disabled { opacity: .6; cursor: progress; }
+.booking-cancel-error { flex-basis: 100%; margin: 0; color: #ffd6d3; }
+
+.summary-entry-plan { opacity: .92; }
+.summary-not-booked { color: #8a5a00; font-weight: 600; }
+.summary-plan-note { margin: 8px 0 0; color: #61758a; font-size: 12px; }
+.summary-error { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; color: #a61b1b; background: #fdecea; font-size: 13px; }
+.complete-reference { margin: 6px 0 0; color: #61758a; font-size: 13px; }
+.complete-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.complete-actions .restart-button { text-decoration: none; }
+
+/*
+ * Tariq's icon rail inside the shared app. It ends above the site's assistant button (bottom left).
+ * The traveler home already leaves room for it at every width, so it moves into that room; the booking pages
+ * leave none, so below 1100px the rail is hidden there (the same links are in the navbar menu and the account menu).
+ */
+.sidebar { bottom: 96px; }
+@media (max-width: 1100px) {
+  .Whole-Container > .sidebar { left: 24px; }
+  .tarhal-page > .sidebar, .bookings-page > .sidebar { display: none; }
+}
+@media (max-width: 760px) {
+  .Whole-Container > .sidebar { left: 16px; width: 60px; padding-top: 90px; }
+}
+@media (max-width: 480px) {
+  .Whole-Container > .sidebar { top: 140px; left: 12px; width: 52px; padding-top: 70px; }
+}
+
+/*
+ * Six steps now (Travelers was added), which no longer fit his 790px column below 900px: there only the current step keeps
+ * its label (the others stay readable by screen readers) and the lines are shorter.
+ */
+@media (max-width: 900px) {
+  .progress-item:not(.current) .progress-label {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  .journey-progress .progress-line { width: 18px; }
+}
+@media (max-width: 420px) {
+  .journey-progress { gap: 3px; }
+  .journey-progress .progress-step-pair { gap: 3px; }
+  .journey-progress .progress-line { width: 8px; }
+}
+
+/*
+ * Readable contrast (WCAG AA, 4.5:1) for his muted greys on light panels. Same blue-grey hue, a little darker.
+ * The doubled class only outranks his light colour; his dark-mode colours still apply in dark mode.
+ */
+.tarhal-page.tarhal-page { --ink-soft: #5a6d82; }
+.Route-Endpoint.Route-Endpoint small, .Flight-Place.Flight-Place small,
+.dialog-eyebrow.dialog-eyebrow, .flight-results-route.flight-results-route span:last-child,
+.flight-results-summary.flight-results-summary span,
+.flight-airline-row.flight-airline-row span, .flight-time-row.flight-time-row span, .flight-result-fare.flight-result-fare small,
+.flight-result-fare.flight-result-fare span, .step-kicker.step-kicker, .seat-map-topline.seat-map-topline span, .seat-legend.seat-legend span,
+.seat-selection-summary.seat-selection-summary > strong span, .seat-selection-summary.seat-selection-summary > p, .passenger-seat-total.passenger-seat-total,
+.back-button.back-button, .sample-price-note.sample-price-note, .hotel-price.hotel-price, .hotel-body.hotel-body small,
+.hotel-total.hotel-total small, .rental-total.rental-total small, .car-copy.car-copy span, .car-copy.car-copy small, .car-price.car-price span { color: #5a6d82; }
+.car-option.car-option .car-price span, .confirmation-dialog.confirmation-dialog .dialog-intro,
+.summary-entry.summary-entry > div > small { color: #5a6d82; }
+.summary-entry.summary-entry > .summary-icon { color: #2f5d86; }
+.form-message.form-message.visible { color: #3a6f9f; }
+.hotel-rating.hotel-rating { color: #43694f; }
+
+/*
+ * His decorative orbit art is wider than a phone screen and is cut off by overflow: hidden. A hidden box can still be
+ * scrolled when a button inside it gets focus, which moved the whole step sideways. "clip" cuts it off the same way but never scrolls.
+ */
+.tarhal-page.tarhal-page, .bookings-page.bookings-page { overflow: clip; }
+
+.Panel-Note { color: inherit; font-size: 14px; opacity: .85; }
+a.Panel-Note { text-decoration: underline; }

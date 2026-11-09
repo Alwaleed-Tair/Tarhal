@@ -5,6 +5,14 @@ export const routes = {
   rentals: '/rentals',
   login: '/login',
   register: '/register',
+  /** Tariq's passenger pages. Under /travel so they never clash with /login, /dashboard or the admin pages. */
+  passenger: {
+    home: '/travel',
+    flights: '/travel/flights',
+    bookings: '/travel/bookings',
+    guide: '/travel/guide',
+    city: (slug: string) => `/travel/guide/${slug}`,
+  },
   admin: {
     dashboard: '/dashboard',
     flights: '/flights',
