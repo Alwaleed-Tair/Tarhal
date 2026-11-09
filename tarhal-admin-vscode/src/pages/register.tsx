@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { FormField, PasswordInput } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { routes } from '@/config/routes';
+import type { TranslationKey } from '@/i18n/translations';
 import { useForm } from '@/hooks/use-form';
 import { useT } from '@/i18n/use-i18n';
 import { validateRegister } from '@/lib/validation';
@@ -22,6 +23,14 @@ export default function Register() {
 
   if (isLoggedIn && !submitting) return <Redirect to={routes.home} />;
 
+  // Which message to show for an API rejection: duplicate account, or the field the API said is invalid.
+  const FIELD_MESSAGE: Record<string, TranslationKey> = { name: 'errNameRequired', email: 'errEmailInvalid', phone: 'errPhoneInvalid', password: 'errPasswordShort', dateOfBirth: 'errDobInvalid' };
+  const registerErrorMessage = (error: unknown) => {
+    if (error instanceof AuthError && error.code === 'emailTaken') return t('errEmailTaken');
+    if (error instanceof AuthError && error.code === 'invalidField' && error.field && FIELD_MESSAGE[error.field]) return t(FIELD_MESSAGE[error.field]);
+    return t('errorMessage');
+  };
+
   // API calls live in src/services/authService.ts (paths + response shape: ask Mohammed).
   const submit = form.handleSubmit(async ({ name, email, phone, dateOfBirth, password }) => {
     setSubmitting(true);
@@ -31,7 +40,7 @@ export default function Register() {
       notify({ tone: 'success', titleKey: 'registerSuccessTitle', messageKey: 'registerSuccessMessage' });
       setLocation(routes.home);
     } catch (error) {
-      setFormError(error instanceof AuthError ? t('errEmailTaken') : t('errorMessage'));
+      setFormError(registerErrorMessage(error));
       setSubmitting(false);
     }
   });

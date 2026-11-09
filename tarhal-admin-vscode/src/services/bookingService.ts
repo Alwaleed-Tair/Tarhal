@@ -1,4 +1,4 @@
-import { api, assertSuccess, num, pick, str, toList, type Envelope, type Raw } from '@/services/api';
+import { sarToUsd, api, assertSuccess, num, pick, str, toList, type Envelope, type Raw } from '@/services/api';
 
 export type BookingTraveler = { seatId: string; fullName: string; passportNumber: string; dateOfBirth: string };
 export type CreateBookingPayload = { userId: string; flightId: string | number; travelers: BookingTraveler[] };
@@ -21,7 +21,7 @@ const toBookingRow = (r: Raw): BookingRow => ({
   type: str(pick(r, 'type'), 'flight'),
   customer: str(pick(r, 'customer', 'customerName', 'userName')) || str(asRaw(r.user).name) || str(asRaw(r.user).email) || str(r.userId),
   date: str(pick(r, 'date', 'createdAt')),
-  price: num(pick(r, 'totalPrice', 'price', 'amount')),
+  price: sarToUsd(num(pick(r, 'totalPrice', 'price', 'amount'))),
   status: bookingStatus(r),
 });
 
