@@ -1,6 +1,6 @@
 import { PrismaClient, SeatStatus, Role, TicketClass } from '@prisma/client';
-// Replace: import bcrypt from 'bcryptjs';
-import { hashPassword } from '../lib/passwords.ts';import fs from 'fs';
+import { hashPassword } from '../lib/passwords.ts';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -11,13 +11,24 @@ const __dirname = path.dirname(__filename);
 const prisma = new PrismaClient();
 
 async function main() {
-  // 1. Read JSON fixtures for Hotels and Cars
+  // 1. Check for Environment Passwords
+  const adminPassPlain = process.env.SEED_ADMIN_PASSWORD;
+  const travelerPassPlain = process.env.SEED_TRAVELER_PASSWORD;
+
+  if (!adminPassPlain || !travelerPassPlain) {
+    throw new Error("Missing SEED_ADMIN_PASSWORD or SEED_TRAVELER_PASSWORD in .env file.");
+  }
+
+  const hashedAdminPassword = await hashPassword(adminPassPlain);
+  const hashedTravelerPassword = await hashPassword(travelerPassPlain);
+
+  // 2. Read JSON fixtures for Hotels and Cars
   const hotelsPath = path.join(__dirname, 'seeds', 'hotels.json');
   const carsPath = path.join(__dirname, 'seeds', 'cars.json');
   const hotelsData = JSON.parse(fs.readFileSync(hotelsPath, 'utf-8'));
   const carsData = JSON.parse(fs.readFileSync(carsPath, 'utf-8'));
 
-  // 2. Clear ALL tables to prevent duplication (Order matters for foreign keys)
+  // 3. Clear ALL tables to prevent duplication (Order matters for foreign keys)
   await prisma.bookingTraveler.deleteMany();
   await prisma.hotelBooking.deleteMany();
   await prisma.carRental.deleteMany();
@@ -29,29 +40,26 @@ async function main() {
   await prisma.car.deleteMany();
   await prisma.user.deleteMany();
 
-  // 3. Seed Hotels and Cars from JSON files
+  // 4. Seed Hotels and Cars from JSON files
   await prisma.hotel.createMany({ data: hotelsData });
   await prisma.car.createMany({ data: carsData });
 
-  // 4. Seed Airlines
+  // 5. Seed Airlines (Updated to working external URLs)
   const airlines = await Promise.all([
-    prisma.airline.create({ data: { name: 'Saudia', nameAr: 'السعودية', iataCode: 'SV', logoUrl: '/images/airlines/sv.png' } }),
-    prisma.airline.create({ data: { name: 'Qatar Airways', nameAr: 'الخطوط القطرية', iataCode: 'QR', logoUrl: '/images/airlines/qr.png' } }),
-    prisma.airline.create({ data: { name: 'Emirates', nameAr: 'طيران الإمارات', iataCode: 'EK', logoUrl: '/images/airlines/ek.png' } }),
-    prisma.airline.create({ data: { name: 'flynas', nameAr: 'طيران ناس', iataCode: 'XY', logoUrl: '/images/airlines/xy.png' } }),
-    prisma.airline.create({ data: { name: 'flyadeal', nameAr: 'طيران أديل', iataCode: 'F3', logoUrl: '/images/airlines/f3.png' } })
+    prisma.airline.create({ data: { name: 'Saudia', nameAr: 'السعودية', iataCode: 'SV', logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/e/e0/Saudia_logo.svg/300px-Saudia_logo.svg.png" } }),
+    prisma.airline.create({ data: { name: 'Qatar Airways', nameAr: 'الخطوط القطرية', iataCode: 'QR', logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/9/9b/Qatar_Airways_Logo.svg/300px-Qatar_Airways_Logo.svg.png" } }),
+    prisma.airline.create({ data: { name: 'Emirates', nameAr: 'طيران الإمارات', iataCode: 'EK', logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Emirates_logo.svg/300px-Emirates_logo.svg.png" } }),
+    prisma.airline.create({ data: { name: 'flynas', nameAr: 'طيران ناس', iataCode: 'XY', logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Flynas_logo.svg/300px-Flynas_logo.svg.png" } }),
+    prisma.airline.create({ data: { name: 'flyadeal', nameAr: 'طيران أديل', iataCode: 'F3', logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Flyadeal_Logo.svg/300px-Flyadeal_Logo.svg.png" } })
   ]);
 
-  // Use the project's native scrypt hash function
-  const hashedPassword = await hashPassword('hashed_password_123');
-
-  // 5. Seed Users (1 Admin + 2 Travelers) with hashed passwords
+  // 6. Seed Users (1 Admin + 2 Travelers) with secure environment variables passwords
   await prisma.user.create({
     data: {
       name: 'System Admin',
       email: 'admin@tarhal.com',
       phoneNumber: '+966500000000',
-      password: hashedPassword,
+      password: hashedAdminPassword,
       role: Role.ADMIN,
       dateOfBirth: new Date("1990-01-01")
     }
@@ -62,7 +70,7 @@ async function main() {
       name: 'Test Traveler 1',
       email: 'traveler1@tarhal.com',
       phoneNumber: '+966500000001',
-      password: hashedPassword,
+      password: hashedTravelerPassword,
       role: Role.TRAVELER,
       dateOfBirth: new Date("1998-05-15")
     }
@@ -73,54 +81,51 @@ async function main() {
       name: 'Test Traveler 2',
       email: 'traveler2@tarhal.com',
       phoneNumber: '+966500000002',
-      password: hashedPassword,
+      password: hashedTravelerPassword,
       role: Role.TRAVELER,
       dateOfBirth: new Date("1995-08-20")
     }
   });
 
-  // 6. Seed Flights and Seats (Future dated, linked to Airlines)
-  const svAirline = airlines.find(a => a.iataCode === 'SV')!;
-  const xyAirline = airlines.find(a => a.iataCode === 'XY')!;
+  // 7. Generate 20 Flights with dynamically generated Seats
+  const generateSeats = () => {
+    const seats = [];
+    ['1A', '1B'].forEach(s => seats.push({ seatCode: s, ticketClass: TicketClass.FIRST, priceMultiplier: 3.0, status: SeatStatus.AVAILABLE }));
+    for(let i=2; i<=3; i++) ['A','B','C','D'].forEach(l => seats.push({ seatCode: `${i}${l}`, ticketClass: TicketClass.BUSINESS, priceMultiplier: 1.8, status: SeatStatus.AVAILABLE }));
+    for(let i=4; i<=8; i++) ['A','B','C','D','E','F'].forEach(l => seats.push({ seatCode: `${i}${l}`, ticketClass: TicketClass.ECONOMY, priceMultiplier: 1.0, status: SeatStatus.AVAILABLE }));
+    return seats;
+  };
 
-  await prisma.flight.create({
-    data: {
-      flightNumber: 'SV1020',
-      airlineId: svAirline.id,
-      from: 'RUH', 
-      to: 'JED',  
-      departureTime: new Date('2027-01-10T08:00:00Z'),
-      arrivalTime: new Date('2027-01-10T09:40:00Z'),
-      basePrice: 420.00,
-      seats: {
-        create: [
-          { seatCode: '1A', ticketClass: TicketClass.BUSINESS, priceMultiplier: 1.8, status: SeatStatus.AVAILABLE },
-          { seatCode: '1B', ticketClass: TicketClass.BUSINESS, priceMultiplier: 1.8, status: SeatStatus.AVAILABLE },
-          { seatCode: '12A', ticketClass: TicketClass.ECONOMY, priceMultiplier: 1.0, status: SeatStatus.AVAILABLE },
-        ],
-      },
-    },
-  });
+  const routes = [
+    { from: 'RUH', to: 'JED', duration: 1.5 }, { from: 'JED', to: 'DMM', duration: 2.0 },
+    { from: 'DMM', to: 'MED', duration: 1.8 }, { from: 'MED', to: 'AHB', duration: 1.2 },
+    { from: 'AHB', to: 'ULH', duration: 2.5 }, { from: 'ULH', to: 'RUH', duration: 1.5 }
+  ];
 
-  await prisma.flight.create({
-    data: {
-      flightNumber: 'XY205',
-      airlineId: xyAirline.id,
-      from: 'DMM', 
-      to: 'AHB',  
-      departureTime: new Date('2027-01-15T14:30:00Z'),
-      arrivalTime: new Date('2027-01-15T16:45:00Z'),
-      basePrice: 310.50,
-      seats: {
-        create: [
-          { seatCode: '2A', ticketClass: TicketClass.BUSINESS, priceMultiplier: 1.5, status: SeatStatus.AVAILABLE },
-          { seatCode: '15C', ticketClass: TicketClass.ECONOMY, priceMultiplier: 1.0, status: SeatStatus.AVAILABLE },
-        ],
-      },
-    },
-  });
+  const flightsData = [];
+  const baseDate = new Date();
+  baseDate.setDate(baseDate.getDate() + 10); // Start 10 days from now
 
-  console.log('✅ All seed data successfully loaded with hashed passwords!');
+  for (let i = 0; i < 20; i++) {
+    const route = routes[i % routes.length];
+    const airline = airlines[i % airlines.length];
+    const depTime = new Date(baseDate.getTime() + (i * 12 * 60 * 60 * 1000));
+    const arrTime = new Date(depTime.getTime() + (route.duration * 60 * 60 * 1000));
+
+    flightsData.push(prisma.flight.create({
+      data: {
+        flightNumber: `${airline.iataCode}${1000 + i}`,
+        airlineId: airline.id,
+        from: route.from, to: route.to,
+        departureTime: depTime, arrivalTime: arrTime,
+        basePrice: 300 + (Math.random() * 200),
+        seats: { create: generateSeats() }
+      }
+    }));
+  }
+
+  await Promise.all(flightsData);
+  console.log('✅ All seed data successfully loaded with hashed passwords! 20 flights seeded.');
 }
 
 main()
