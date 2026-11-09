@@ -9,7 +9,8 @@ import { ErrorState } from '@/components/error-state';
 import { StatusBadge } from '@/components/status-badge';
 import { TableSkeleton } from '@/components/skeleton';
 import { useAdminBookings } from '@/hooks/use-admin-bookings';
-import { useMockStatus } from '@/hooks/use-mock-loading';
+import { usePagination } from '@/hooks/use-pagination';
+import { Pagination } from '@/components/pagination';
 import type { User, UserStatus } from '@/data/demoData';
 import { useFormat, useT } from '@/i18n/use-i18n';
 import { customersFromBookings } from '@/lib/booking-stats';
@@ -22,22 +23,19 @@ const STATUSES: UserStatus[] = ['Active', 'Inactive', 'Deleted'];
 export default function Users() {
   const t = useT();
   const format = useFormat();
-  // TODO / INTEGRATION POINT
-  // INTEGRATION POINT: Connect Mohammed's Auth, Hotel & Car APIs here
   // There is no users endpoint yet, so live rows are the customers found in GET /api/admin/bookings.
-  // The demo store (with its status filters and status changes) is only used when that request fails, with the Demo data badge.
+  // The demo store (with its status filters and status changes) is only used when the server cannot be reached, with the Demo data badge.
   const { users: demoUsers } = useDemoState();
-  const { bookings, status: liveStatus, offline, reason } = useAdminBookings();
+  const { bookings, status: loadStatus, offline, reload } = useAdminBookings();
   const liveUsers = useMemo(() => customersFromBookings(bookings), [bookings]);
   const users = offline ? demoUsers : liveUsers;
   const [filter, setFilter] = useState<'all' | UserStatus>('all');
   const [query, setQuery] = useState('');
-  const { status: mockStatus, empty: forceEmpty, retry } = useMockStatus();
-  const loadStatus = liveStatus === 'loading' ? 'loading' : liveStatus === 'error' ? 'error' : mockStatus;
   const needle = query.trim().toLowerCase();
-  const list = (forceEmpty ? [] : users).filter((row) =>
+  const list = users.filter((row) =>
     (filter === 'all' || row.status === filter) &&
     (!needle || `${row.id} ${row.name} ${row.email}`.toLowerCase().includes(needle)));
+  const { page, totalPages, setPage, pageItems } = usePagination(list, 20, `${filter}|${needle}`);
   const activeCount = users.filter((row) => row.status === 'Active').length;
   const resetFilters = () => { setFilter('all'); setQuery(''); };
 
@@ -78,7 +76,7 @@ export default function Users() {
           badges={<>
             <ContextBadge>{t('recordsCount', { count: format.number(users.length) })}</ContextBadge>
             {offline && <ContextBadge tone="success">{t('activeCount', { count: format.number(activeCount) })}</ContextBadge>}
-            {offline && <ContextBadge tone="warning">{t('demoBadge')} · {reason}</ContextBadge>}
+            {offline && <ContextBadge tone="warning">{t('demoBadge')}</ContextBadge>}
           </>}
           actions={
             <SuggestSearch value={query} onChange={setQuery} placeholder={t('search')} testId="input-users-search"
@@ -94,11 +92,12 @@ export default function Users() {
         </div>}
         <div className="section-card">
           <div className="table-wrap overflow-x-auto w-full rounded-xl" tabIndex={0} role="region" aria-label={t('usersManagement')}>
-            {loadStatus === 'loading' ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={retry} /> : <>
-            {list.length > 0 && <DataTable caption={t('usersManagement')} columns={columns} rows={list} getKey={(row) => row.id} minWidth={0} stackOnPhone />}
+            {loadStatus === 'loading' ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={reload} /> : <>
+            {list.length > 0 && <DataTable caption={t('usersManagement')} columns={columns} rows={pageItems} getKey={(row) => row.id} minWidth={0} stackOnPhone />}
             {list.length === 0 && <EmptyState message={!offline && !query ? t('noCustomersYet') : t('noResults')} actionLabel={filter !== 'all' || query ? t('clearFilters') : undefined} onAction={resetFilters} />}
             </>}
           </div>
+          {totalPages > 1 && <div className="table-pager"><Pagination page={page} totalPages={totalPages} onPageChange={setPage} /></div>}
         </div>
       </section>
     </Layout>

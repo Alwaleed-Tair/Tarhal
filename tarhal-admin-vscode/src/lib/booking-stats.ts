@@ -1,20 +1,30 @@
-import type { Booking, MonthlyRevenue, RevenueKey, Service, ServiceFilter, User } from '@/data/demoData';
+import type { Booking, MonthlyRevenue, ResourceRow, RevenueKey, Service, ServiceFilter, User } from '@/data/demoData';
 import { isoToRiyadhLocal } from '@/i18n/format';
 
-// Every number on the dashboard, revenue and users pages is computed here from the bookings list
-// (GET /api/admin/bookings, or the demo bookings with the Demo data badge when that request fails).
+// Every number on the dashboard, revenue and users pages is computed here from the lists the API returns:
+// GET /api/admin/bookings and GET /api/admin/flights (or the demo lists, with the Demo data badge, when the server cannot be reached).
 
 /** Cancelled bookings and failed or refunded payments bring in no money. Pending payments count: the app has no payment step yet. */
 const earnsRevenue = (booking: Booking) => booking.status !== 'Cancelled' && booking.paymentStatus !== 'FAILED' && booking.paymentStatus !== 'REFUNDED';
 
-/** Bookings count, revenue (SAR) and number of different customers with a booking that counts as revenue. */
+/** Bookings count, booked value (SAR), the part of it that is paid, and number of different customers with a booking that counts. */
 export function bookingMetrics(bookings: Booking[], service: ServiceFilter = 'all') {
   const scoped = service === 'all' ? bookings : bookings.filter((booking) => booking.type === service);
   const earning = scoped.filter(earnsRevenue);
   return {
     bookings: scoped.length,
     revenue: earning.reduce((sum, booking) => sum + booking.price, 0),
+    paid: earning.filter((booking) => booking.paymentStatus === 'PAID').reduce((sum, booking) => sum + booking.price, 0),
     users: new Set(earning.map((booking) => booking.userId ?? booking.customer)).size,
+  };
+}
+
+/** Number of flights, how many have not left yet, and the average base price (SAR). */
+export function flightMetrics(flights: ResourceRow[], now = Date.now()) {
+  return {
+    flights: flights.length,
+    upcoming: flights.filter((flight) => Date.parse(flight.departureTime ?? '') > now).length,
+    averagePrice: flights.length ? flights.reduce((sum, flight) => sum + flight.price, 0) / flights.length : 0,
   };
 }
 

@@ -14,10 +14,14 @@ type StatCardProps = {
   loading?: boolean;
   /** The API cannot answer this yet: labelled, never shown as zero. */
   noData?: boolean;
+  /** Replaces the "No data yet" text, e.g. when the request failed. */
+  noDataLabel?: string;
+  /** One more honest detail under the number. */
+  hint?: ReactNode;
 };
 
 /** The admin's one stat card: label, counted-up value, optional sparkline and month-on-month change. */
-export function StatCard({ label, value = 0, render = String, series, loading = false, noData = false }: StatCardProps) {
+export function StatCard({ label, value = 0, render = String, series, loading = false, noData = false, noDataLabel, hint }: StatCardProps) {
   const t = useT();
   const change = noData || !series ? null : monthChange(series);
   return (
@@ -25,10 +29,11 @@ export function StatCard({ label, value = 0, render = String, series, loading = 
       <span className="metric-label">{label}</span>
       <div className="metric-main">
         <strong className="metric-value block leading-tight">
-          {loading ? <span className="skeleton metric-skeleton" role="status" aria-label={t('loading')} /> : noData ? <span className="metric-no-data">{t('noDataYet')}</span> : <CountUp value={value} render={render} />}
+          {loading ? <span className="skeleton metric-skeleton" role="status" aria-label={t('loading')} /> : noData ? <span className="metric-no-data">{noDataLabel ?? t('noDataYet')}</span> : <CountUp value={value} render={render} />}
         </strong>
         {!loading && !noData && series && <Sparkline values={series} />}
       </div>
+      {!loading && !noData && hint && <span className="metric-hint">{hint}</span>}
       {!loading && change !== null && (
         <span className={`metric-change ${change >= 0 ? 'is-up' : 'is-down'}`}>
           {change >= 0 ? <TrendingUp size={13} aria-hidden="true" /> : <TrendingDown size={13} aria-hidden="true" />}

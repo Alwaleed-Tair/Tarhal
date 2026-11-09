@@ -9,9 +9,9 @@ import { ErrorState } from '@/components/error-state';
 import { Money } from '@/components/money';
 import { StatusBadge } from '@/components/status-badge';
 import { TableSkeleton } from '@/components/skeleton';
-import { useMockStatus } from '@/hooks/use-mock-loading';
-import { useLiveData } from '@/hooks/use-live-data';
-import { bookingService } from '@/services/bookingService';
+import { Pagination } from '@/components/pagination';
+import { useAdminBookings } from '@/hooks/use-admin-bookings';
+import { usePagination } from '@/hooks/use-pagination';
 import type { Booking, BookingStatus, ServiceFilter } from '@/data/demoData';
 import { useFormat, useT } from '@/i18n/use-i18n';
 import { shortId } from '@/lib/booking-stats';
@@ -25,22 +25,16 @@ const FILTERS: ServiceFilter[] = ['all', 'flight', 'hotel', 'car'];
 export default function Bookings() {
   const t = useT();
   const format = useFormat();
-  // Live data from GET /api/admin/bookings; if the server is offline or the admin session is missing,
-  // the page falls back to the demo store (and shows the "Demo data" badge).
-  const { bookings: demoBookings } = useDemoState();
-  const { data: liveBookings, status: liveStatus, offline, reason } = useLiveData<Booking[]>(
-    () => bookingService.list() as Promise<Booking[]>, () => demoBookings, 'bookings');
-  // Offline: the reactive demo store (status edits update the table). Online: the server's rows.
-  const bookings = offline ? demoBookings : liveBookings;
+  // GET /api/admin/bookings. Only when the server cannot be reached: the demo store, with the "Demo data" badge.
+  const { bookings, status: loadStatus, offline, reload } = useAdminBookings();
   const [filter, setFilter] = useState<ServiceFilter>('all');
   const [query, setQuery] = useState('');
-  const { status: mockStatus, empty: forceEmpty, retry } = useMockStatus();
-  const loadStatus = liveStatus === 'loading' ? 'loading' : liveStatus === 'error' ? 'error' : mockStatus;
   const needle = query.trim().toLowerCase();
   const { language } = useDemoState().settings;
-  const list = useMemo(() => (forceEmpty ? [] : bookings).filter((row) =>
+  const list = useMemo(() => bookings.filter((row) =>
     (filter === 'all' || row.type === filter) &&
-    (!needle || `${row.id} ${row.customer} ${t(row.type)} ${statusLabel(row.status, t)}`.toLowerCase().includes(needle))), [bookings, filter, needle, forceEmpty, language]);
+    (!needle || `${row.id} ${row.customer} ${t(row.type)} ${statusLabel(row.status, t)}`.toLowerCase().includes(needle))), [bookings, filter, needle, language]);
+  const { page, totalPages, setPage, pageItems } = usePagination(list, 20, `${filter}|${needle}`);
   const pendingCount = bookings.filter((row) => row.status === 'Pending').length;
   const resetFilters = () => { setFilter('all'); setQuery(''); };
 
@@ -74,7 +68,7 @@ export default function Bookings() {
           subtitle={t('bookingsSubtitle')}
           badges={<>
             <ContextBadge>{t('recordsCount', { count: format.number(bookings.length) })}</ContextBadge>
-            {offline && <ContextBadge tone="warning">{t('demoBadge')} · {reason}</ContextBadge>}
+            {offline && <ContextBadge tone="warning">{t('demoBadge')}</ContextBadge>}
             {pendingCount > 0 && <ContextBadge tone="warning">{t('pendingCount', { count: format.number(pendingCount) })}</ContextBadge>}
           </>}
           actions={
@@ -90,11 +84,12 @@ export default function Bookings() {
         </div>
         <div className="section-card">
           <div className="table-wrap overflow-x-auto w-full rounded-xl" tabIndex={0} role="region" aria-label={t('allBookings')}>
-            {loadStatus === 'loading' ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={retry} /> : <>
-            {list.length > 0 && <DataTable caption={t('allBookings')} columns={columns} rows={list} getKey={(row) => row.id} minWidth={0} stackOnPhone />}
+            {loadStatus === 'loading' ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={reload} /> : <>
+            {list.length > 0 && <DataTable caption={t('allBookings')} columns={columns} rows={pageItems} getKey={(row) => row.id} minWidth={0} stackOnPhone />}
             {list.length === 0 && <EmptyState message={query ? t('noResults') : !offline && (filter === 'hotel' || filter === 'car') ? t('noDataYet') : t('noBookingsYet')} actionLabel={filter !== 'all' || query ? t('clearFilters') : undefined} onAction={resetFilters} />}
             </>}
           </div>
+          {totalPages > 1 && <div className="table-pager"><Pagination page={page} totalPages={totalPages} onPageChange={setPage} /></div>}
         </div>
       </section>
     </Layout>
