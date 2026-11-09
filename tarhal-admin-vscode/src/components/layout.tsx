@@ -4,6 +4,7 @@ import { Accessibility, BriefcaseBusiness, CarFront, ChevronDown, CircleUserRoun
 import { useT } from '@/i18n/use-i18n';
 import { CurrencySelect } from '@/components/currency-select';
 import { NotificationsMenu } from '@/components/notifications-menu';
+import { useAuth } from '@/store/authStore';
 import { setSeniorMode, updateSettings, useDemoState } from '@/store/demoStore';
 import { brand } from '@/config/branding';
 import { useDismiss } from '@/hooks/use-dismiss';
@@ -210,6 +211,7 @@ function UserMenu() {
   const menuRef = useRef<HTMLDivElement>(null);
   const t = useT();
   const signOut = useSignOut();
+  const name = useAuth().user?.name || t('admin');
   useDismiss(menuRef, isOpen, () => setIsOpen(false));
 
   return (
@@ -218,11 +220,11 @@ function UserMenu() {
         className="user-button"
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
-        aria-label={t('admin')}
+        aria-label={name}
         data-testid="button-user-menu"
       >
         <CircleUserRound size={17} />
-        <span className="user-name">{t('admin')}</span>
+        <span className="user-name">{name}</span>
         <ChevronDown size={15} className="user-chevron" />
       </button>
       {isOpen && (
