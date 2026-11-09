@@ -1,5 +1,6 @@
 import { PrismaClient, SeatStatus, Role, TicketClass } from '@prisma/client';
-import fs from 'fs';
+// Replace: import bcrypt from 'bcryptjs';
+import { hashPassword } from '../lib/passwords.ts';import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -29,7 +30,6 @@ async function main() {
   await prisma.user.deleteMany();
 
   // 3. Seed Hotels and Cars from JSON files
-  // Note: createMany automatically handles createdAt/updatedAt
   await prisma.hotel.createMany({ data: hotelsData });
   await prisma.car.createMany({ data: carsData });
 
@@ -42,13 +42,16 @@ async function main() {
     prisma.airline.create({ data: { name: 'flyadeal', nameAr: 'طيران أديل', iataCode: 'F3', logoUrl: '/images/airlines/f3.png' } })
   ]);
 
-  // 5. Seed Users (1 Admin + 2 Travelers)
+  // Use the project's native scrypt hash function
+  const hashedPassword = await hashPassword('hashed_password_123');
+
+  // 5. Seed Users (1 Admin + 2 Travelers) with hashed passwords
   await prisma.user.create({
     data: {
       name: 'System Admin',
       email: 'admin@tarhal.com',
       phoneNumber: '+966500000000',
-      password: 'hashed_password_123',
+      password: hashedPassword,
       role: Role.ADMIN,
       dateOfBirth: new Date("1990-01-01")
     }
@@ -59,7 +62,7 @@ async function main() {
       name: 'Test Traveler 1',
       email: 'traveler1@tarhal.com',
       phoneNumber: '+966500000001',
-      password: 'hashed_password_123',
+      password: hashedPassword,
       role: Role.TRAVELER,
       dateOfBirth: new Date("1998-05-15")
     }
@@ -70,7 +73,7 @@ async function main() {
       name: 'Test Traveler 2',
       email: 'traveler2@tarhal.com',
       phoneNumber: '+966500000002',
-      password: 'hashed_password_123',
+      password: hashedPassword,
       role: Role.TRAVELER,
       dateOfBirth: new Date("1995-08-20")
     }
@@ -117,7 +120,7 @@ async function main() {
     },
   });
 
-  console.log('✅ All seed data (Hotels, Cars, Users, Airlines, Flights, Seats) successfully loaded for Schema v3!');
+  console.log('✅ All seed data successfully loaded with hashed passwords!');
 }
 
 main()
