@@ -1071,4 +1071,6 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 :where(:root:not(.dark) .app-shell) .data-table th { color: hsl(215 28% 32%); }
 :where(.app-shell) :is(.status-pending, .status-boarding, .status-limited), :where(.app-shell) .context-badge-warning { color: #8a5a00; }
 .dark :where(.app-shell) :is(.status-pending, .status-boarding, .status-limited), .dark :where(.app-shell) .context-badge-warning { color: #f0b84f; }
+:where(.app-shell) .status-cancelled { color: #a61b1b; }
+.dark :where(.app-shell) .status-cancelled { color: #ff9a94; }
 .accessibility-large :where(.app-shell) .chart-months span { overflow: visible; white-space: normal; overflow-wrap: anywhere; font-size: 11px; line-height: 1.15; }
