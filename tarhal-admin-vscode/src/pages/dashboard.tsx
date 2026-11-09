@@ -58,7 +58,7 @@ export default function Dashboard() {
   const boxes: Record<ServiceFilter, Box[]> = {
     all: [bookingsBox('totalBookings'), valueBox('totalRevenue'), customersBox('activeUsers', <>{t('allCustomers')}: {count(metrics.allCustomers)}</>), flightsBox, hotelsBox, carsBox],
     flight: [
-      bookingsBox('flightBookings'), valueBox('flightBookedValue'), customersBox('flightCustomers'), flightsBox,
+      bookingsBox('flightBookings'), valueBox('flightBookedValue'), customersBox('flightCustomers', <>{t('allFlightCustomers')}: {count(metrics.allCustomers)}</>), flightsBox,
       { label: t('upcomingFlights'), value: flightTotals.upcoming, render: count, ...flightBox },
       { label: t('averageBasePrice'), value: flightTotals.averagePrice, render: money, ...flightBox },
     ],
