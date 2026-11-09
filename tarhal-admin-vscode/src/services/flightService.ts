@@ -30,7 +30,6 @@ const toRow = (r: Raw): ResourceRow => {
     arrivalTime: str(pick(r, 'arrivalTime')),
     route: from && to ? `${from} → ${to}` : str(pick(r, 'route')),
     price: num(pick(r, 'basePrice', 'price', 'fare')),
-    status: str(pick(r, 'status')), // flights have no status in the schema
   };
 };
 
@@ -41,19 +40,13 @@ const toSeat = (s: Raw): Seat => ({
 });
 
 export const flightService = {
-  /** Admin table. INTEGRATION POINT [Saud]: GET /api/admin/flights (admin session required). */
+  /** Admin table: GET /api/admin/flights (admin session required). */
   async adminList(): Promise<ResourceRow[]> {
     const { data } = await api.get<Envelope<Raw[]>>('/admin/flights');
     assertSuccess(data);
     return toList(data).map(toRow);
   },
-  /** Airline names for the Add/Edit dropdown. INTEGRATION POINT [Saud]: GET /api/admin/airlines. */
-  async airlines(): Promise<string[]> {
-    const { data } = await api.get<Envelope<Raw[]>>('/admin/airlines');
-    assertSuccess(data);
-    return toList(data).map((a) => str(pick(a, 'name', 'nameEn', 'airlineName'))).filter(Boolean);
-  },
-  /** Same endpoint as `airlines()`, but keeps the ids the create/update calls need. */
+  /** GET /api/admin/airlines, for the dropdown of the flight form: POST needs the id. */
   async airlineDirectory(): Promise<Airline[]> {
     const { data } = await api.get<Envelope<Raw[]>>('/admin/airlines');
     assertSuccess(data);
@@ -63,19 +56,16 @@ export const flightService = {
     }).filter((a) => a.id && a.name);
   },
   /**
-   * INTEGRATION POINT [Saud]: POST /api/admin/flights (needs airlineId), PATCH /api/admin/flights/:id, DELETE /api/admin/flights/:id.
-   * On 400/409/etc. axios rejects; the Add/Edit modal shows the backend's message (see parseApiError in api.ts).
-   * Checked against app/api/admin/[...slug]/route.ts: POST and PATCH exist (bodies above) and answer with the raw flight, not { data }.
-   * DELETE does not exist yet, so the admin page does not offer Remove (see WRITE_ACTIONS in pages/admin-resource.tsx).
+   * Checked against app/api/admin/[...slug]/route.ts: POST and PATCH exist (bodies above).
+   * On a failure axios rejects and the form explains why (see lib/write-error.ts). The page reloads after a save.
    */
-  async create(input: FlightCreateInput): Promise<{ apiId?: string | number }> {
-    const { data } = await api.post<Raw>('/admin/flights', input);
-    assertWrite(data);
-    return { apiId: pick(data ?? {}, 'id') as string | number | undefined };
+  async create(input: FlightCreateInput): Promise<void> {
+    assertWrite((await api.post<Raw>('/admin/flights', input)).data);
   },
   async update(apiId: string | number, input: FlightUpdateInput): Promise<void> {
     assertWrite((await api.patch<Raw>(`/admin/flights/${encodeURIComponent(String(apiId))}`, input)).data);
   },
+  /** DELETE /api/admin/flights/:id does not exist yet, so nothing calls this while WRITE_ACTIONS.flight.remove is false. */
   async remove(apiId: string | number): Promise<void> {
     assertWrite((await api.delete<Envelope<Raw>>(`/admin/flights/${encodeURIComponent(String(apiId))}`)).data);
   },

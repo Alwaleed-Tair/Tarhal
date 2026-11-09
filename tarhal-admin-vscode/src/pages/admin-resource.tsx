@@ -1,369 +1,135 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
-import { initialResources, type ResourceRow, type Service } from '@/data/demoData';
+import { CatalogFilterBar } from '@/components/catalog-filter-bar';
 import { DataTable, type Column } from '@/components/data-table';
-import { Layout } from '@/components/layout';
-import { ContextBadge, PageHeader } from '@/components/page-header';
-import { SuggestSearch } from '@/components/suggest-search';
 import { EmptyState } from '@/components/empty-state';
-import { Ltr } from '@/components/ltr';
 import { ErrorState } from '@/components/error-state';
+import { Layout } from '@/components/layout';
+import { Ltr } from '@/components/ltr';
 import { Money } from '@/components/money';
-import { StatusBadge } from '@/components/status-badge';
+import { ContextBadge, PageHeader } from '@/components/page-header';
+import { Pagination } from '@/components/pagination';
+import { ResourceModal } from '@/components/resource-modal';
 import { TableSkeleton } from '@/components/skeleton';
 import { StatCard } from '@/components/stat-card';
-import { useAdminBookings } from '@/hooks/use-admin-bookings';
-import { useLiveData } from '@/hooks/use-live-data';
-import { bookingMetrics, monthlyMetrics } from '@/lib/booking-stats';
-import { parseApiError } from '@/services/api';
-import { flightService, TICKET_CLASSES, type Airline, type FlightUpdateInput, type TicketClass } from '@/services/flightService';
-import { hotelService } from '@/services/hotelService';
-import { carService } from '@/services/carService';
+import { SuggestSearch } from '@/components/suggest-search';
+import { initialResources, type ResourceRow, type Service } from '@/data/demoData';
+import { useAdminData } from '@/hooks/use-admin-data';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { usePagination } from '@/hooks/use-pagination';
+import { isoToRiyadhLocal, type Formatters } from '@/i18n/format';
+import { translateValue } from '@/i18n/labels';
 import type { Language, TranslationKey } from '@/i18n/translations';
-import { statusLabel, translateValue } from '@/i18n/labels';
-import { isoToRiyadhLocal, riyadhLocalToIso, type Formatters } from '@/i18n/format';
 import { useFormat, useT } from '@/i18n/use-i18n';
-import { notify } from '@/store/notificationStore';
+import { flightMetrics } from '@/lib/booking-stats';
+import { catalogQuery, filterProblems, NO_FILTERS, type FilterKey } from '@/lib/catalog-query';
+import { rowKey, type ModalMode } from '@/lib/resource-draft';
+import type { Pagination as ApiPagination } from '@/services/api';
+import { carService } from '@/services/carService';
+import { flightService, type Airline } from '@/services/flightService';
+import { hotelService } from '@/services/hotelService';
 import { useDemoState } from '@/store/demoStore';
-
-// Stored values stay in English; labels are translated on display (see `translateValue`).
-const OPTIONS = {
-  airline: ['Saudia', 'Flynas', 'Flyadeal', 'Emirates', 'Qatar Airways'],
-  city: ['Riyadh', 'Jeddah', 'Dubai', 'Amman', 'Doha', 'Cairo'],
-  room: ['King Suite', 'Deluxe', 'Twin Room', 'Standard Room'],
-  availability: ['Available Now', 'Limited', 'Booked'],
-  hotelName: ['Hilton Garden', 'The Boulevard', 'Mövenpick'],
-  carModel: ['Toyota Camry', 'Kia Carnival', 'BMW 3 Series', 'Nissan Patrol', 'Hyundai Sonata'],
-  status: ['Available', 'Limited', 'Scheduled', 'Boarding', 'Booked'],
-};
-
-type Kind = Service;
-
-const loaders: Record<Kind, () => Promise<{ rows: ResourceRow[]; total: number }>> = {
-  flight: () => flightService.adminList().then((rows) => ({ rows, total: rows.length })),
-  hotel: () => hotelService.list({ page: 1, pageSize: 100 }).then((r) => ({ rows: r.rows, total: r.pagination?.total ?? r.rows.length })),
-  car: () => carService.list({ page: 1, pageSize: 100 }).then((r) => ({ rows: r.rows, total: r.pagination?.total ?? r.rows.length })),
-};
-type ModalMode = 'add' | 'edit' | 'remove';
-type SeatDraft = { key: number; seatCode: string; ticketClass: TicketClass; priceMultiplier: string };
-type ResourceDraft = { id: string; airline: string; from: string; to: string; departureTime: string; arrivalTime: string; seats: SeatDraft[]; city: string; room: string; location: string; availability: string; price: string; status: string };
 
 /**
  * Which buttons each table offers. Only what the real API has (checked against app/api):
  * flights have POST and PATCH /api/admin/flights but no DELETE; hotels and cars only have GET.
- * Turn these on when POST and PATCH /api/admin/hotels and /api/admin/cars (and a DELETE) exist.
+ * The hotel and car forms are ready: set add and edit to true once POST and PATCH /api/admin/hotels and /api/admin/cars exist.
  */
-const WRITE_ACTIONS: Record<Kind, Record<ModalMode, boolean>> = {
+const WRITE_ACTIONS: Record<Service, Record<ModalMode, boolean>> = {
   flight: { add: true, edit: true, remove: false },
   hotel: { add: false, edit: false, remove: false },
   car: { add: false, edit: false, remove: false },
 };
+const NO_WRITES: Record<ModalMode, boolean> = { add: false, edit: false, remove: false };
 
-const heading: Record<Kind, TranslationKey> = { flight: 'flightManagement', hotel: 'hotelManagement', car: 'carManagement' };
-const singular: Record<Kind, TranslationKey> = { flight: 'flightSingular', hotel: 'hotelSingular', car: 'carSingular' };
-const sectionKey: Record<Kind, TranslationKey> = { flight: 'flights', hotel: 'hotels', car: 'cars' };
-const emptyKey: Record<Kind, TranslationKey> = { flight: 'noFlightsYet', hotel: 'noHotelsYet', car: 'noCarsYet' };
-const subtitleKey: Record<Kind, TranslationKey> = { flight: 'flightsSubtitle', hotel: 'hotelsSubtitle', car: 'carsSubtitle' };
-const actionKey: Record<ModalMode, TranslationKey> = { add: 'add', edit: 'edit', remove: 'remove' };
-const noticeKeys: Record<ModalMode, { title: TranslationKey; message: TranslationKey }> = {
-  add: { title: 'recordAddedTitle', message: 'recordAdded' },
-  edit: { title: 'recordUpdatedTitle', message: 'recordUpdated' },
-  remove: { title: 'recordRemovedTitle', message: 'recordRemoved' },
-};
+const PAGE_SIZE = 20;
 
-let seatKey = 0;
-const newSeat = (): SeatDraft => ({ key: ++seatKey, seatCode: '', ticketClass: 'ECONOMY', priceMultiplier: '1' });
+const heading: Record<Service, TranslationKey> = { flight: 'flightManagement', hotel: 'hotelManagement', car: 'carManagement' };
+const singular: Record<Service, TranslationKey> = { flight: 'flightSingular', hotel: 'hotelSingular', car: 'carSingular' };
+const sectionKey: Record<Service, TranslationKey> = { flight: 'flights', hotel: 'hotels', car: 'cars' };
+const emptyKey: Record<Service, TranslationKey> = { flight: 'noFlightsYet', hotel: 'noHotelsYet', car: 'noCarsYet' };
 
-function createDraft(row?: ResourceRow): ResourceDraft {
-  return { id: row?.id ?? '', airline: row?.airlineId ?? '', from: '', to: '', departureTime: isoToRiyadhLocal(row?.departureTime ?? ''), arrivalTime: isoToRiyadhLocal(row?.arrivalTime ?? ''), seats: [newSeat()], city: row?.city ?? '', room: row?.room ?? '', location: row?.location ?? '', availability: row?.availability ?? '', price: String(row?.price ?? ''), status: row?.status ?? '' };
+type Listing = { rows: ResourceRow[]; total: number; totalPages: number };
+const NO_ROWS: Listing = { rows: [], total: 0, totalPages: 1 };
+const NO_AIRLINES: Airline[] = [];
+const toListing = ({ rows, pagination }: { rows: ResourceRow[]; pagination?: ApiPagination }): Listing => ({ rows, total: pagination?.total ?? rows.length, totalPages: Math.max(1, pagination?.totalPages ?? 1) });
+
+/** A new page for each kind, so filters, paging and search never leak from Hotels into Cars. */
+export default function AdminResource({ kind }: { kind: Service }) {
+  return <ResourcePage key={kind} kind={kind} />;
 }
 
-function toRow(kind: Kind, draft: ResourceDraft, airlines: Airline[]): ResourceRow {
-  const base = { id: draft.id.trim(), price: Number(draft.price), status: draft.status.trim() || 'Available' };
-  if (kind === 'flight') {
-    const airline = airlines.find((a) => a.id === draft.airline);
-    return {
-      ...base, status: '', airlineId: draft.airline, airline: airline?.name ?? '', airlineAr: airline?.nameAr,
-      route: `${draft.from.trim().toUpperCase()} → ${draft.to.trim().toUpperCase()}`,
-      departureTime: draft.departureTime ? riyadhLocalToIso(draft.departureTime) : undefined,
-      arrivalTime: draft.arrivalTime ? riyadhLocalToIso(draft.arrivalTime) : undefined,
-    };
-  }
-  if (kind === 'hotel') return { ...base, city: draft.city.trim(), room: draft.room.trim() };
-  return { ...base, location: draft.location.trim(), availability: draft.availability.trim() };
-}
-
-function getRowDetails(kind: Kind, row: ResourceRow, language: Language): string {
-  if (kind === 'flight') return translateValue(row.route ?? '', language);
-  if (kind === 'hotel') return `${translateValue(row.city ?? '', language)} · ${translateValue(row.room ?? '', language)}`;
-  return `${translateValue(row.location ?? '', language)} · ${translateValue(row.availability ?? '', language)}`;
-}
-
-type FieldName = keyof ResourceDraft | 'selectedId' | `seatCode${number}` | `priceMultiplier${number}`;
-type FieldErrors = Partial<Record<FieldName, string>>;
-
-/** Client-side checks that run before anything is sent. Returns one message per invalid field. */
-function validateDraft(kind: Kind, mode: ModalMode, draft: ResourceDraft, selectedId: string, rows: ResourceRow[], airlineCount: number, t: ReturnType<typeof useT>): FieldErrors {
-  const errors: FieldErrors = {};
-  const required = t('fieldRequired');
-  if (mode !== 'add' && !selectedId) errors.selectedId = t('selectRecordFirst');
-  if (mode === 'remove') return errors;
-  if (mode === 'add') {
-    if (!draft.id.trim()) errors.id = required;
-    else if (rows.some((row) => row.id.toLowerCase() === draft.id.trim().toLowerCase())) errors.id = t('duplicateRecord');
-  }
-  if (kind === 'flight') {
-    if (!draft.departureTime) errors.departureTime = required;
-    if (mode === 'add') {
-      if (!draft.airline) errors.airline = airlineCount > 0 ? required : t('airlinesUnavailable');
-      const from = draft.from.trim().toUpperCase(), to = draft.to.trim().toUpperCase();
-      if (!from) errors.from = required; else if (!/^[A-Z]{3}$/.test(from)) errors.from = t('airportInvalid');
-      if (!to) errors.to = required; else if (!/^[A-Z]{3}$/.test(to)) errors.to = t('airportInvalid'); else if (to === from) errors.to = t('airportsSame');
-      if (!draft.arrivalTime) errors.arrivalTime = required;
-      else if (draft.departureTime && draft.arrivalTime <= draft.departureTime) errors.arrivalTime = t('arrivalAfterDeparture');
-      if (draft.seats.length === 0) errors.seats = t('seatsRequired');
-      const seen = new Set<string>();
-      draft.seats.forEach((seat, index) => {
-        const code = seat.seatCode.trim().toUpperCase();
-        if (!code) errors[`seatCode${index}`] = required;
-        else if (seen.has(code)) errors[`seatCode${index}`] = t('seatDuplicate');
-        seen.add(code);
-        const multiplier = Number(seat.priceMultiplier);
-        if (!seat.priceMultiplier.trim() || !(multiplier > 0) || multiplier > 99.99) errors[`priceMultiplier${index}`] = t('multiplierInvalid');
-      });
-    } else {
-      // PATCH cannot change the arrival time, so a new departure has to stay before the existing arrival.
-      const arrival = rows.find((row) => row.id === selectedId)?.arrivalTime;
-      if (draft.departureTime && arrival && Date.parse(riyadhLocalToIso(draft.departureTime)) >= Date.parse(arrival)) errors.departureTime = t('arrivalAfterDeparture');
-    }
-  } else if (kind === 'hotel') {
-    if (!draft.city) errors.city = required;
-    if (!draft.room) errors.room = required;
-  } else {
-    if (!draft.location) errors.location = required;
-    if (!draft.availability) errors.availability = required;
-  }
-  if (!draft.price.trim()) errors.price = required;
-  else if (!Number.isFinite(Number(draft.price)) || Number(draft.price) < 0 || Number(draft.price) > 99999999.99) errors.price = t('priceInvalid');
-  if (kind !== 'flight' && !draft.status.trim()) errors.status = required;
-  return errors;
-}
-
-/** The backend's own message when it sent one (e.g. "Flight number already exists at this time"), otherwise a translated reason for the status. */
-function serverErrorText(error: unknown, t: ReturnType<typeof useT>): string {
-  const { status, kind, message } = parseApiError(error);
-  if (message) return message;
-  if (kind === 'timeout') return t('errTimeout');
-  if (kind === 'network') return t('errNetwork');
-  if (status === 400 || status === 422) return t('errBadRequest');
-  if (status === 401) return t('errUnauthorized');
-  if (status === 403) return t('errForbidden');
-  if (status === 404) return t('errNotFound');
-  if (status === 409) return t('errConflict');
-  if (status && status >= 500) return t('errServer');
-  return t('errGeneric');
-}
-
-export default function AdminResource({ kind }: { kind: Kind }) {
+function ResourcePage({ kind }: { kind: Service }) {
   const t = useT();
   const format = useFormat();
-  const { settings } = useDemoState();
-  const lang = settings.language;
-  // TODO / INTEGRATION POINT
-  // INTEGRATION POINT: Connect Saud's Flight & Booking APIs here
-  // Flights = Saud. Hotels and Cars = Mohammed (INTEGRATION POINT: Connect Mohammed's Auth, Hotel & Car APIs here). Add/Edit/Remove below should call the matching endpoints.
-  const { data: fetched, status: loadStatus, offline, reason, reload } = useLiveData(() => loaders[kind](), () => ({ rows: initialResources[kind], total: initialResources[kind].length }), kind);
-  // Only the flights page uses bookings and airlines: Hotels and Cars skip both requests.
-  const { bookings, status: bookingsStatus, offline: bookingsOffline } = useAdminBookings(kind === 'flight');
-  const { data: airlineDirectory, offline: airlinesOffline } = useLiveData<Airline[]>(() => (kind === 'flight' ? flightService.airlineDirectory() : Promise.resolve([])), () => OPTIONS.airline.map((name) => ({ id: name, name, nameAr: translateValue(name, 'ar') })), `airlines-${kind === 'flight'}`);
-  // The demo airlines have no real ids: never offer them while the API is working.
-  const airlines = airlinesOffline && !offline ? [] : airlineDirectory;
-  const can = WRITE_ACTIONS[kind];
-  const [rows, setRows] = useState<ResourceRow[]>(fetched.rows);
-  const [query, setQuery] = useState('');
-  const [modal, setModal] = useState<ModalMode | null>(null);
-  const [selectedId, setSelectedId] = useState('');
-  const [draft, setDraft] = useState<ResourceDraft>(() => createDraft());
-  const [formError, setFormError] = useState('');
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [submitting, setSubmitting] = useState(false);
-  const attempt = useRef(0); // bumped when the modal closes/changes, so a late response cannot write into a newer modal
-  const [closing, setClosing] = useState(false);
-  const closeTimer = useRef<number | undefined>(undefined);
+  const lang = useDemoState().settings.language;
 
-  // Computed from the API. Hotel and car booking APIs do not exist yet, and GET /api/cars only returns available cars,
-  // so everything it cannot answer is labelled, never shown as zero.
-  const flightStats = useMemo(() => bookingMetrics(bookings, 'flight'), [bookings]);
-  const flightTrends = useMemo(() => monthlyMetrics(bookings, new Date().getFullYear(), 'flight'), [bookings]);
-  const flightState = { loading: bookingsStatus === 'loading', noData: bookingsOffline && !offline };
+  // Hotels and cars: the filters and the page are sent to the API. Flights: GET /api/admin/flights has neither, so the search box and paging work on its list.
+  const [filters, setFilters] = useState(NO_FILTERS);
+  const problems = useMemo(() => filterProblems(kind, filters), [kind, filters]);
+  const settled = useDebouncedValue(filters);
+  const [request, setRequest] = useState({ query: catalogQuery(kind, NO_FILTERS), page: 1 });
+  const [knownCities, setKnownCities] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (Object.keys(filterProblems(kind, settled)).length > 0) return; // A value the API would refuse is explained at the field, not sent.
+    const query = catalogQuery(kind, settled);
+    setRequest((current) => (JSON.stringify(current.query) === JSON.stringify(query) ? current : { query, page: 1 }));
+  }, [kind, settled]);
+
+  const { data, status: loadStatus, offline, reload } = useAdminData<Listing>(
+    () => {
+      if (kind === 'flight') return flightService.adminList().then((rows) => ({ rows, total: rows.length, totalPages: 1 }));
+      const params = { ...request.query, page: request.page, pageSize: PAGE_SIZE };
+      return (kind === 'hotel' ? hotelService.list(params) : carService.list(params)).then(toListing);
+    },
+    () => ({ rows: initialResources[kind], total: initialResources[kind].length, totalPages: 1 }),
+    NO_ROWS,
+    JSON.stringify(request),
+  );
+  const { data: airlines } = useAdminData<Airline[]>(() => (kind === 'flight' ? flightService.airlineDirectory() : Promise.resolve(NO_AIRLINES)), () => NO_AIRLINES, NO_AIRLINES, kind);
+
+  useEffect(() => {
+    setKnownCities((current) => [...new Set([...current, ...data.rows.map((row) => row.city ?? '').filter(Boolean)])].sort());
+  }, [data]);
+
+  // Saving needs the server, so the demo data is read only.
+  const can = offline ? NO_WRITES : WRITE_ACTIONS[kind];
+  const [modal, setModal] = useState<{ mode: ModalMode; key: string } | null>(null);
+  const [query, setQuery] = useState('');
+
+  const needle = query.toLowerCase();
+  const searched = useMemo(() => (kind === 'flight' && needle
+    ? data.rows.filter((row) => `${row.id} ${row.airline ?? ''} ${row.airlineAr ?? ''} ${translateValue(row.airline ?? '', lang)} ${row.route ?? ''}`.toLowerCase().includes(needle))
+    : data.rows), [kind, data.rows, needle, lang]);
+  const flightPages = usePagination(searched, PAGE_SIZE, needle);
+  const visible = kind === 'flight' ? flightPages.pageItems : data.rows;
+  const page = kind === 'flight' ? flightPages.page : request.page;
+  const totalPages = kind === 'flight' ? flightPages.totalPages : data.totalPages;
+  const goToPage = (next: number) => { if (kind === 'flight') flightPages.setPage(next); else setRequest((current) => ({ ...current, page: next })); };
+
+  const updateFilter = (key: FilterKey, value: string) => setFilters((current) => ({ ...current, [key]: value }));
+  const clearFilters = () => setFilters(NO_FILTERS);
+  const filtered = Object.values(filters).some(Boolean);
+
+  const loading = loadStatus === 'loading';
   const count = (value: number) => format.number(value);
+  const totals = useMemo(() => flightMetrics(data.rows), [data.rows]);
+  // Computed from what the API returns. Hotel and car booking APIs do not exist yet, and GET /api/cars only returns available cars,
+  // so everything it cannot answer is labelled, never shown as zero.
   const metrics = kind === 'flight'
     ? [
-        { label: t('totalFlights'), value: flightStats.bookings, render: count, series: flightTrends.bookings, ...flightState },
-        { label: t('flightRevenue'), value: flightStats.revenue, render: (value: number) => <Money sar={value} />, series: flightTrends.revenue, ...flightState },
-        { label: t('activeUsers'), value: flightStats.users, render: count, series: flightTrends.users, ...flightState },
+        { label: t('totalFlights'), value: totals.flights, render: count, loading },
+        { label: t('upcomingFlights'), value: totals.upcoming, render: count, loading },
+        { label: t('averageBasePrice'), value: totals.averagePrice, render: (value: number) => <Money sar={value} />, loading },
       ]
     : kind === 'hotel'
-      ? [{ label: t('totalRooms'), noData: true }, { label: t('hotelRevenue'), noData: true }, { label: t('guests'), noData: true }]
-      : [{ label: t('totalCars'), noData: true }, { label: t('carsRevenue'), noData: true }, { label: t('availableCars'), value: fetched.total, render: count, loading: loadStatus === 'loading' }];
-  const needle = query.toLowerCase();
-  const filtered = useMemo(() => rows.filter((row) => `${row.id} ${translateValue(row.id, lang)} ${translateValue(row.airline ?? '', lang)} ${row.airline ?? ''} ${row.airlineAr ?? ''} ${getRowDetails(kind, row, lang)}`.toLowerCase().includes(needle)), [rows, needle, lang, kind]);
-  const displayId = (row: ResourceRow) => kind === 'flight' ? <Ltr>{row.id}</Ltr> : translateValue(row.id, lang);
-  const columns = resourceColumns({
-    kind, t, lang, format, displayId, can,
-    onEdit: (id) => openModal('edit', id),
-    onRemove: (id) => openModal('remove', id),
-  });
+      ? [{ label: t('hotelsFound'), value: data.total, render: count, loading }, { label: t('hotelRevenue'), noData: true }, { label: t('guests'), noData: true }]
+      : [{ label: t('availableCars'), value: data.total, render: count, loading }, { label: t('carsRevenue'), noData: true }, { label: t('totalCars'), noData: true }];
 
-  useEffect(() => { setRows(fetched.rows); }, [fetched]);
-
-  useEffect(() => {
-    setQuery('');
-    setModal(null);
-    setSelectedId('');
-    setFormError('');
-  }, [kind]);
-
-  useEffect(() => {
-    if (!modal) return;
-    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') closeModal(); };
-    window.addEventListener('keydown', closeOnEscape);
-    return () => window.removeEventListener('keydown', closeOnEscape);
-  }, [modal]);
-
-  function closeModal() {
-    attempt.current += 1;
-    setSubmitting(false);
-    const finish = () => {
-      setClosing(false);
-      setModal(null);
-      setSelectedId('');
-      setFormError('');
-      setFieldErrors({});
-    };
-    // A short fade out; nothing to wait for when the user prefers reduced motion.
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { finish(); return; }
-    setClosing(true);
-    window.clearTimeout(closeTimer.current);
-    closeTimer.current = window.setTimeout(finish, 130);
-  }
-
-  function openModal(mode: ModalMode, id = '') {
-    window.clearTimeout(closeTimer.current);
-    setClosing(false);
-    attempt.current += 1;
-    setSubmitting(false);
-    setFieldErrors({});
-    setModal(mode);
-    setSelectedId(id);
-    setDraft(createDraft(rows.find((row) => row.id === id)));
-    setFormError('');
-  }
-
-  function selectRow(id: string) {
-    setFieldErrors({});
-    setSelectedId(id);
-    setDraft(createDraft(rows.find((row) => row.id === id)));
-    setFormError('');
-  }
-
-  function updateDraft(field: Exclude<keyof ResourceDraft, 'seats'>, value: string) {
-    setDraft((current) => ({ ...current, [field]: value }));
-    setFieldErrors((current) => ({ ...current, [field]: undefined })); // clear this field's message as soon as it is edited
-    setFormError('');
-  }
-
-  function updateSeat(index: number, change: Partial<SeatDraft>) {
-    setDraft((current) => ({ ...current, seats: current.seats.map((seat, i) => (i === index ? { ...seat, ...change } : seat)) }));
-    setFieldErrors((current) => ({ ...current, [`seatCode${index}`]: undefined, [`priceMultiplier${index}`]: undefined }));
-    setFormError('');
-  }
-
-  /** Adding or removing a row shifts the seat indexes, so the seat messages are cleared until the next submit. */
-  function changeSeats(seats: SeatDraft[]) {
-    setDraft((current) => ({ ...current, seats }));
-    setFieldErrors((current) => Object.fromEntries(Object.entries(current).filter(([key]) => !/^(seats|seatCode|priceMultiplier)/.test(key))));
-    setFormError('');
-  }
-
-  async function saveRecord(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!modal || submitting) return;
-    const mode = modal;
-
-    // 1. Client-side validation: nothing is sent while a required field is empty or invalid.
-    const errors = validateDraft(kind, mode, draft, selectedId, rows, airlines.length, t);
-    setFieldErrors(errors);
-    if (Object.keys(errors).length > 0) {
-      setFormError(t('requiredField'));
-      document.querySelector<HTMLElement>('.modal-form [aria-invalid="true"]')?.focus();
-      return;
-    }
-    setFormError('');
-
-    const recordId = mode === 'add' ? draft.id.trim() : selectedId;
-    const row = toRow(kind, { ...draft, id: recordId }, airlines);
-    const existing = rows.find((r) => r.id === selectedId);
-    const apiId = existing?.apiId ?? selectedId;
-    const ticket = ++attempt.current;
-    let created: string | number | undefined;
-
-    // 2. Call the backend. In demo mode (no server reachable) the change stays local, as before.
-    if (!offline) {
-      setSubmitting(true);
-      try {
-        if (kind === 'flight') {
-          if (mode === 'add') {
-            created = (await flightService.create({
-              flightNumber: row.id, airlineId: draft.airline, from: draft.from.trim().toUpperCase(), to: draft.to.trim().toUpperCase(),
-              departureTime: row.departureTime ?? '', arrivalTime: row.arrivalTime ?? '', basePrice: row.price,
-              seats: draft.seats.map((seat) => ({ seatCode: seat.seatCode.trim().toUpperCase(), ticketClass: seat.ticketClass, priceMultiplier: Number(seat.priceMultiplier) })),
-            })).apiId;
-          } else if (mode === 'edit') {
-            // PATCH only accepts basePrice and departureTime: send whichever of the two changed.
-            const changes: FlightUpdateInput = {};
-            if (row.price !== existing?.price) changes.basePrice = row.price;
-            if (draft.departureTime !== isoToRiyadhLocal(existing?.departureTime ?? '')) changes.departureTime = row.departureTime;
-            if (Object.keys(changes).length > 0) await flightService.update(apiId, changes);
-          } else await flightService.remove(apiId);
-        } else if (kind === 'hotel') {
-          const input = { name: row.id, city: row.city ?? '', room: row.room ?? '', price: row.price, status: row.status };
-          if (mode === 'add') created = (await hotelService.create(input)).apiId;
-          else if (mode === 'edit') await hotelService.update(apiId, input);
-          else await hotelService.remove(apiId);
-        } else {
-          const input = { name: row.id, location: row.location ?? '', availability: row.availability ?? '', price: row.price, status: row.status };
-          if (mode === 'add') created = (await carService.create(input)).apiId;
-          else if (mode === 'edit') await carService.update(apiId, input);
-          else await carService.remove(apiId);
-        }
-      } catch (error) {
-        // 3. Failure (400, 409, 5xx, network...): keep the modal open with the admin's input intact and say exactly why.
-        const message = serverErrorText(error, t);
-        console.warn('[api] save failed:', parseApiError(error), error);
-        notify({ tone: 'error', titleKey: mode === 'remove' ? 'removeFailedTitle' : 'actionFailedTitle', messageKey: 'actionFailed', params: { message } });
-        if (attempt.current === ticket) { setFormError(message); setSubmitting(false); }
-        return;
-      }
-    }
-
-    if (mode === 'remove') setRows((current) => current.filter((r) => r.id !== selectedId));
-    else if (mode === 'add') setRows((current) => [...current, created !== undefined ? { ...row, apiId: created } : row]);
-    else if (kind === 'flight') setRows((current) => current.map((r) => r.id === selectedId ? { ...r, price: row.price, departureTime: row.departureTime } : r));
-    else setRows((current) => current.map((r) => r.id === selectedId ? { ...r, ...row } : r));
-
-    // The admin action succeeded: show the toast (and add it to the bell menu).
-    notify({
-      tone: mode === 'remove' ? 'warning' : 'success',
-      titleKey: noticeKeys[mode].title,
-      messageKey: noticeKeys[mode].message,
-      params: { noun: { key: singular[kind] }, id: recordId },
-    });
-    if (attempt.current === ticket) closeModal();
-  }
-
+  const columns = resourceColumns({ kind, t, lang, format, can, onEdit: (key) => setModal({ mode: 'edit', key }), onRemove: (key) => setModal({ mode: 'remove', key }) });
+  const subtitle: Record<Service, TranslationKey> = { flight: 'flightsSubtitle', hotel: can.add ? 'hotelsSubtitle' : 'hotelsReadOnlySubtitle', car: can.add ? 'carsSubtitle' : 'carsReadOnlySubtitle' };
   const noun = t(singular[kind]);
-  const title = modal ? `${t(actionKey[modal])} ${noun}` : '';
 
   return (
     <Layout>
@@ -371,205 +137,96 @@ export default function AdminResource({ kind }: { kind: Kind }) {
         <PageHeader
           section={t(sectionKey[kind])}
           title={t(heading[kind])}
-          subtitle={t(subtitleKey[kind])}
+          subtitle={t(subtitle[kind])}
           badges={<>
-            <ContextBadge>{t('recordsCount', { count: format.number(Math.max(fetched.total, rows.length)) })}</ContextBadge>
-            {offline && <ContextBadge tone="warning">{t('demoBadge')} · {reason}</ContextBadge>}
+            {!loading && loadStatus !== 'error' && <ContextBadge>{t('recordsCount', { count: format.number(data.total) })}</ContextBadge>}
+            {offline && <ContextBadge tone="warning">{t('demoBadge')}</ContextBadge>}
           </>}
-          actions={
-            <>
-              <SuggestSearch value={query} onChange={setQuery} placeholder={t('search')} testId={`input-${kind}-search`}
-              matches={filtered} getKey={(row) => row.id} pickValue={(row) => row.id}
-              renderItem={(row) => <><span className="search-suggestion-id">{displayId(row)}</span><span className="search-suggestion-details">{getRowDetails(kind, row, lang)}</span></>} />
-              {can.add && <button className="button button-primary" onClick={() => openModal('add')} data-testid={`button-add-${kind}`}><Plus size={15} aria-hidden="true" />{t('add')} {noun}</button>}
-            </>
-          }
+          actions={kind === 'flight' || can.add ? <>
+            {kind === 'flight' && <SuggestSearch value={query} onChange={setQuery} placeholder={t('search')} testId="input-flight-search"
+              matches={searched} getKey={rowKey} pickValue={(row) => row.id}
+              renderItem={(row) => <><span className="search-suggestion-id"><Ltr>{row.id}</Ltr></span><span className="search-suggestion-details">{row.route}</span></>} />}
+            {can.add && <button className="button button-primary" onClick={() => setModal({ mode: 'add', key: '' })} data-testid={`button-add-${kind}`}><Plus size={15} aria-hidden="true" />{t('add')} {noun}</button>}
+          </> : undefined}
         />
 
         <div className="metric-grid">
           {metrics.map((metric) => <StatCard key={metric.label} {...metric} />)}
         </div>
 
-        {/* Add sits by the title and Edit on each row (the edit form keeps its record chooser). Remove returns here once a DELETE route exists. */}
-        {can.remove && <div className="action-row">
-          {can.remove && <button className="button button-soft" onClick={() => openModal('remove')} data-testid={`button-remove-${kind}`}><Trash2 size={15} aria-hidden="true" />{t('remove')} {noun}</button>}
-        </div>}
+        {kind !== 'flight' && <CatalogFilterBar kind={kind} filters={filters} problems={problems} cities={knownCities} onChange={updateFilter} onClear={clearFilters} />}
 
         <section className="section-card">
-          <div className="table-wrap overflow-x-auto w-full rounded-xl" tabIndex={0} role="region" aria-label={t(heading[kind])}>
-            {loadStatus === 'loading' ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={reload} /> : filtered.length === 0
-              ? <EmptyState message={query ? t('noResults') : t(emptyKey[kind])} actionLabel={query ? t('clearSearch') : undefined} onAction={() => setQuery('')} />
-              : <DataTable caption={t(heading[kind])} columns={columns} rows={filtered} getKey={(row) => row.id} minWidth={0} stackOnPhone />}
+          <div className="table-wrap overflow-x-auto w-full rounded-xl" tabIndex={0} role="region" aria-label={t(heading[kind])} aria-busy={loading}>
+            {loading ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={reload} /> : visible.length === 0
+              ? <EmptyState message={query || filtered ? t('noResults') : t(emptyKey[kind])} actionLabel={query ? t('clearSearch') : filtered ? t('clearFilters') : undefined} onAction={() => { setQuery(''); clearFilters(); }} />
+              : <DataTable caption={t(heading[kind])} columns={columns} rows={visible} getKey={rowKey} minWidth={0} stackOnPhone />}
           </div>
+          {!loading && loadStatus !== 'error' && totalPages > 1 && <div className="table-pager"><Pagination page={page} totalPages={totalPages} onPageChange={goToPage} /></div>}
         </section>
       </section>
 
-      {modal && (
-        <div className={`modal-backdrop${closing ? ' is-closing' : ''}`} role="presentation" onMouseDown={(event) => event.target === event.currentTarget && closeModal()}>
-          <section className="modal-card" role="dialog" aria-modal="true" aria-labelledby="resource-modal-title">
-            <div className="modal-header">
-              <div><span className="modal-eyebrow">{t(heading[kind])}</span><h2 id="resource-modal-title">{title}</h2></div>
-              <button className="modal-close" onClick={closeModal} aria-label={t('close')}>×</button>
-            </div>
-            <form className="modal-form" onSubmit={saveRecord} noValidate aria-busy={submitting}>
-              {modal !== 'add' && (
-                <label className="modal-field">
-                  <span>{t('chooseRecord')}</span>
-                  <select className="select-control" value={selectedId} onChange={(event) => selectRow(event.target.value)} aria-label={t('chooseRecord')} aria-invalid={Boolean(fieldErrors.selectedId)} disabled={submitting} data-testid={`select-${modal}-${kind}-record`}>
-                    <option value="">{t('selectRecord')}</option>
-                    {rows.map((row) => <option value={row.id} key={row.id}>{translateValue(row.id, lang)} — {getRowDetails(kind, row, lang)}</option>)}
-                  </select>
-                  {fieldErrors.selectedId && <small className="field-error" role="alert">{fieldErrors.selectedId}</small>}
-                </label>
-              )}
-              {modal !== 'remove' && kind === 'flight' && (
-                <>
-                  {modal === 'add' && (
-                    <section className="modal-section">
-                      <h3>{t('sectionFlight')}</h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <Field label={t('flightNumber')} value={draft.id} onChange={(value) => updateDraft('id', value)} error={fieldErrors.id} required ltr />
-                        <SelectField label={t('airline')} value={draft.airline} onChange={(value) => updateDraft('airline', value)} options={airlines.map((a) => a.id)} getLabel={(id) => { const a = airlines.find((x) => x.id === id); return (lang === 'ar' ? a?.nameAr : a?.name) ?? id; }} placeholder={t('select')} error={fieldErrors.airline} required testId="select-flight-airline" />
-                        <Field label={t('fromAirport')} value={draft.from} onChange={(value) => updateDraft('from', value)} error={fieldErrors.from} required ltr testId="input-flight-from" />
-                        <Field label={t('toAirport')} value={draft.to} onChange={(value) => updateDraft('to', value)} error={fieldErrors.to} required ltr testId="input-flight-to" />
-                      </div>
-                    </section>
-                  )}
-                  <section className="modal-section">
-                    <h3>{t('sectionSchedule')}</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Field label={`${t('departureTime')} (${t('riyadhTime')})`} type="datetime-local" value={draft.departureTime} onChange={(value) => updateDraft('departureTime', value)} error={fieldErrors.departureTime} required ltr testId="input-flight-departure" />
-                      {modal === 'add' && <Field label={`${t('arrivalTime')} (${t('riyadhTime')})`} type="datetime-local" value={draft.arrivalTime} onChange={(value) => updateDraft('arrivalTime', value)} error={fieldErrors.arrivalTime} required ltr testId="input-flight-arrival" />}
-                    </div>
-                  </section>
-                  <section className="modal-section">
-                    <h3>{t('sectionPrice')}</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Field label={t('basePrice')} type="number" min="0" value={draft.price} onChange={(value) => updateDraft('price', value)} error={fieldErrors.price} required ltr testId="input-record-price" />
-                    </div>
-                  </section>
-                </>
-              )}
-              {modal !== 'remove' && kind !== 'flight' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {modal === 'add' && <SelectField label={kind === 'hotel' ? t('hotelName') : t('carModel')} value={draft.id} onChange={(value) => updateDraft('id', value)} options={kind === 'hotel' ? OPTIONS.hotelName : OPTIONS.carModel} getLabel={(v) => translateValue(v, lang)} placeholder={t('select')} error={fieldErrors.id} required />}
-                  {kind === 'hotel' && (
-                    <>
-                      <SelectField label={t('city')} value={draft.city} onChange={(value) => updateDraft('city', value)} options={OPTIONS.city} getLabel={(v) => translateValue(v, lang)} placeholder={t('select')} error={fieldErrors.city} required />
-                      <SelectField label={t('roomType')} value={draft.room} onChange={(value) => updateDraft('room', value)} options={OPTIONS.room} getLabel={(v) => translateValue(v, lang)} placeholder={t('select')} error={fieldErrors.room} required />
-                    </>
-                  )}
-                  {kind === 'car' && (
-                    <>
-                      <SelectField label={t('location')} value={draft.location} onChange={(value) => updateDraft('location', value)} options={OPTIONS.city} getLabel={(v) => translateValue(v, lang)} placeholder={t('select')} error={fieldErrors.location} required />
-                      <SelectField label={t('availability')} value={draft.availability} onChange={(value) => updateDraft('availability', value)} options={OPTIONS.availability} getLabel={(v) => translateValue(v, lang)} placeholder={t('select')} error={fieldErrors.availability} required />
-                    </>
-                  )}
-                  <Field label={t('priceSar')} type="number" min="0" value={draft.price} onChange={(value) => updateDraft('price', value)} error={fieldErrors.price} required ltr testId="input-record-price" />
-                  <SelectField label={t('status')} value={draft.status} onChange={(value) => updateDraft('status', value)} options={OPTIONS.status} getLabel={(v) => statusLabel(v, t)} placeholder={t('select')} error={fieldErrors.status} required />
-                </div>
-              )}
-              {kind === 'flight' && modal === 'add' && (
-                <fieldset className="modal-section modal-seats">
-                  <legend>{t('flightSeats')} *</legend>
-                  {draft.seats.map((seat, index) => (
-                    <div className="modal-seat-row" key={seat.key}>
-                      <Field label={t('seatCode')} value={seat.seatCode} onChange={(value) => updateSeat(index, { seatCode: value })} error={fieldErrors[`seatCode${index}`]} required ltr testId={`input-seat-code-${index}`} />
-                      <SelectField label={t('ticketClass')} value={seat.ticketClass} onChange={(value) => updateSeat(index, { ticketClass: value as TicketClass })} options={[...TICKET_CLASSES]} getLabel={(v) => t(`ticket${v as TicketClass}`)} placeholder={t('select')} required testId={`select-seat-class-${index}`} />
-                      <Field label={t('priceMultiplier')} type="number" min="0" step="0.01" value={seat.priceMultiplier} onChange={(value) => updateSeat(index, { priceMultiplier: value })} error={fieldErrors[`priceMultiplier${index}`]} required ltr testId={`input-seat-multiplier-${index}`} />
-                      <button type="button" className="button button-ghost button-ghost-danger modal-seat-remove" onClick={() => changeSeats(draft.seats.filter((_, i) => i !== index))} aria-label={`${t('removeSeat')} ${seat.seatCode}`} title={t('removeSeat')} data-testid={`button-remove-seat-${index}`}><Trash2 size={14} aria-hidden="true" /></button>
-                    </div>
-                  ))}
-                  {fieldErrors.seats && <small className="field-error" role="alert">{fieldErrors.seats}</small>}
-                  <button type="button" className="button button-ghost modal-seat-add" onClick={() => changeSeats([...draft.seats, newSeat()])} data-testid="button-add-seat"><Plus size={14} aria-hidden="true" />{t('addSeat')}</button>
-                </fieldset>
-              )}
-              {modal === 'remove' && <p className="modal-warning">{selectedId ? <>{t('removeRecordConfirm')} <bdi>{translateValue(selectedId, lang)}</bdi></> : t('selectRecordFirst')}</p>}
-              {formError && <p className="form-error" role="alert" data-testid="modal-form-error">{formError}</p>}
-              <div className="modal-actions">
-                <button type="button" className="button button-ghost" onClick={closeModal} disabled={submitting}>{t('cancel')}</button>
-                <button type="submit" className={`button ${modal === 'remove' ? 'button-danger' : 'button-primary'}`} disabled={submitting} data-testid={`button-confirm-${modal}-${kind}`}>{submitting ? t('saving') : modal === 'remove' ? t('remove') : modal === 'add' ? t('add') : t('saveChanges')}</button>
-              </div>
-            </form>
-          </section>
-        </div>
-      )}
+      {modal && <ResourceModal kind={kind} mode={modal.mode} initialKey={modal.key} rows={data.rows} airlines={airlines} onClose={() => setModal(null)} onSaved={reload} />}
     </Layout>
   );
 }
 
 type ColumnOptions = {
-  kind: Kind;
+  kind: Service;
   t: ReturnType<typeof useT>;
   lang: Language;
   format: Formatters;
-  displayId: (row: ResourceRow) => ReactNode;
   can: Record<ModalMode, boolean>;
-  onEdit: (id: string) => void;
-  onRemove: (id: string) => void;
+  onEdit: (key: string) => void;
+  onRemove: (key: string) => void;
 };
 
 /** Edit / Remove buttons of one row. */
 function RowActions({ kind, row, t, can, onEdit, onRemove }: Pick<ColumnOptions, 'kind' | 't' | 'can' | 'onEdit' | 'onRemove'> & { row: ResourceRow }) {
+  const key = rowKey(row);
   return (
     <div className="row-actions flex flex-row items-center justify-center gap-3">
-      {can.edit && <button className="button button-ghost" onClick={() => onEdit(row.id)} data-testid={`button-edit-${kind}-${row.id}`}><Pencil size={14} aria-hidden="true" />{t('edit')}</button>}
-      {can.remove && <button className="button button-ghost button-ghost-danger" onClick={() => onRemove(row.id)} data-testid={`button-remove-${kind}-${row.id}`}><Trash2 size={14} aria-hidden="true" />{t('remove')}</button>}
+      {can.edit && <button className="button button-ghost" onClick={() => onEdit(key)} aria-label={`${t('edit')} ${row.id}`} data-testid={`button-edit-${kind}-${row.id}`}><Pencil size={14} aria-hidden="true" />{t('edit')}</button>}
+      {can.remove && <button className="button button-ghost button-ghost-danger" onClick={() => onRemove(key)} aria-label={`${t('remove')} ${row.id}`} data-testid={`button-remove-${kind}-${row.id}`}><Trash2 size={14} aria-hidden="true" />{t('remove')}</button>}
     </div>
   );
 }
 
-/**
- * Columns of the Flights / Hotels / Cars tables. The header and the cells come from this one list.
- * Flights: number | airline | route | departure | price | actions. Flights have no status or cabin class in the schema.
- * Hotels / Cars: name | details | price | status, plus actions once WRITE_ACTIONS allows them.
- */
-function resourceColumns({ kind, t, lang, format, displayId, can, onEdit, onRemove }: ColumnOptions): Column<ResourceRow>[] {
-  const actions: Column<ResourceRow> = { key: 'actions', width: '', header: t('actions'), align: 'end', cell: (row) => <RowActions kind={kind} row={row} t={t} can={can} onEdit={onEdit} onRemove={onRemove} /> };
+/** Columns of the three tables, from the real fields of each model. The header and the cells come from this one list. */
+function resourceColumns({ kind, t, lang, format, can, onEdit, onRemove }: ColumnOptions): Column<ResourceRow>[] {
   const hasActions = can.edit || can.remove;
-  const details = (row: ResourceRow) => getRowDetails(kind, row, lang);
-  const price: Column<ResourceRow> = { key: 'price', width: '', header: t('price'), align: 'end', cell: (row) => <Money sar={row.price} /> };
+  const actions: Column<ResourceRow> = { key: 'actions', width: '16%', header: t('actions'), align: 'end', cell: (row) => <RowActions kind={kind} row={row} t={t} can={can} onEdit={onEdit} onRemove={onRemove} /> };
+  const text = (value: string | undefined): ReactNode => (value ? translateValue(value, lang) : '—');
+  const price = (width: string, header: string): Column<ResourceRow> => ({ key: 'price', width, header, align: 'end', cell: (row) => <Money sar={row.price} /> });
 
   if (kind === 'flight') {
     const airlineName = (row: ResourceRow) => (lang === 'ar' ? row.airlineAr || translateValue(row.airline ?? '', lang) : row.airline) || '—';
     return [
-      { key: 'name', width: '14%', header: t('flightNumber'), cell: displayId },
+      { key: 'name', width: '14%', header: t('flightNumber'), cell: (row) => <Ltr>{row.id}</Ltr> },
       { key: 'airline', width: '18%', header: t('airline'), cell: airlineName },
-      { key: 'details', width: '18%', header: t('route'), cell: details },
+      { key: 'details', width: '18%', header: t('route'), cell: (row) => <Ltr>{row.route ?? ''}</Ltr> },
       { key: 'departure', width: '20%', header: t('departureTime'), muted: true, cell: (row) => (row.departureTime ? format.dateTime(isoToRiyadhLocal(row.departureTime)) : '—') },
-      { ...price, width: '14%' },
-      { ...actions, width: '16%' },
+      price('14%', t('price')),
+      actions,
     ];
   }
-  const columns: Column<ResourceRow>[] = [
-    { key: 'name', width: hasActions ? '20%' : '28%', header: kind === 'hotel' ? t('hotelName') : t('carModel'), cell: displayId },
-    { key: 'details', width: hasActions ? '24%' : '36%', header: kind === 'hotel' ? t('cityRoom') : t('locationAvailability'), cell: details },
-    { ...price, width: hasActions ? '14%' : '18%' },
-    { key: 'status', width: hasActions ? '14%' : '18%', header: t('status'), align: 'center', cell: (row) => <StatusBadge status={row.status} /> },
-  ];
-  if (hasActions) columns.push({ ...actions, width: '28%' });
+  // With an Actions column (once WRITE_ACTIONS allows it) the other columns give up 16% of the width.
+  const share = (full: number) => `${hasActions ? (full * 84) / 100 : full}%`;
+  const columns: Column<ResourceRow>[] = kind === 'hotel'
+    ? [
+        { key: 'name', width: share(30), header: t('hotelName'), cell: (row) => text(row.id) },
+        { key: 'city', width: share(18), header: t('city'), cell: (row) => text(row.city) },
+        { key: 'room', width: share(20), header: t('roomType'), cell: (row) => text(row.roomType) },
+        { key: 'rating', width: share(12), header: t('colRating'), align: 'center', cell: (row) => (row.rating === undefined ? '—' : format.rating(row.rating)) },
+        price(share(20), t('nightlyPrice')),
+      ]
+    : [
+        { key: 'name', width: share(30), header: t('colCar'), cell: (row) => <span>{text(row.make)} {text(row.model)} <Ltr>{row.year ? String(row.year) : ''}</Ltr></span> },
+        { key: 'city', width: share(15), header: t('city'), cell: (row) => text(row.city) },
+        { key: 'type', width: share(25), header: t('colType'), cell: (row) => <span>{text(row.category)} · {t(row.transmission === 'MANUAL' ? 'manual' : 'automatic')}</span> },
+        { key: 'seats', width: share(10), header: t('colSeats'), align: 'center', cell: (row) => format.number(row.seats ?? 0) },
+        price(share(20), t('dailyPrice')),
+      ];
+  if (hasActions) columns.push(actions);
   return columns;
-}
-
-function Field({ label, value, onChange, type = 'text', min, step, required = false, ltr = false, error, testId }: { label: string; value: string; onChange: (value: string) => void; type?: string; min?: string; step?: string; required?: boolean; ltr?: boolean; error?: string; testId?: string }) {
-  return (
-    <label className="modal-field">
-      <span>{label}{required && ' *'}</span>
-      <input className="input-control" type={type} min={min} step={step} data-testid={testId} value={value} onChange={(event) => onChange(event.target.value)} aria-required={required} aria-invalid={Boolean(error)} dir={ltr ? 'ltr' : undefined} />
-      {error && <small className="field-error" role="alert">{error}</small>}
-    </label>
-  );
-}
-
-function SelectField({ label, value, onChange, options, getLabel, placeholder, required = false, error, testId }: { label: string; value: string; onChange: (value: string) => void; options: string[]; getLabel: (value: string) => string; placeholder: string; required?: boolean; error?: string; testId?: string }) {
-  return (
-    <label className="modal-field">
-      <span>{label}{required && ' *'}</span>
-      <select className="select-control" value={value} onChange={(event) => onChange(event.target.value)} aria-required={required} aria-invalid={Boolean(error)} data-testid={testId}>
-        <option value="">{placeholder}</option>
-        {options.map((option) => <option key={option} value={option}>{getLabel(option)}</option>)}
-      </select>
-      {error && <small className="field-error" role="alert">{error}</small>}
-    </label>
-  );
 }

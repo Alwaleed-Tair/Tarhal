@@ -2,13 +2,16 @@ import { api, assertSuccess, assertWrite, toList, num, pick, str, type Envelope,
 import type { ResourceRow } from '@/data/demoData';
 import type { Hotel } from '@/data/listings';
 
+/** Real fields of the Hotel model in prisma/schema.prisma. The API has no status or availability for hotels. */
 const toRow = (r: Raw): ResourceRow => ({
-  id: str(pick(r, 'name', 'hotelName', 'id')),
+  id: str(pick(r, 'name')),
   apiId: pick(r, 'id') as string | number | undefined,
-  city: str(pick(r, 'city', 'location')),
-  room: str(pick(r, 'roomType', 'room')),
-  price: num(pick(r, 'pricePerNight', 'price')),
-  status: str(pick(r, 'status'), 'Available'),
+  city: str(pick(r, 'city')),
+  address: str(pick(r, 'address')),
+  roomType: str(pick(r, 'roomType')),
+  rating: num(pick(r, 'rating')),
+  imageUrl: str(pick(r, 'imageUrl')),
+  price: num(pick(r, 'pricePerNight')),
 });
 
 /** Public hotel card (Stays page). Field names are guesses: ask Mohammed and adjust the pick(...) keys. */
@@ -28,24 +31,21 @@ const toHotel = (r: Raw): Hotel => {
   };
 };
 
-export type HotelInput = { name: string; city: string; room: string; price: number; status: string };
-const toBody = (i: HotelInput) => ({ name: i.name, city: i.city, roomType: i.room, pricePerNight: i.price, status: i.status });
+/** Hotel fields an admin can set. `pricePerNight` is SAR. */
+export type HotelInput = { name: string; city: string; address?: string; roomType: string; pricePerNight: number; rating: number; imageUrl?: string };
+/** What GET /api/hotels accepts (lib/catalog-filters.ts). Any other query parameter is answered with 400. */
+export type HotelQuery = { page: number; pageSize: number; city?: string; roomType?: string; minPrice?: string; maxPrice?: string; minRating?: string };
 
 export const hotelService = {
   /**
-   * INTEGRATION POINT [Mohammed]: POST /api/hotels, PATCH /api/hotels/:id, DELETE /api/hotels/:id (paths and body keys are
-   * assumed: confirm them). The Add/Edit modal shows whatever message the backend returns on 400/409/etc.
+   * POST and PATCH /api/admin/hotels do not exist yet (Saud). The buttons stay hidden by WRITE_ACTIONS in pages/admin-resource.tsx.
+   * The page reloads after a save, so nothing depends on the shape of the response.
    */
-  async create(input: HotelInput): Promise<{ apiId?: string | number }> {
-    const { data } = await api.post<Envelope<Raw>>('/hotels', toBody(input));
-    assertWrite(data);
-    return { apiId: pick(data?.data ?? {}, 'id') as string | number | undefined };
+  async create(input: HotelInput): Promise<void> {
+    assertWrite((await api.post<Envelope<Raw>>('/admin/hotels', input)).data);
   },
-  async update(apiId: string | number, input: HotelInput): Promise<void> {
-    assertWrite((await api.patch<Envelope<Raw>>(`/hotels/${encodeURIComponent(String(apiId))}`, toBody(input))).data);
-  },
-  async remove(apiId: string | number): Promise<void> {
-    assertWrite((await api.delete<Envelope<Raw>>(`/hotels/${encodeURIComponent(String(apiId))}`)).data);
+  async update(apiId: string | number, input: Partial<HotelInput>): Promise<void> {
+    assertWrite((await api.patch<Envelope<Raw>>(`/admin/hotels/${encodeURIComponent(String(apiId))}`, input)).data);
   },
   /**
    * Public Stays page: one page from GET /api/hotels. Filters the API really supports (lib/catalog-filters.ts):
@@ -63,7 +63,8 @@ export const hotelService = {
     assertSuccess(data);
     return toList(data).map(toHotel);
   },
-  async list(params?: { page?: number; pageSize?: number }) {
+  /** Admin Hotels page: one page from GET /api/hotels, filtered by the API. */
+  async list(params: HotelQuery) {
     const { data } = await api.get<Paginated<Raw>>('/hotels', { params });
     assertSuccess(data);
     return { rows: toList(data).map(toRow), pagination: data.pagination };

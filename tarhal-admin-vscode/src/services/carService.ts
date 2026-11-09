@@ -2,15 +2,25 @@ import { api, assertSuccess, assertWrite, toList, num, pick, str, type Envelope,
 import type { ResourceRow } from '@/data/demoData';
 import type { Car } from '@/data/listings';
 
+/** Values of the Transmission enum in prisma/schema.prisma. */
+export const TRANSMISSIONS = ['AUTOMATIC', 'MANUAL'] as const;
+export type Transmission = (typeof TRANSMISSIONS)[number];
+
+/** Real fields of the Car model in prisma/schema.prisma. The table shows "make model year". */
 const toRow = (r: Raw): ResourceRow => {
-  const count = pick(r, 'availableCount', 'available', 'quantity');
+  const make = str(pick(r, 'make')), model = str(pick(r, 'model')), year = num(pick(r, 'year'));
   return {
-    id: str(pick(r, 'name', 'model', 'carModel', 'id')),
+    id: [make, model, year || ''].filter(Boolean).join(' '),
     apiId: pick(r, 'id') as string | number | undefined,
-    location: str(pick(r, 'location', 'city')),
-    availability: typeof count === 'number' ? `${count} available` : str(pick(r, 'availability'), 'Available Now'),
-    price: num(pick(r, 'pricePerDay', 'price')),
-    status: str(pick(r, 'status'), 'Available'),
+    make, model, year,
+    seats: num(pick(r, 'seats')),
+    category: str(pick(r, 'category')),
+    transmission: str(pick(r, 'transmission')),
+    city: str(pick(r, 'city')),
+    price: num(pick(r, 'pricePerDay')),
+    insurancePricePerDay: num(pick(r, 'insurancePricePerDay')),
+    isAvailable: pick(r, 'isAvailable') !== false,
+    imageUrl: str(pick(r, 'imageUrl')),
   };
 };
 
@@ -27,24 +37,21 @@ const toCar = (r: Raw): Car => ({
   insurancePerDay: num(pick(r, 'insurancePerDay', 'insurancePricePerDay', 'insurancePrice')),
 });
 
-export type CarInput = { name: string; location: string; availability: string; price: number; status: string };
-const toBody = (i: CarInput) => ({ name: i.name, location: i.location, availability: i.availability, pricePerDay: i.price, status: i.status });
+/** Car fields an admin can set. Prices are SAR. */
+export type CarInput = { make: string; model: string; year: number; seats: number; category: string; transmission: Transmission; city: string; pricePerDay: number; insurancePricePerDay: number; isAvailable: boolean; imageUrl?: string };
+/** What GET /api/cars accepts (lib/catalog-filters.ts). Any other query parameter is answered with 400. */
+export type CarQuery = { page: number; pageSize: number; city?: string; make?: string; category?: string; transmission?: string; minSeats?: string; minYear?: string; minPrice?: string; maxPrice?: string };
 
 export const carService = {
   /**
-   * INTEGRATION POINT [Mohammed]: POST /api/cars, PATCH /api/cars/:id, DELETE /api/cars/:id (paths and body keys are
-   * assumed: confirm them). The Add/Edit modal shows whatever message the backend returns on 400/409/etc.
+   * POST and PATCH /api/admin/cars do not exist yet (Saud). The buttons stay hidden by WRITE_ACTIONS in pages/admin-resource.tsx.
+   * The page reloads after a save, so nothing depends on the shape of the response.
    */
-  async create(input: CarInput): Promise<{ apiId?: string | number }> {
-    const { data } = await api.post<Envelope<Raw>>('/cars', toBody(input));
-    assertWrite(data);
-    return { apiId: pick(data?.data ?? {}, 'id') as string | number | undefined };
+  async create(input: CarInput): Promise<void> {
+    assertWrite((await api.post<Envelope<Raw>>('/admin/cars', input)).data);
   },
-  async update(apiId: string | number, input: CarInput): Promise<void> {
-    assertWrite((await api.patch<Envelope<Raw>>(`/cars/${encodeURIComponent(String(apiId))}`, toBody(input))).data);
-  },
-  async remove(apiId: string | number): Promise<void> {
-    assertWrite((await api.delete<Envelope<Raw>>(`/cars/${encodeURIComponent(String(apiId))}`)).data);
+  async update(apiId: string | number, input: Partial<CarInput>): Promise<void> {
+    assertWrite((await api.patch<Envelope<Raw>>(`/admin/cars/${encodeURIComponent(String(apiId))}`, input)).data);
   },
   /**
    * Public Rentals page: one page from GET /api/cars (only available cars). Filters the API really supports (lib/catalog-filters.ts):
@@ -63,7 +70,8 @@ export const carService = {
     assertSuccess(data);
     return toList(data).map(toCar);
   },
-  async list(params?: { page?: number; pageSize?: number }) {
+  /** Admin Cars page: one page from GET /api/cars, filtered by the API. The API only returns available cars. */
+  async list(params: CarQuery) {
     const { data } = await api.get<Paginated<Raw>>('/cars', { params });
     assertSuccess(data);
     return { rows: toList(data).map(toRow), pagination: data.pagination };
