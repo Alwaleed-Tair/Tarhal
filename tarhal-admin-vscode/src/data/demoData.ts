@@ -94,10 +94,10 @@ export type User = {
 // INTEGRATION POINT: Connect Mohammed's Auth, Hotel & Car APIs here
 // Users belong to the auth service.
 export const users: User[] = [
-  { id: '6738', name: 'Sara Al-Otaibi', email: 'sara@tarhal.com', date: '2026-09-12', bookings: 7, status: 'Inactive' },
-  { id: '26252', name: 'Khalid Al-Ghamdi', email: 'khalid@tarhal.com', date: '2026-09-21', bookings: 3, status: 'Deleted' },
-  { id: '2637', name: 'Zayn Malik', email: 'zayn@tarhal.com', date: '2026-09-12', bookings: 5, status: 'Active' },
-  { id: '26372', name: 'Omar Faraj', email: 'omar@tarhal.com', date: '2026-10-11', bookings: 9, status: 'Active' },
+  { id: '6738', name: 'Sara Al-Otaibi', email: 'sara@tarhal.com', date: '2026-09-12', bookings: 1, status: 'Inactive' },
+  { id: '26252', name: 'Khalid Al-Ghamdi', email: 'khalid@tarhal.com', date: '2026-09-21', bookings: 1, status: 'Deleted' },
+  { id: '2637', name: 'Zayn Malik', email: 'zayn@tarhal.com', date: '2026-09-12', bookings: 1, status: 'Active' },
+  { id: '26372', name: 'Omar Faraj', email: 'omar@tarhal.com', date: '2026-10-11', bookings: 1, status: 'Active' },
 ];
 
 export type RevenueKey = 'cars' | 'flights' | 'hotels';
