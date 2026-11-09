@@ -13,6 +13,8 @@ import { Pagination } from '@/components/pagination';
 import { useAdminBookings } from '@/hooks/use-admin-bookings';
 import { usePagination } from '@/hooks/use-pagination';
 import type { Booking, BookingStatus, ServiceFilter } from '@/data/demoData';
+import { isoToRiyadhLocal } from '@/i18n/format';
+import type { TranslationKey } from '@/i18n/translations';
 import { useFormat, useT } from '@/i18n/use-i18n';
 import { shortId } from '@/lib/booking-stats';
 import { statusLabel, statusParam } from '@/i18n/labels';
@@ -21,6 +23,7 @@ import { updateBooking, useDemoState } from '@/store/demoStore';
 
 const STATUSES: BookingStatus[] = ['Confirmed', 'Pending', 'Cancelled'];
 const FILTERS: ServiceFilter[] = ['all', 'flight', 'hotel', 'car'];
+const TYPE_LABEL: Record<Exclude<ServiceFilter, 'all'>, TranslationKey> = { flight: 'flightSingular', hotel: 'hotelSingular', car: 'carSingular' };
 
 export default function Bookings() {
   const t = useT();
@@ -46,10 +49,10 @@ export default function Bookings() {
   // The status dropdown only exists in demo mode: the API has no route to change a booking's status.
   const widths = offline ? ['10%', '12%', '17%', '19%', '12%', '12%'] : ['10%', '14%', '21%', '21%', '15%', '19%'];
   const columns: Column<Booking>[] = [
-    { key: 'type', width: widths[0], header: t('type'), cell: (row) => t(row.type) },
+    { key: 'type', width: widths[0], header: t('type'), cell: (row) => t(TYPE_LABEL[row.type]) },
     { key: 'id', width: widths[1], header: t('bookingId'), cell: (row) => <span title={row.id}><Ltr>{shortId(row.id)}</Ltr></span> },
     { key: 'customer', width: widths[2], header: t('customer'), cell: (row) => row.customer },
-    { key: 'date', width: widths[3], header: t('dateTime'), muted: true, cell: (row) => format.dateTime(row.date) },
+    { key: 'date', width: widths[3], header: t('dateTime'), muted: true, cell: (row) => format.dateTime(isoToRiyadhLocal(row.date) || row.date) },
     { key: 'price', width: widths[4], header: t('totalPrice'), align: 'end', cell: (row) => <Money sar={row.price} /> },
     { key: 'status', width: widths[5], header: t('status'), align: 'center', cell: (row) => <StatusBadge status={row.status} /> },
     ...(!offline ? [] : [{ key: 'actions', width: '18%', header: t('actions'), align: 'end' as const, cell: (row: Booking) => (

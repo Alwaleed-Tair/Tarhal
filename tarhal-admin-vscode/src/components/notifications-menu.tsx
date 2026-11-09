@@ -19,7 +19,7 @@ export function NotificationsMenu() {
         className="top-action notif-button"
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
-        aria-label={t('notifications')}
+        aria-label={unread > 0 ? `${t('notifications')} (${unread})` : t('notifications')}
         data-testid="button-notifications"
       >
         <Bell size={17} />

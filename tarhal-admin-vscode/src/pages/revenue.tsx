@@ -26,7 +26,7 @@ export default function Revenue() {
             {offline && <ContextBadge tone="warning">{t('demoBadge')}</ContextBadge>}
           </>}
           actions={
-            <select className="select-control" value={service} onChange={(event) => setService(event.target.value as ServiceFilter)} aria-label={t('allServices')} data-testid="select-revenue-service">
+            <select className="select-control" value={service} onChange={(event) => setService(event.target.value as ServiceFilter)} aria-label={t('filterByService')} data-testid="select-revenue-service">
               <option value="all">{t('allServices')}</option>
               <option value="flight">{t('flights')}</option>
               <option value="hotel">{t('hotels')}</option>

@@ -103,14 +103,22 @@ function Sidebar({ onNavClick }: { onNavClick: () => void }) {
 function MobileNav({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [location] = useLocation();
   const t = useT();
+  const closeButton = useRef<HTMLButtonElement>(null);
+  // Keyboard users land in the menu when it opens, and back on the menu button when it closes.
+  useEffect(() => {
+    if (!open) return;
+    const opener = document.activeElement as HTMLElement | null;
+    closeButton.current?.focus();
+    return () => opener?.focus?.();
+  }, [open]);
 
   return (
     <div className={`mobile-nav ${open ? 'open' : ''}`} aria-hidden={!open}>
-      <button className="mobile-close" onClick={onClose} aria-label={t('closeNavigation')}><X /></button>
+      <button ref={closeButton} className="mobile-close" onClick={onClose} aria-label={t('closeNavigation')}><X /></button>
       <Logo />
       <LogoControls />
       <div className="mobile-currency"><CurrencySelect /></div>
-      <nav className="nav-list">
+      <nav className="nav-list" aria-label={t('mainNavigation')}>
         {navItems.map(({ href, key, icon: Icon }) => (
           <Link
             key={href}
@@ -132,7 +140,6 @@ function GlobalSearch() {
   const [, setLocation] = useLocation();
   const t = useT();
 
-  // TODO / INTEGRATION POINT: Connect Tariq's Search API here
   const [search, setSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
 
@@ -181,7 +188,7 @@ function GlobalSearch() {
       </label>
 
       {isOpen && suggestions.length > 0 && (
-        <div className="search-suggestions" role="listbox">
+        <div className="search-suggestions">
           {suggestions.map(({ href, key, icon: Icon }) => (
             <button
               key={href}
