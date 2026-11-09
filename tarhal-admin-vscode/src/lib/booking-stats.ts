@@ -24,6 +24,12 @@ export function bookingMetrics(bookings: Booking[], service: ServiceFilter = 'al
   };
 }
 
+/** On how many different days (Riyadh time) the bookings of a service were made. */
+export function bookingDays(bookings: Booking[], service: ServiceFilter = 'all') {
+  const scoped = service === 'all' ? bookings : bookings.filter((booking) => booking.type === service);
+  return new Set(scoped.map((booking) => isoToRiyadhLocal(booking.date).slice(0, 10))).size;
+}
+
 /** Number of flights, how many have not left yet, and the average base price (SAR). */
 export function flightMetrics(flights: ResourceRow[], now = Date.now()) {
   return {
