@@ -49,4 +49,4 @@ Users can also switch the theme, Arabic/English, larger text, and high contrast 
 
 ## Demo data and chatbot
 
-Pages load live data from the API and fall back to labelled demo data when a request fails; see `INTEGRATION.md` for which page uses what. Edits made on demo data and preferences are saved in the current browser only. The chatbot gives preset dashboard guidance and is not connected to an AI provider or Tariq's passenger chatbot.
+Admin pages load live data from the API and show labelled demo data only when the server cannot be reached; see `INTEGRATION.md` for which page uses what. Edits made on demo data and preferences are saved in the current browser only. The chatbot gives preset dashboard guidance and is not connected to an AI provider or Tariq's passenger chatbot.

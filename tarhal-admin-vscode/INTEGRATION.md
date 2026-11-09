@@ -1,8 +1,12 @@
 # Tarhal – where each teammate's work plugs in
 
 Everything the frontend gets from a server goes through `src/services/`. Pages never call `fetch`/`axios` directly.
-If a request fails (server off, wrong path, 5xx) the page falls back to demo data and the admin pages show a
-yellow **"Demo data · <reason>"** badge, so you can always see whether you are on live data.
+What an admin page does when a request fails depends on why (`src/hooks/use-admin-data.ts`):
+- **401 or 403:** the session is cleared and the page goes to `/login`.
+- **The server cannot be reached:** demo rows with a yellow **"Demo data · server unreachable"** badge. Nothing can be saved.
+- **Any other answer (400, 404, 500...):** an error state with a Try again button. Demo rows are never shown as if they were real.
+
+The demo login (`mockLogin`, `mockRegister`) only works in local development (`import.meta.env.DEV`), never in a production build.
 
 ## Setup
 ```bash
@@ -17,12 +21,13 @@ Login uses Mohammed's HTTP-only session cookie, so every request is sent with `w
 | Owner | Feature | File to edit | What to confirm |
 |---|---|---|---|
 | Mohammed | Login / register / logout | `src/services/authService.ts` | paths (`/auth/login`, `/auth/register`, `/auth/logout`); register sends name, email, phone, dateOfBirth, password |
-| Mohammed | Hotels (public + admin) | `src/services/hotelService.ts` | field names in `toHotel` / `toRow` (`pick(...)` keys) |
-| Mohammed | Cars (public + admin) | `src/services/carService.ts` | field names in `toCar` / `toRow` |
-| Saud | Admin flights + airlines | `flightService.adminList` (`GET /admin/flights`), `flightService.airlines` (`GET /admin/airlines`) | connected; re-check field names in `toRow` against Saud's new code |
+| Mohammed | Hotels list and filters | `src/services/hotelService.ts` (`GET /hotels`) | connected; admin filters in `src/lib/catalog-query.ts` follow `lib/catalog-filters.ts` |
+| Mohammed | Cars list and filters | `src/services/carService.ts` (`GET /cars`) | connected; the API only lists available cars |
+| Saud | Admin hotel and car add / edit | not connected: `WRITE_ACTIONS` in `src/pages/admin-resource.tsx` keeps the buttons hidden | waiting for `POST` and `PATCH /admin/hotels` and `/admin/cars`. The hidden form was never tested against a real route |
+| Saud | Admin flights + airlines | `flightService.adminList` (`GET /admin/flights`), `flightService.airlineDirectory` (`GET /admin/airlines`) | connected; re-check field names in `toRow` against Saud's new code |
 | Abdulelah / Tariq | Passenger booking (public site, not admin) | `flightService.search/getById`, `bookingService.create` | 409 = seat taken |
 | Saud | Admin bookings table | `bookingService.list` (`GET /admin/bookings`) | connected; re-check the response shape against Saud's new code |
-| Saud | Admin flight add / edit | `src/pages/admin-resource.tsx` (`saveRecord`) → `POST /admin/flights` (needs `airlineId`), `PATCH /admin/flights/[id]` | connected; PATCH only changes price and departure time |
+| Saud | Admin flight add / edit | `src/components/resource-modal.tsx` (`send`) → `POST /admin/flights` (needs `airlineId`), `PATCH /admin/flights/[id]` | connected; PATCH only changes price and departure time |
 | Tariq | Trip search form | `src/components/search-form-slot.tsx` | drop `<TripSearchForm />` in as children on `pages/home.tsx` |
 | Tariq | Search API | `src/components/listing-view.tsx` (local text filter) | replace with a request if search should be server-side |
 
@@ -32,15 +37,17 @@ Login uses Mohammed's HTTP-only session cookie, so every request is sent with `w
 | `/login`, `/register` | `authService` | `mockLogin` / `mockRegister` in `store/authStore.ts` |
 | `/stays` | `hotelService.listPublic()` | `data/listings.ts` |
 | `/rentals` | `carService.listPublic()` | `data/listings.ts` |
-| `/flights`, `/hotels`, `/cars` (admin) | `flightService.adminList()`, `hotelService.list()`, `carService.list()` | `initialResources` in `data/demoData.ts` |
-| `/bookings`, `/revenue`, `/dashboard` | `bookingService.list()` (`GET /admin/bookings`) | demo store |
+| `/flights` (admin) | `flightService.adminList()` | `initialResources` in `data/demoData.ts` |
+| `/hotels`, `/cars` (admin) | `hotelService.list()`, `carService.list()`: filters and page go to the API | `initialResources` in `data/demoData.ts` |
+| `/bookings`, `/revenue` | `bookingService.list()` (`GET /admin/bookings`) | demo store |
+| `/dashboard` | `GET /admin/bookings` and `GET /admin/flights` | demo store and demo flights |
 | `/users` | customers found in `GET /admin/bookings` (there is no users endpoint yet) | demo store |
 
 Admin pages need a signed-in user who is not a traveler (`AdminOnly` in `src/App.tsx`). That only hides the pages; the server's 401 on `/api/admin/*` is the real protection.
 
 ## Debugging "why is it not live?"
-1. Look for the **Demo data · <reason>** badge (`HTTP 404` = wrong path, `Server unreachable / CORS` = server off or CORS).
-2. Browser DevTools → Network → click the failing request. Console also logs `[api] request failed ...`.
+1. A **Demo data** badge means no answer reached the browser: the server is off, or CORS. An error state means the server answered with an error.
+2. Browser DevTools → Network → click the failing request.
 3. Wrong/blank fields = field names differ: edit the `pick('a','b',...)` keys in the matching service.
 
 ## Conventions
