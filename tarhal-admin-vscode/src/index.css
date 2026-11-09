@@ -1047,7 +1047,8 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 }
 
 /* ===== 29. Admin Hotels and Cars: filters, pager, and the honest notes under the numbers ===== */
-.filter-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; align-items: start; margin: 0 0 21px; padding: 16px; border: 1px solid hsl(var(--border)); border-radius: 16px; background: hsl(var(--card)); }
+/* Fixed columns: the City box is the same width on Hotels (4 filters) and Cars (5 filters). */
+.filter-bar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; align-items: start; margin: 0 0 21px; padding: 16px; border: 1px solid hsl(var(--border)); border-radius: 16px; background: hsl(var(--card)); }
 .filter-bar .modal-field { min-width: 0; }
 .filter-bar-clear { align-self: end; min-height: 40px; }
 .field-hint { margin: 0; color: hsl(var(--muted-foreground)); font-size: calc(12px * var(--text-scale)); line-height: 1.4; }
@@ -1074,3 +1075,17 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 :where(.app-shell) .status-cancelled { color: #a61b1b; }
 .dark :where(.app-shell) .status-cancelled { color: #ff9a94; }
 .accessibility-large :where(.app-shell) .chart-months span { overflow: visible; white-space: normal; overflow-wrap: anywhere; font-size: 11px; line-height: 1.15; }
+
+/* ===== 31. Dashboard: six cards in full rows, every row the same height ===== */
+:where(.app-shell) .metric-grid-six { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 1fr; }
+@media (max-width: 1023px) {
+  :where(.app-shell) .metric-grid-six { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filter-bar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 680px) {
+  .filter-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .accessibility-large :where(.app-shell) .metric-grid-six { grid-template-columns: minmax(0, 1fr); }
+  .accessibility-large .filter-bar { grid-template-columns: minmax(0, 1fr); }
+}
+.chart-period-note { display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 0 0 12px; color: hsl(var(--muted-foreground)); font-size: calc(12px * var(--text-scale)); }
+.chart-period-note span { font-weight: 700; color: hsl(var(--foreground)); }

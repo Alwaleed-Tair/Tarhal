@@ -5,7 +5,7 @@ import { Money, MoneyShort } from '@/components/money';
 import { ChartSkeleton } from '@/components/skeleton';
 import type { TranslationKey } from '@/i18n/translations';
 import { useFormat, useT } from '@/i18n/use-i18n';
-import { monthlyRevenue, revenueBetween } from '@/lib/booking-stats';
+import { bookingMetrics, monthlyRevenue, revenueBetween } from '@/lib/booking-stats';
 
 type Period = 'thisMonth' | 'last3' | 'last6' | 'ytd' | 'year' | 'custom';
 
@@ -76,6 +76,8 @@ export default function RevenueChart({ service, bookings, loading, offline, show
   const { top, ticks } = niceScale(format.convert(Math.max(...rows.flatMap((row) => series.map((key) => row[key])))));
   const total = rows.reduce((sum, row) => sum + series.reduce((inner, key) => inner + row[key], 0), 0);
 
+  const allTime = useMemo(() => bookingMetrics(bookings, service).revenue, [bookings, service]);
+
   if (noData) return <p className="chart-no-data" data-testid="chart-no-data">{t('noDataYet')}</p>;
 
   return (
@@ -104,6 +106,8 @@ export default function RevenueChart({ service, bookings, loading, offline, show
           </div>
         )}
       </div>
+
+      {!loading && allTime !== total && <p className="chart-period-note" data-testid="chart-period-note">{t('chartPeriodNote', { year: format.year(CURRENT_YEAR) })} <span>{t('allBookingsTotal')}: <Money sar={allTime} /></span></p>}
 
       {loading ? <ChartSkeleton /> : custom && !rangeValid ? null : total === 0 ? <p className="chart-no-data" data-testid="chart-empty">{t('noRevenueInPeriod')}</p> : (
         <div className="chart-scroll">

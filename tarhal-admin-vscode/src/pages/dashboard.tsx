@@ -19,7 +19,7 @@ const RevenueChart = lazy(() => import('@/components/revenue-chart'));
 export default function Dashboard() {
   const t = useT();
   const format = useFormat();
-  const { bookings, status, offline: bookingsOffline, reload } = useAdminBookings();
+  const { bookings, status, offline: bookingsOffline, reload, error } = useAdminBookings();
   const { flights, status: flightsStatus, offline: flightsOffline } = useAdminFlights();
   const [service, setService] = useState<ServiceFilter>('all');
   const offline = bookingsOffline || flightsOffline;
@@ -54,8 +54,8 @@ export default function Dashboard() {
             </select>
           }
         />
-        {status === 'error' ? <div className="section-card"><ErrorState onRetry={reload} /></div> : <>
-          <div className="metric-grid">
+        {status === 'error' ? <div className="section-card"><ErrorState onRetry={reload} error={error} /></div> : <>
+          <div className={`metric-grid${service === 'all' || service === 'flight' ? ' metric-grid-six' : ''}`}>
             <StatCard label={t('totalBookings')} value={metrics.bookings} render={(n) => format.number(n)} series={trends.bookings} {...metricState} />
             <StatCard label={t('totalRevenue')} value={metrics.revenue} render={(n) => <Money sar={n} />} series={trends.revenue} hint={<>{t('paidSoFar')}: <Money sar={metrics.paid} /></>} {...metricState} />
             <StatCard label={t('activeUsers')} value={metrics.users} render={(n) => format.number(n)} series={trends.users} {...metricState} />
