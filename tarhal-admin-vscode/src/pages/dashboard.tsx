@@ -1,5 +1,6 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
-import type { Booking, ServiceFilter } from '@/data/demoData';
+import type { Booking, Service, ServiceFilter } from '@/data/demoData';
+import type { TranslationKey } from '@/i18n/translations';
 import { DataTable, type Column } from '@/components/data-table';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
@@ -11,9 +12,11 @@ import { StatCard } from '@/components/stat-card';
 import { Money } from '@/components/money';
 import { StatusBadge } from '@/components/status-badge';
 import { useAdminBookings, useAdminFlights } from '@/hooks/use-admin-bookings';
+import { isoToRiyadhLocal } from '@/i18n/format';
 import { useFormat, useT } from '@/i18n/use-i18n';
 import { bookingMetrics, flightMetrics, monthlyMetrics, shortId } from '@/lib/booking-stats';
 
+const TYPE_LABEL: Record<Service, TranslationKey> = { flight: 'flightSingular', hotel: 'hotelSingular', car: 'carSingular' };
 const RevenueChart = lazy(() => import('@/components/revenue-chart'));
 
 export default function Dashboard() {
@@ -28,14 +31,15 @@ export default function Dashboard() {
   const metrics = useMemo(() => bookingMetrics(bookings, service), [bookings, service]);
   const trends = useMemo(() => monthlyMetrics(bookings, new Date().getFullYear(), service), [bookings, service]);
   const loading = status === 'loading';
-  // Hotel and car booking APIs do not exist yet: their numbers are labelled, never shown as zero.
-  const noData = !offline && (service === 'hotel' || service === 'car');
+  // A service with no bookings from the API is labelled, never shown as zero. Both follow the data, so they change by themselves when other bookings appear.
+  const noData = !offline && service !== 'all' && service !== 'flight' && !bookings.some((row) => row.type === service);
+  const flightsOnly = !offline && status === 'ready' && bookings.every((row) => row.type === 'flight');
   const recent = useMemo(() => bookings.filter((row) => service === 'all' || row.type === service).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5), [bookings, service]);
   const metricState = { loading, noData };
 
   const columns: Column<Booking>[] = [
-    { key: 'customer', width: '34%', header: t('customer'), cell: (row) => <span className="cell-stack">{row.customer}<span className="cell-sub">{t(row.type)} · <span title={row.id}><Ltr>{shortId(row.id)}</Ltr></span></span></span> },
-    { key: 'date', width: '20%', header: t('bookingDate'), muted: true, cell: (row) => format.date(row.date) },
+    { key: 'customer', width: '34%', header: t('customer'), cell: (row) => <span className="cell-stack">{row.customer}<span className="cell-sub">{t(TYPE_LABEL[row.type])} · <span title={row.id}><Ltr>{shortId(row.id)}</Ltr></span></span></span> },
+    { key: 'date', width: '20%', header: t('bookingDate'), muted: true, cell: (row) => format.date(isoToRiyadhLocal(row.date) || row.date) },
     { key: 'price', width: '21%', header: t('totalPrice'), align: 'end', cell: (row) => <Money sar={row.price} /> },
     { key: 'status', width: '25%', header: t('status'), align: 'center', cell: (row) => <StatusBadge status={row.status} /> },
   ];
@@ -49,23 +53,23 @@ export default function Dashboard() {
           subtitle={t('dashboardSubtitle')}
           badges={offline ? <ContextBadge tone="warning">{t('demoBadge')}</ContextBadge> : undefined}
           actions={
-            <select className="select-control" value={service} onChange={(event) => setService(event.target.value as ServiceFilter)} aria-label={t('revenueByService')} data-testid="select-dashboard-service">
+            <select className="select-control" value={service} onChange={(event) => setService(event.target.value as ServiceFilter)} aria-label={t('filterByService')} data-testid="select-dashboard-service">
               <option value="all">{t('allServices')}</option><option value="flight">{t('flights')}</option><option value="hotel">{t('hotels')}</option><option value="car">{t('cars')}</option>
             </select>
           }
         />
         {status === 'error' ? <div className="section-card"><ErrorState onRetry={reload} error={error} /></div> : <>
           <div className={`metric-grid${service === 'all' || service === 'flight' ? ' metric-grid-six' : ''}`}>
-            <StatCard label={t('totalBookings')} value={metrics.bookings} render={(n) => format.number(n)} series={trends.bookings} {...metricState} />
+            <StatCard label={t('totalBookings')} value={metrics.bookings} render={(n) => format.number(n)} series={trends.bookings} hint={<>{t('cancelled')}: {format.number(metrics.cancelled)}</>} {...metricState} />
             <StatCard label={t('totalRevenue')} value={metrics.revenue} render={(n) => <Money sar={n} />} series={trends.revenue} hint={<>{t('paidSoFar')}: <Money sar={metrics.paid} /></>} {...metricState} />
-            <StatCard label={t('activeUsers')} value={metrics.users} render={(n) => format.number(n)} series={trends.users} {...metricState} />
+            <StatCard label={t('activeUsers')} value={metrics.users} render={(n) => format.number(n)} series={trends.users} hint={<>{t('allCustomers')}: {format.number(metrics.allCustomers)}</>} {...metricState} />
             {(service === 'all' || service === 'flight') && <>
               <StatCard label={t('totalFlights')} value={flightTotals.flights} render={(n) => format.number(n)} {...flightState} />
               <StatCard label={t('upcomingFlights')} value={flightTotals.upcoming} render={(n) => format.number(n)} {...flightState} />
               <StatCard label={t('averageBasePrice')} value={flightTotals.averagePrice} render={(n) => <Money sar={n} />} {...flightState} />
             </>}
           </div>
-          {!offline && <p className="metric-note" data-testid="metrics-no-data-note">{t('noDataYet')}: {t('registeredUsers')} · {t('hotelRevenue')} · {t('carsRevenue')}</p>}
+          {!offline && !loading && (service === 'all' || service === 'flight') && <p className="metric-note" data-testid="metrics-no-data-note">{service === 'all' && flightsOnly && <span data-testid="note-flights-only">{t('flightBookingsOnlyNote')} </span>}{t('registeredUsers')}: {t('noDataYet')}</p>}
           <div className="content-grid">
             <section className="section-card">
               <h2 className="section-title">{t('recentTransactions')}</h2>

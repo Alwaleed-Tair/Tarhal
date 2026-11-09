@@ -2,7 +2,7 @@ export type Language = 'en' | 'ar';
 export const translations = {
   en: {
     dashboard: 'Overview Dashboard', flights: 'Flights', hotels: 'Hotels', cars: 'Car Rentals', bookings: 'Bookings', revenue: 'Revenue', users: 'Users', settings: 'Settings',
-    search: 'Search', admin: 'Admin User', totalBookings: 'Total Bookings', totalRevenue: 'Booked value', activeUsers: 'Customers with bookings',
+    search: 'Search', admin: 'Admin User', totalBookings: 'Total Bookings', totalRevenue: 'Booked value', activeUsers: 'Customers with active bookings',
     recentTransactions: 'Recent Transactions', revenueByService: 'Booked value by service', actions: 'Actions', add: 'Add', edit: 'Edit', remove: 'Remove', price: 'Price', status: 'Status', save: 'Save', cancel: 'Cancel', close: 'Close',
     flightManagement: 'Flight Management', hotelManagement: 'Hotel Management', carManagement: 'Car Rentals Management', 
     totalFlights: 'Flights', hotelRevenue: 'Hotel Revenue', guests: 'Guests', totalCars: 'Total Cars', carsRevenue: 'Cars Revenue', availableCars: 'Available Cars',
@@ -48,6 +48,7 @@ export const translations = {
     customRange: 'Custom range', rangeFrom: 'From', rangeTo: 'To', rangeInvalid: 'The start date must be on or before the end date.',
     bookingDate: 'Date', noBookingsYet: 'No bookings yet. New bookings will appear here.', noRevenueInPeriod: 'No revenue in this period yet.', vsLastMonth: '{change} vs last month',
     collapseSidebar: 'Collapse sidebar', expandSidebar: 'Expand sidebar', jumpToPage: 'Go to page…',
+    flightBookingsOnlyNote: 'Includes flight bookings only. Hotel and car bookings: no data yet.', allCustomers: 'All customers', filterByService: 'Filter by service',
     chartPeriodNote: 'This chart counts only the chosen period of {year}.', allBookingsTotal: 'All bookings',
     paidSoFar: 'Paid so far', upcomingFlights: 'Upcoming flights', averageBasePrice: 'Average base price', registeredUsers: 'Registered users', couldNotLoad: 'Could not load',
     sessionExpiredTitle: 'Signed out', hotelsFound: 'Hotels found', hotelsReadOnlySubtitle: 'View hotels, rooms and nightly prices.', carsReadOnlySubtitle: 'View rental cars, cities and daily prices. The API only lists available cars.',
@@ -145,7 +146,7 @@ export const translations = {
   },
   ar: {
     dashboard: 'لوحة النظرة العامة', flights: 'الرحلات', hotels: 'الفنادق', cars: 'تأجير السيارات', bookings: 'الحجوزات', revenue: 'الإيرادات', users: 'المستخدمون', settings: 'الإعدادات',
-    search: 'بحث', admin: 'المستخدم المسؤول', totalBookings: 'إجمالي الحجوزات', totalRevenue: 'قيمة الحجوزات', activeUsers: 'عملاء لديهم حجوزات',
+    search: 'بحث', admin: 'المستخدم المسؤول', totalBookings: 'إجمالي الحجوزات', totalRevenue: 'قيمة الحجوزات', activeUsers: 'عملاء لديهم حجوزات نشطة',
     recentTransactions: 'أحدث المعاملات', revenueByService: 'قيمة الحجوزات حسب الخدمة', actions: 'الإجراءات', add: 'إضافة', edit: 'تعديل', remove: 'حذف', price: 'السعر', status: 'الحالة', save: 'حفظ', cancel: 'إلغاء', close: 'إغلاق',
     flightManagement: 'إدارة الرحلات', hotelManagement: 'إدارة الفنادق', carManagement: 'إدارة تأجير السيارات', 
     totalFlights: 'الرحلات', hotelRevenue: 'إيرادات الفنادق', guests: 'الضيوف', totalCars: 'إجمالي السيارات', carsRevenue: 'إيرادات السيارات', availableCars: 'السيارات المتاحة',
@@ -190,6 +191,7 @@ export const translations = {
     customRange: 'نطاق مخصص', rangeFrom: 'من', rangeTo: 'إلى', rangeInvalid: 'يجب أن يكون تاريخ البداية في تاريخ النهاية أو قبله.',
     bookingDate: 'التاريخ', noBookingsYet: 'لا توجد حجوزات بعد. ستظهر الحجوزات الجديدة هنا.', noRevenueInPeriod: 'لا توجد إيرادات في هذه الفترة بعد.', vsLastMonth: '{change} مقارنة بالشهر الماضي',
     collapseSidebar: 'طي الشريط الجانبي', expandSidebar: 'توسيع الشريط الجانبي', jumpToPage: 'انتقل إلى صفحة…',
+    flightBookingsOnlyNote: 'تشمل حجوزات الرحلات فقط. حجوزات الفنادق والسيارات: لا توجد بيانات بعد.', allCustomers: 'كل العملاء', filterByService: 'تصفية حسب الخدمة',
     chartPeriodNote: 'يحسب هذا الرسم الفترة المختارة من {year} فقط.', allBookingsTotal: 'كل الحجوزات',
     paidSoFar: 'المدفوع حتى الآن', upcomingFlights: 'الرحلات القادمة', averageBasePrice: 'متوسط السعر الأساسي', registeredUsers: 'المستخدمون المسجلون', couldNotLoad: 'تعذّر التحميل',
     sessionExpiredTitle: 'تم تسجيل الخروج', hotelsFound: 'الفنادق المطابقة', hotelsReadOnlySubtitle: 'عرض الفنادق والغرف وأسعار الليلة.', carsReadOnlySubtitle: 'عرض سيارات التأجير والمدن والأسعار اليومية. تعرض الواجهة السيارات المتاحة فقط.',

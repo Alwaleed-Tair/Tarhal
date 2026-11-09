@@ -7,15 +7,20 @@ import { isoToRiyadhLocal } from '@/i18n/format';
 /** Cancelled bookings and failed or refunded payments bring in no money. Pending payments count: the app has no payment step yet. */
 const earnsRevenue = (booking: Booking) => booking.status !== 'Cancelled' && booking.paymentStatus !== 'FAILED' && booking.paymentStatus !== 'REFUNDED';
 
-/** Bookings count, booked value (SAR), the part of it that is paid, and number of different customers with a booking that counts. */
+/**
+ * Bookings count (all of them) and how many are cancelled; booked value (SAR) and the part of it that is paid, without cancelled, failed or refunded bookings;
+ * customers with at least one such booking, and all customers. Two accounts can share a name, so customers are counted by account.
+ */
 export function bookingMetrics(bookings: Booking[], service: ServiceFilter = 'all') {
   const scoped = service === 'all' ? bookings : bookings.filter((booking) => booking.type === service);
   const earning = scoped.filter(earnsRevenue);
   return {
     bookings: scoped.length,
+    cancelled: scoped.filter((booking) => booking.status === 'Cancelled').length,
     revenue: earning.reduce((sum, booking) => sum + booking.price, 0),
     paid: earning.filter((booking) => booking.paymentStatus === 'PAID').reduce((sum, booking) => sum + booking.price, 0),
     users: new Set(earning.map((booking) => booking.userId ?? booking.customer)).size,
+    allCustomers: new Set(scoped.map((booking) => booking.userId ?? booking.customer)).size,
   };
 }
 
