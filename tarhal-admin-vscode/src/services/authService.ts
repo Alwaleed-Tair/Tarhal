@@ -41,14 +41,15 @@ export const authService = {
 
   async register(input: { name: string; email: string; phone: string; dateOfBirth: string; password: string }): Promise<AuthUser> {
     try {
-      const { data } = await api.post<Raw>(PATHS.register, input);
-      const { user, token } = readSession(data, { name: input.name, email: input.email });
-      saveSession(user, token);
-      return user;
+      // The API wants digits only (optional +); the form allows spaces and dashes while typing.
+      await api.post<Raw>(PATHS.register, { ...input, phone: input.phone.replace(/[\s-]/g, '') });
     } catch (error) {
       if (httpStatus(error) === 409) throw new AuthError('emailTaken');
-      if (!useDemoAuth(error)) throw error; // 400 / 422: page shows the generic error
+      if (httpStatus(error) === 400) throw new AuthError('invalidField', str(((error as { response?: { data?: Raw } }).response?.data ?? {}).field) || undefined);
+      if (!useDemoAuth(error)) throw error;
       return mockRegister({ name: input.name, email: input.email });
     }
+    // Registering does NOT log in (docs/api-documentation.md): sign in now so the session cookie exists.
+    return authService.login({ email: input.email, password: input.password });
   },
 };

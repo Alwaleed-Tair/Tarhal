@@ -178,6 +178,19 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .chat-message { max-width: 88%; padding: 10px 12px; border-radius: 14px; font-size: calc(13px * var(--text-scale)); line-height: 1.5; overflow-wrap: anywhere; }
 .chat-message.assistant { align-self: flex-start; border-end-start-radius: 4px; background: hsl(var(--muted)); color: hsl(var(--foreground)); }
 .chat-message.user { align-self: flex-end; border-end-end-radius: 4px; background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+/* Real assistant: message groups, formatted replies, result cards, status and error lines. */
+.chat-entry { display: flex; flex-direction: column; gap: 6px; max-width: 100%; }
+.chat-entry[data-role='user'] { align-items: flex-end; }
+.chat-entry[data-role='assistant'] { align-items: flex-start; }
+.chat-gap { height: 8px; }
+.chat-h { font-weight: 700; }
+.chat-li { position: relative; padding-inline-start: 14px; }
+.chat-li::before { content: '•'; position: absolute; inset-inline-start: 2px; opacity: .7; }
+.chat-card { display: grid; gap: 2px; width: min(100%, 300px); padding: 10px 12px; border: 1px solid hsl(var(--border)); border-radius: 12px; background: hsl(var(--card)); color: hsl(var(--foreground)); font-size: calc(12px * var(--text-scale)); line-height: 1.5; }
+.chat-card strong { font-size: calc(13px * var(--text-scale)); }
+.chat-card span:last-child { font-weight: 700; color: hsl(var(--primary)); }
+.chat-status { align-self: flex-start; color: hsl(var(--muted-foreground)); font-size: calc(13px * var(--text-scale)); }
+.chat-error { color: hsl(var(--destructive)); font-size: calc(13px * var(--text-scale)); }
 .chat-quick-prompts { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 12px; }
 .chat-quick-prompts button { border: 1px solid hsl(var(--border)); border-radius: 999px; padding: 6px 9px; background: hsl(var(--background)); color: hsl(var(--foreground)); font-size: calc(11px * var(--text-scale)); cursor: pointer; }
 .chat-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid hsl(var(--border)); }
@@ -537,9 +550,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .app-shell { display: block; }
   .sidebar { display: none; }
   .main-shell { min-height: 100dvh; }
-  .topbar { height: 62px; justify-content: space-between; }
+  /* Narrow gap/padding and a shrinkable search box so the top bar (menu, search, currency, toggles, avatar) fits 360-390px phones. */
+  .topbar { height: 62px; justify-content: space-between; gap: 6px; padding: 0 10px; }
   .menu-toggle { display: block; }
-  .global-search { flex: 1; max-width: 235px; }
+  .global-search { flex: 1 1 0; min-width: 0; max-width: 235px; }
   .mobile-nav { display: grid; position: fixed; z-index: 30; inset: 0; background: hsl(var(--sidebar)); color: white; padding: 22px 20px; transform: translateX(-100%); transition: transform .2s ease; }
   [dir='rtl'] .mobile-nav { transform: translateX(100%); }
   .mobile-nav.open { transform: translateX(0); }
@@ -617,6 +631,14 @@ html.accessibility-large { font-size: 125%; }
 .custom-range { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .custom-range label { display: inline-flex; align-items: center; gap: 6px; font-size: calc(13px * var(--text-scale)); font-weight: 600; color: hsl(var(--muted-foreground)); }
 @media (max-width: 640px) { .currency-select { height: 33px; } }
+/* Phones: the currency switch moves into the menus (public: hamburger panel, admin: side drawer); name-less user button. */
+.navbar-currency-menu, .mobile-currency { display: none; }
+@media (max-width: 639px) { .navbar-currency { display: none; } .navbar-currency-menu { display: block; } }
+@media (max-width: 680px) {
+  .topbar > .currency-select { display: none; }
+  .mobile-currency { display: block; margin: 10px 0 4px; }
+  .user-button .user-name, .user-button .user-chevron { display: none; }
+}
 
 /* ===== 25. Table grid lines, crisp header, zebra rows, alignment (styling only) ===== */
 .data-table th:not(:last-child) { border-inline-end: 1px solid hsl(0 0% 100% / .14); }

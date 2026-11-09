@@ -1,3 +1,4 @@
+import { USD_TO_SAR } from '@/store/currencyStore';
 import axios from 'axios';
 
 export const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -21,6 +22,13 @@ export type Raw = Record<string, unknown>;
 export const pick = (raw: Raw, ...keys: string[]): unknown => { for (const k of keys) if (raw[k] !== undefined && raw[k] !== null) return raw[k]; return undefined; };
 export const str = (v: unknown, d = ''): string => (v === undefined || v === null ? d : String(v));
 export const num = (v: unknown, d = 0): number => { const n = Number(v); return Number.isFinite(n) ? n : d; };
+
+/**
+ * The backend stores and returns amounts in SAR; the UI keeps every amount in USD and converts for display
+ * (see store/currencyStore.ts). Convert at the service boundary so USD/SAR display is correct for live data.
+ */
+export const sarToUsd = (sar: number): number => Math.round((sar / USD_TO_SAR) * 100) / 100;
+export const usdToSar = (usd: number): number => Math.round(usd * USD_TO_SAR * 100) / 100;
 
 /** HTTP status of a failed request, or undefined when there was no response (server offline / network). */
 export function httpStatus(error: unknown): number | undefined {
