@@ -1106,3 +1106,11 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
   :where(.app-shell) .metric-grid-four .metric-card:nth-child(2) { grid-column: auto; order: 0; }
   .accessibility-large :where(.app-shell) .metric-grid-four { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ===== 34. Dashboard: every box has the label at the top and the number on one shared line, even when a label wraps or a box has no second line ===== */
+:where(.app-shell) :is(.metric-grid-six, .metric-grid-four) .metric-card { justify-content: flex-start; }
+:where(.app-shell) :is(.metric-grid-six, .metric-grid-four) .metric-main { flex-wrap: nowrap; margin-top: auto; padding-top: 8px; }
+:where(.app-shell) :is(.metric-grid-six, .metric-grid-four) .metric-main .metric-value { flex: none; }
+:where(.app-shell) :is(.metric-grid-six, .metric-grid-four) .metric-main .sparkline { flex: 0 1 auto; min-width: 0; }
+:where(.app-shell) :is(.metric-grid-six, .metric-grid-four) .metric-foot { min-height: calc(24px * var(--text-scale)); line-height: 1.5; }
+:where(.app-shell) :is(.metric-grid-six, .metric-grid-four):has(.metric-change) .metric-foot { min-height: calc(58px * var(--text-scale)); }

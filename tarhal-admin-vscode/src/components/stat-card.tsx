@@ -33,13 +33,15 @@ export function StatCard({ label, value = 0, render = String, series, loading = 
         </strong>
         {!loading && !noData && series && <Sparkline values={series} />}
       </div>
-      {!loading && !noData && hint && <span className="metric-hint">{hint}</span>}
-      {!loading && change !== null && (
-        <span className={`metric-change ${change >= 0 ? 'is-up' : 'is-down'}`}>
-          {change >= 0 ? <TrendingUp size={13} aria-hidden="true" /> : <TrendingDown size={13} aria-hidden="true" />}
-          {t('vsLastMonth', { change: `⁦${change > 0 ? '+' : ''}${change}%⁩` })}
-        </span>
-      )}
+      <div className="metric-foot">
+        {!loading && !noData && hint && <span className="metric-hint">{hint}</span>}
+        {!loading && change !== null && (
+          <span className={`metric-change ${change >= 0 ? 'is-up' : 'is-down'}`}>
+            {change >= 0 ? <TrendingUp size={13} aria-hidden="true" /> : <TrendingDown size={13} aria-hidden="true" />}
+            {t('vsLastMonth', { change: `⁦${change > 0 ? '+' : ''}${change}%⁩` })}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
