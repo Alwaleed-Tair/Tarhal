@@ -7,8 +7,7 @@ type DemoState = { settings: Settings; bookings: typeof initialBookings; users: 
 const key = 'tarhal-demo-state-v3'; // bumped: the demo users and bookings changed
 const OLD_KEY = 'tarhal-demo-state-v2';
 const fallback: DemoState = { settings: { language: 'en', theme: 'light', largerText: false, highContrast: false }, bookings: initialBookings, users: initialUsers };
-// INTEGRATION POINT: Connect Saud's Flight & Booking APIs here
-// Seed state for bookings; users belong to Mohammed's APIs. Replace with fetched data + mutations.
+// Demo rows are shown only when the server cannot be reached (see hooks/use-admin-data.ts). Settings apply everywhere.
 let state: DemoState = (() => {
   try {
     const raw = localStorage.getItem(key);

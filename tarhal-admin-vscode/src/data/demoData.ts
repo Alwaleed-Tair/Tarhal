@@ -3,7 +3,6 @@ export type ServiceFilter = 'all' | Service;
 export type BookingStatus = 'Confirmed' | 'Pending' | 'Cancelled';
 export type UserStatus = 'Active' | 'Inactive' | 'Deleted';
 
-// INTEGRATION POINT: Connect Saud's Flight & Booking APIs here
 // Dashboard totals come from the bookings API (see `@/lib/booking-stats`). Amounts in this file are SAR, like the API.
 
 /** One row of the Flights / Hotels / Cars tables. `id` is what the table shows first: flight number, hotel name, or "make model year". */
@@ -71,7 +70,6 @@ export type Booking = {
   paymentStatus?: string;
 };
 
-// INTEGRATION POINT: Connect Saud's Flight & Booking APIs here
 export const bookings: Booking[] = [
   { id: 'BK-1001', type: 'flight', customer: 'Sara Al-Otaibi', date: '2026-09-12T08:30', price: 267, status: 'Cancelled' },
   { id: 'BK-1002', type: 'car', customer: 'Khalid Al-Ghamdi', date: '2026-09-21T19:10', price: 300, status: 'Pending' },
@@ -91,7 +89,6 @@ export type User = {
   phone?: string;
 };
 
-// INTEGRATION POINT: Connect Mohammed's Auth, Hotel & Car APIs here
 // Users belong to the auth service.
 export const users: User[] = [
   { id: '6738', name: 'Sara Al-Otaibi', email: 'sara@tarhal.com', date: '2026-09-12', bookings: 1, status: 'Inactive' },
@@ -103,5 +100,4 @@ export const users: User[] = [
 export type RevenueKey = 'cars' | 'flights' | 'hotels';
 export type MonthlyRevenue = { monthIndex: number } & Record<RevenueKey, number>;
 
-// INTEGRATION POINT: Connect Saud's Flight & Booking APIs here
 // Monthly revenue is an aggregate of bookings (see `monthlyRevenue` in `@/lib/booking-stats`).
