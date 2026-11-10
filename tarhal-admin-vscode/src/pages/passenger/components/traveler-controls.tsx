@@ -15,7 +15,8 @@ import { updateSettings, useDemoState } from '@/store/demoStore';
  * language, light/dark, larger text, currency and the account menu (log in / register, or my bookings, profile, admin and log out).
  * "Larger text" is the traveler side of Senior Mode: it only switches the larger text (his font sizes follow --text-scale).
  */
-export function HeaderControls() {
+/** `auth`: the login and register pages, which show only language, theme and larger text (no account menu, no currency). */
+export function HeaderControls({ auth = false }: { auth?: boolean }) {
   const t = useT();
   const { settings } = useDemoState();
   const currency = useCurrency();
@@ -44,14 +45,14 @@ export function HeaderControls() {
         onClick={() => updateSettings({ largerText: !settings.largerText })} data-testid="hc-larger-text">
         <span aria-hidden="true" className="hc-aa">A+</span><span className="hc-label">{t('largerText')}</span>
       </button>
-      <label className="hc-pill hc-currency">
+      {!auth && <label className="hc-pill hc-currency">
         <span className="sr-only">{t('currency')}</span>
         <select value={currency} onChange={(event) => setCurrency(event.target.value as Currency)} data-testid="hc-currency">
           <option value="SAR">SAR</option>
           <option value="USD">USD ($)</option>
         </select>
-      </label>
-      <div className="hc-account" ref={ref}>
+      </label>}
+      {!auth && <div className="hc-account" ref={ref}>
         <button type="button" className="hc-pill" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen((current) => !current)} data-testid="hc-account">
           <UserRound size={14} aria-hidden="true" /><span className="hc-label">{user ? user.name : t('login')}</span><ChevronDown size={13} aria-hidden="true" />
         </button>
@@ -73,7 +74,7 @@ export function HeaderControls() {
             )}
           </div>
         )}
-      </div>
+      </div>}
     </div>
   );
 }

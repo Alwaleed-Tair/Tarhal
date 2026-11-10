@@ -2,22 +2,22 @@ import type { InputHTMLAttributes, ReactNode } from 'react';
 import { Link } from 'wouter';
 import { routes } from '@/config/routes';
 import Airplane1 from '../assets/Airplane1.webp';
-import Tarhallogo from '../assets/Tarhallogo.webp';
-import TarhallogoLight from '../assets/Tarhallogo-light.webp';
+import { BrandLogo } from '@/components/brand-logo';
 import { PassengerShell } from './passenger-shell';
 import { HeaderControls } from './traveler-controls';
 
 /**
  * Tariq's login card (his Login.jsx / SignUp.jsx look): form on the left, his airplane panel on the right.
- * The site's real login and register forms go inside it. His logo links home; his settings gear holds language and theme.
+ * The site's real login and register forms go inside it. Above the card, a header row: the site logo (same file and size as on
+ * the other pages) and only the language and theme switches (no account button or currency on these pages).
  */
 export function AuthCard({ title, subtitle, footer, children }: { title: string; subtitle: string; footer: ReactNode; children: ReactNode }) {
   return (
     <PassengerShell>
       <div className="login-page">
         <div className="auth-corner">
-          <Link href={routes.passenger.home} className="auth-logo" aria-label="Tarhal"><img className="tarhal-logo-light" src={TarhallogoLight} alt="Tarhal" width={480} height={480} /><img className="tarhal-logo-dark" src={Tarhallogo} alt="" aria-hidden="true" width={480} height={480} /></Link>
-          <div className="auth-controls"><HeaderControls /></div>
+          <Link href={routes.passenger.home} className="auth-logo"><BrandLogo /></Link>
+          <div className="auth-controls"><HeaderControls auth /></div>
         </div>
         <div className="login-container">
           <div className="login-form-panel">

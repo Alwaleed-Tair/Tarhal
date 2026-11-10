@@ -156,9 +156,16 @@ img { max-width: none; }
 }
 
 /* Login and register in his card. */
-.login-page.login-page { position: relative; }
-.auth-corner { position: absolute; z-index: 5; top: 12px; left: 24px; right: 24px; display: flex; align-items: center; justify-content: space-between; }
-.auth-logo img { display: block; width: 116px; height: auto; }
+/*
+ * Login and register: a header row above his card (the site logo at its usual size, language and theme), then his card.
+ * The row is part of the page, so the card can never slide under it on a short or narrow screen.
+ */
+.login-page.login-page { position: relative; flex-direction: column; justify-content: flex-start; gap: 20px; padding-top: 20px; padding-bottom: 84px; }
+.login-page.login-page > .login-container { margin-block: auto; }
+.auth-corner { position: static; align-self: stretch; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.auth-logo { display: inline-flex; line-height: 0; }
+/* Bottom room so the chat badge (bottom corner) never sits on the card. */
+@media (max-width: 480px) { .login-page.login-page { padding: 14px 14px 80px; gap: 14px; } }
 .auth-field { display: grid; gap: 4px; text-align: start; }
 .auth-error { color: #2b66a3; font-size: 12px; font-weight: 700; }
 .auth-form-error { margin: 0; padding: 10px 12px; border-left: 3px solid #e9d6aa; border-radius: 14px; color: #203b55; background: #eef3f8; font-size: 13px; font-weight: 600; text-align: start; }
