@@ -2,7 +2,7 @@
 
 Everything the frontend gets from a server goes through `src/services/`. Pages never call `fetch`/`axios` directly.
 What an admin page does when a request fails depends on why (`src/hooks/use-admin-data.ts`):
-- **401 or 403:** the session is cleared and the page goes to `/login`.
+- **401 or 403:** the session is cleared and the page goes to `/login?next=<page>`. Any 401 on a request that needs a login clears the saved session in one place (`src/services/api.ts`); admins land on `/dashboard` after login, travelers go back to `next`.
 - **The server cannot be reached:** demo rows with a yellow **"Demo data · server unreachable"** badge. Nothing can be saved.
 - **Any other answer (400, 404, 500...):** an error state with a Try again button. Demo rows are never shown as if they were real.
 
@@ -43,7 +43,7 @@ Login uses Mohammed's HTTP-only session cookie, so every request is sent with `w
 | `/dashboard` | `GET /admin/bookings` and `GET /admin/flights` | demo store and demo flights |
 | `/users` | customers found in `GET /admin/bookings` (there is no users endpoint yet) | demo store |
 | `/travel` (traveler home) | `bookingService.mine()` (`GET /bookings`) for the last and upcoming bookings | none: a message |
-| `/travel/flights` | `GET /flights/search`, `GET /flights/:id`, `POST /flights/:id/hold`, `POST /bookings`; hotels and cars from `GET /hotels`, `GET /cars` | none: friendly error messages by status |
+| `/travel/flights` | `GET /flights/search`, `GET /flights/:id`, `POST /flights/:id/hold` (countdown from `heldUntil`; when it runs out, or the booking gets 409, back to the seats), `POST /bookings`; hotels and cars from `GET /hotels`, `GET /cars` | none: friendly error messages by status. Seats are read as free or held only, never by who holds them |
 | `/travel/bookings` | `GET /bookings`, `POST /bookings/:id/cancel` (signed-out visitors go to `/login?next=...`) | none |
 | `/travel/guide`, `/travel/guide/:city` | Tariq's city content in `src/pages/passenger/data/cities.ts` | none needed |
 

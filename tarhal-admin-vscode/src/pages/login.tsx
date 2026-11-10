@@ -7,16 +7,11 @@ import { Input } from '@/components/ui/input';
 import { routes } from '@/config/routes';
 import { useForm } from '@/hooks/use-form';
 import { useT } from '@/i18n/use-i18n';
+import { nextPath, withNext } from '@/lib/next-path';
 import { validateLogin } from '@/lib/validation';
 import { authService } from '@/services/authService';
 import { AuthError, useAuth } from '@/store/authStore';
 import { notify } from '@/store/notificationStore';
-
-/** Where to go back after logging in (?next=/travel/flights). Only a path inside this site, never another address. */
-function nextPath(search: string): string | null {
-  const next = new URLSearchParams(search).get('next');
-  return next && next.startsWith('/') && !next.startsWith('//') && !next.startsWith('/\\') ? next : null;
-}
 
 export default function Login() {
   const t = useT();
@@ -46,7 +41,7 @@ export default function Login() {
 
   return (
     <AuthShell title={t('loginTitle')} subtitle={t('loginSubtitle')}
-      footer={<>{t('noAccount')} <Link href={routes.register} className="font-semibold text-primary hover:underline">{t('register')}</Link></>}>
+      footer={<>{t('noAccount')} <Link href={withNext(routes.register, next)} className="font-semibold text-primary hover:underline">{t('register')}</Link></>}>
       <form onSubmit={submit} noValidate className="grid gap-4" data-testid="form-login">
         {formError && <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">{formError}</p>}
         <FormField id="login-email" label={t('email')} error={form.errors.email && t(form.errors.email)}>

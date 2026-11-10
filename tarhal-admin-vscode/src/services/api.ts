@@ -1,4 +1,6 @@
+import { currentSession, logout } from '@/store/authStore';
 import { USD_TO_SAR } from '@/store/currencyStore';
+import { notify } from '@/store/notificationStore';
 import axios from 'axios';
 
 export const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -14,7 +16,21 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export type Pagination = { page: number; pageSize: number; total: number; totalPages?: number };
+/**
+ * A 401 on any request that needs a login means the saved session is stale (expired cookie, server restarted with a
+ * new secret...). It is cleared once, here; the page's guard then sends the visitor to /login?next=... and back.
+ * The login, register and logout calls are left alone: their 401 means wrong details, not an old session.
+ */
+api.interceptors.response.use(undefined, (error) => {
+  const url = String(error?.config?.url ?? '');
+  if (axios.isAxiosError(error) && error.response?.status === 401 && !/\/auth\//.test(url) && currentSession()) {
+    logout();
+    notify({ tone: 'warning', titleKey: 'sessionExpiredTitle', messageKey: 'errUnauthorized' });
+  }
+  return Promise.reject(error);
+});
+
+export type Pagination ={ page: number; pageSize: number; total: number; totalPages?: number };
 export type Paginated<T> = { success?: boolean; data: T[]; pagination?: Pagination };
 export type Envelope<T> = { success?: boolean; data: T };
 export type Raw = Record<string, unknown>;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, Redirect, useLocation } from 'wouter';
+import { Link, Redirect, useLocation, useSearch } from 'wouter';
 import { AuthShell } from '@/components/auth-shell';
 import { Button } from '@/components/ui/button';
 import { FormField, PasswordInput } from '@/components/ui/form-field';
@@ -8,6 +8,7 @@ import { routes } from '@/config/routes';
 import type { TranslationKey } from '@/i18n/translations';
 import { useForm } from '@/hooks/use-form';
 import { useT } from '@/i18n/use-i18n';
+import { nextPath, withNext } from '@/lib/next-path';
 import { validateRegister } from '@/lib/validation';
 import { authService } from '@/services/authService';
 import { AuthError, useAuth } from '@/store/authStore';
@@ -16,12 +17,13 @@ import { notify } from '@/store/notificationStore';
 export default function Register() {
   const t = useT();
   const [, setLocation] = useLocation();
+  const next = nextPath(useSearch());
   const { isLoggedIn } = useAuth();
   const form = useForm({ name: '', email: '', phone: '', dateOfBirth: '', password: '', confirmPassword: '', terms: false as boolean }, validateRegister);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  if (isLoggedIn && !submitting) return <Redirect to={routes.home} />;
+  if (isLoggedIn && !submitting) return <Redirect to={next ?? routes.home} />;
 
   // Which message to show for an API rejection: duplicate account, or the field the API said is invalid.
   const FIELD_MESSAGE: Record<string, TranslationKey> = { name: 'errNameRequired', email: 'errEmailInvalid', phone: 'errPhoneInvalid', password: 'errPasswordShort', dateOfBirth: 'errDobInvalid' };
@@ -38,7 +40,8 @@ export default function Register() {
     try {
       await authService.register({ name: name.trim(), email, phone: phone.trim(), dateOfBirth, password });
       notify({ tone: 'success', titleKey: 'registerSuccessTitle', messageKey: 'registerSuccessMessage' });
-      setLocation(routes.home);
+      // New accounts are travelers: back to the page that asked them to log in (e.g. the seat they picked), or home.
+      setLocation(next ?? routes.home);
     } catch (error) {
       setFormError(registerErrorMessage(error));
       setSubmitting(false);
@@ -47,7 +50,7 @@ export default function Register() {
 
   return (
     <AuthShell title={t('registerTitle')} subtitle={t('registerSubtitle')}
-      footer={<>{t('haveAccount')} <Link href={routes.login} className="font-semibold text-primary hover:underline">{t('login')}</Link></>}>
+      footer={<>{t('haveAccount')} <Link href={withNext(routes.login, next)} className="font-semibold text-primary hover:underline">{t('login')}</Link></>}>
       <form onSubmit={submit} noValidate className="grid gap-4" data-testid="form-register">
         {formError && <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">{formError}</p>}
         <FormField id="register-name" label={t('fullName')} error={form.errors.name && t(form.errors.name)}>

@@ -32,10 +32,11 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
   return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
 }
 
-/** Signed-out visitors go to the login page, travelers to the home page. */
+/** Signed-out visitors (or a session that just expired) go to the login page and come back; travelers go to the home page. */
 function AdminOnly({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  if (!user) return <Redirect to={routes.login} replace />;
+  const [location] = useLocation();
+  if (!user) return <Redirect to={`${routes.login}?next=${encodeURIComponent(location)}`} replace />;
   if (!canUseAdmin(user)) return <Redirect to={routes.home} replace />;
   return <>{children}</>;
 }
