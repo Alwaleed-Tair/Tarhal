@@ -28,13 +28,15 @@ type Props = {
   initialSeatIds: string[];
   /** Why the traveler is back on the seat map (the hold ran out, or a seat was taken). */
   notice?: TranslationKey | null;
+  /** Round trip: which flight this seat map is for. */
+  leg?: 'outbound' | 'return' | null;
   onBack: () => void;
   /** Called with the seats the traveler picked. The parent holds them (POST /api/flights/:id/hold) or sends them to log in first. */
   onComplete: (seats: ChosenSeat[]) => Promise<TranslationKey | null>;
 };
 
 /** Tariq's seat step, on the real seat map of GET /api/flights/:id. Only free seats of the chosen class can be picked. */
-export default function SeatSelectionStep({ flight, passengers, cabinClass, initialSeatIds, notice = null, onBack, onComplete }: Props) {
+export default function SeatSelectionStep({ flight, passengers, cabinClass, initialSeatIds, notice = null, leg = null, onBack, onComplete }: Props) {
   const t = useT();
   const format = useFormat();
   const [details, setDetails] = useState<FlightDetails | null>(null);
@@ -43,10 +45,8 @@ export default function SeatSelectionStep({ flight, passengers, cabinClass, init
   const [message, setMessage] = useState<TranslationKey | null>(notice);
   const [busy, setBusy] = useState(false);
 
-  // Seats this page held a moment ago show as HELD in the seat map. Only whether a seat is free or held is read,
-  // never who holds it: the seats in `initialSeatIds` that are still HELD are the ones this traveler just held.
-  const ownHeld = useMemo(() => new Set(initialSeatIds), [initialSeatIds]);
-  const canPick = useCallback((seat: Seat) => seat.free || (seat.status === 'HELD' && ownHeld.has(seat.id)), [ownHeld]);
+  // The API says whether a seat is free and whether this traveler holds it (heldByMe); never who else does.
+  const canPick = useCallback((seat: Seat) => seat.free || seat.heldByMe, []);
 
   const load = useCallback(async () => {
     setLoadError(null);
@@ -112,7 +112,7 @@ export default function SeatSelectionStep({ flight, passengers, cabinClass, init
     <section className="step-panel seat-step" aria-labelledby="seat-step-title" data-testid="panel-seat-selection">
       <div className="step-heading">
         <div>
-          <p className="step-kicker"><span className="step-kicker-mark"><Armchair size={15} /></span>{t('tpSeatKicker')}</p>
+          <p className="step-kicker"><span className="step-kicker-mark"><Armchair size={15} /></span>{t('tpSeatKicker')}{leg && <> · {t(leg === 'outbound' ? 'tpOutboundFlight' : 'tpReturnFlight')}</>}</p>
           <h2 id="seat-step-title">{t('tpSeatTitle')}</h2>
           <p className="step-intro">{t('tpSeatIntro', { cabin: t(CLASS_KEY[cabinClass]) })}</p>
         </div>

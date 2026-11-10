@@ -12,7 +12,7 @@ import { updateSettings, useDemoState } from '@/store/demoStore';
 
 /**
  * The site controls on every traveler page, in the top corner of Tariq's page header, styled like his header pills:
- * language, light/dark, larger text, currency and the account menu (log in / register, or my bookings, admin and log out).
+ * language, light/dark, larger text, currency and the account menu (log in / register, or my bookings, profile, admin and log out).
  * "Larger text" is the traveler side of Senior Mode: it only switches the larger text (his font sizes follow --text-scale).
  */
 export function HeaderControls() {
@@ -61,6 +61,7 @@ export function HeaderControls() {
               <>
                 <p className="hc-user"><strong>{user.name}</strong><span dir="ltr">{user.email}</span></p>
                 <Link href={routes.passenger.bookings} role="menuitem" className="hc-item" onClick={close} data-testid="hc-my-bookings">{t('tpNavBookings')}</Link>
+                <Link href={routes.passenger.profile} role="menuitem" className="hc-item" onClick={close} data-testid="hc-profile">{t('tpProfile')}</Link>
                 {canUseAdmin(user) && <Link href={routes.admin.dashboard} role="menuitem" className="hc-item" onClick={close} data-testid="hc-admin">{t('adminDashboard')}</Link>}
                 <button type="button" role="menuitem" className="hc-item" onClick={() => { close(); signOut(); }} data-testid="hc-logout">{t('logout')}</button>
               </>

@@ -2,10 +2,12 @@ import type { ReactNode } from 'react';
 import { ArrowLeft, Image as ImageIcon } from 'lucide-react';
 import { Link, useParams } from 'wouter';
 import { routes } from '@/config/routes';
+import { BrandLogo } from '@/components/brand-logo';
 import { useFormat, useT } from '@/i18n/use-i18n';
 import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
 import { HeaderControls } from './components/traveler-controls';
+import { AiCityGuide } from './components/ai-city-guide';
 import { cities } from './data/cities';
 import { useDemoState } from '@/store/demoStore';
 import { cityDescriptionAr, isPlaceholderDescription, isPlaceholderTitle, placeTitleAr } from './data/cities-ar';
@@ -20,10 +22,7 @@ function CityGuideLayout({ children }: { children: ReactNode }) {
           <Sidebar />
           <main className="city-guide-main">
             <header className="city-guide-header">
-              <Link className="city-guide-brand" href={routes.passenger.guide}>
-                <span className="city-guide-brand-mark" aria-hidden="true" />
-                <span>TARHAL</span>
-              </Link>
+              <Link className="city-guide-brand" href={routes.passenger.home}><BrandLogo /></Link>
               <div className="header-end">
                 <div className="city-guide-header-note">
                   <span className="city-guide-header-dot" />
@@ -114,6 +113,7 @@ export default function CityGuide() {
           <Link href={routes.passenger.guide}>{t('tpBrowseCities')}</Link>
         </div>
       </section>
+      <AiCityGuide city={city.name} name={name} />
     </CityGuideLayout>
   );
 }

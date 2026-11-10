@@ -7,9 +7,10 @@ import type { TranslationKey } from '@/i18n/translations';
 import { hotelService } from '@/services/hotelService';
 import { addDays, cityLabel, errorKey } from '../trip';
 
-const MAX_NIGHTS = 90;
+// Same limit as POST /api/hotel-bookings.
+const MAX_NIGHTS = 30;
 
-export type HotelPlan = { city: string; name: string; rating: number; nightlyRate: number; nights: number; checkIn: string; checkOut: string };
+export type HotelPlan = { hotelId: string; city: string; name: string; rating: number; nightlyRate: number; nights: number; checkIn: string; checkOut: string; guests: number };
 
 function HotelPhoto({ src, name }: { src: string; name: string }) {
   const [failed, setFailed] = useState(!src);
@@ -17,18 +18,18 @@ function HotelPhoto({ src, name }: { src: string; name: string }) {
   return <span className="hotel-photo"><img src={src} alt={name} loading="lazy" onError={() => setFailed(true)} /></span>;
 }
 
-type Props = { city: string; checkIn: string; onBack: () => void; onSkip: () => void; onComplete: (plan: HotelPlan) => void };
+type Props = { city: string; checkIn: string; defaultNights?: number; guests: number; initial?: HotelPlan | null; onBack: () => void; onSkip: () => void; onComplete: (plan: HotelPlan) => void };
 
 /**
- * Tariq's hotel step on the real hotels of GET /api/hotels?city=. There is no hotel booking API yet,
- * so the step says clearly that the hotel is only part of the plan and is not booked.
+ * Tariq's hotel step on the real hotels of GET /api/hotels?city= (the destination city). The hotel is booked with
+ * POST /api/hotel-bookings when the traveler confirms the trip; the server calculates the same total.
  */
-export default function HotelStayStep({ city, checkIn, onBack, onSkip, onComplete }: Props) {
+export default function HotelStayStep({ city, checkIn, defaultNights = 1, guests, initial = null, onBack, onSkip, onComplete }: Props) {
   const t = useT();
   const format = useFormat();
   const [hotels, setHotels] = useState<ResourceRow[] | null>(null);
   const [loadError, setLoadError] = useState<TranslationKey | null>(null);
-  const [nights, setNights] = useState(1);
+  const [nights, setNights] = useState(() => initial?.nights ?? Math.min(MAX_NIGHTS, Math.max(1, defaultNights)));
   const [selected, setSelected] = useState<number | null>(null);
   const [error, setError] = useState<TranslationKey | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -38,7 +39,12 @@ export default function HotelStayStep({ city, checkIn, onBack, onSkip, onComplet
     setHotels(null);
     setLoadError(null);
     hotelService.list({ page: 1, pageSize: 4, city })
-      .then(({ rows }) => { if (live) setHotels(rows); })
+      .then(({ rows }) => {
+        if (!live) return;
+        setHotels(rows);
+        // Coming back to this step keeps the hotel chosen before.
+        if (initial) { const index = rows.findIndex((row) => String(row.apiId) === initial.hotelId); if (index >= 0) setSelected(index); }
+      })
       .catch((err) => { if (live) setLoadError(errorKey(err)); });
     return () => { live = false; };
   }, [city, attempt]);
@@ -52,7 +58,7 @@ export default function HotelStayStep({ city, checkIn, onBack, onSkip, onComplet
 
   const onContinue = () => {
     if (!chosen) { setError('tpChooseHotel'); return; }
-    onComplete({ city, name: chosen.id, rating: chosen.rating ?? 0, nightlyRate: chosen.price, nights, checkIn, checkOut });
+    onComplete({ hotelId: String(chosen.apiId), city, name: chosen.id, rating: chosen.rating ?? 0, nightlyRate: chosen.price, nights, checkIn, checkOut, guests });
   };
 
   return (
@@ -64,8 +70,6 @@ export default function HotelStayStep({ city, checkIn, onBack, onSkip, onComplet
           <p className="step-intro">{t('tpHotelIntro')}</p>
         </div>
       </div>
-
-      <p className="passenger-note" role="note" data-testid="note-hotel-not-bookable">{t('tpHotelNotBookable')}</p>
 
       <div className="hotel-nights-bar">
         <div>

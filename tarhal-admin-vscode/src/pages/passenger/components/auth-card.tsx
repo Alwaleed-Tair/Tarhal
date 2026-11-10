@@ -3,6 +3,7 @@ import { Link } from 'wouter';
 import { routes } from '@/config/routes';
 import Airplane1 from '../assets/Airplane1.webp';
 import Tarhallogo from '../assets/Tarhallogo.webp';
+import TarhallogoLight from '../assets/Tarhallogo-light.webp';
 import { PassengerShell } from './passenger-shell';
 import { HeaderControls } from './traveler-controls';
 
@@ -15,7 +16,7 @@ export function AuthCard({ title, subtitle, footer, children }: { title: string;
     <PassengerShell>
       <div className="login-page">
         <div className="auth-corner">
-          <Link href={routes.passenger.home} className="auth-logo" aria-label="Tarhal"><img src={Tarhallogo} alt="Tarhal" /></Link>
+          <Link href={routes.passenger.home} className="auth-logo" aria-label="Tarhal"><img className="tarhal-logo-light" src={TarhallogoLight} alt="Tarhal" width={480} height={480} /><img className="tarhal-logo-dark" src={Tarhallogo} alt="" aria-hidden="true" width={480} height={480} /></Link>
           <div className="auth-controls"><HeaderControls /></div>
         </div>
         <div className="login-container">

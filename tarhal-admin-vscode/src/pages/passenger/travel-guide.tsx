@@ -1,6 +1,7 @@
 import { ArrowRight, Image as ImageIcon } from 'lucide-react';
 import { Link } from 'wouter';
 import { routes } from '@/config/routes';
+import { BrandLogo } from '@/components/brand-logo';
 import { useFormat, useT } from '@/i18n/use-i18n';
 import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
@@ -31,10 +32,7 @@ export default function TravelGuide() {
           <Sidebar />
           <main className="travel-main">
             <header className="site-header">
-              <div className="brand">
-                <span className="brand-mark" aria-hidden="true" />
-                <span className="brand-name">TARHAL</span>
-              </div>
+              <Link className="brand" href={routes.passenger.home}><BrandLogo /></Link>
               <div className="header-end">
                 <div className="header-note">
                   <span className="header-dot" />

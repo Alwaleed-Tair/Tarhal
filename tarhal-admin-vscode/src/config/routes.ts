@@ -11,6 +11,7 @@ export const routes = {
     home: '/',
     flights: '/book-flight',
     bookings: '/my-bookings',
+    profile: '/profile',
     guide: '/travel-guide',
     city: (slug: string) => `/travel-guide/${slug}`,
   },

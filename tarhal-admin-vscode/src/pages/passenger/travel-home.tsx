@@ -8,6 +8,7 @@ import Airplane1 from './assets/Airplane1.webp';
 import Alula from './assets/Alula.webp';
 import Riyadh from './assets/Riyadh.webp';
 import Tarhallogo from './assets/Tarhallogo.webp';
+import TarhallogoLight from './assets/Tarhallogo-light.webp';
 import saudi from './assets/saudi.webp';
 import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
@@ -65,7 +66,7 @@ export default function TravelHome() {
     <PassengerShell>
       <div className="Whole-Container">
         {/* His logo (his Navbar.jsx): the only brand mark on this page. */}
-        <Link href={routes.passenger.home} aria-label="Tarhal"><img className="tarhallogo" src={Tarhallogo} alt="Tarhal" /></Link>
+        <Link href={routes.passenger.home} aria-label="Tarhal"><img className="tarhallogo tarhal-logo-light" src={TarhallogoLight} alt="Tarhal" width={480} height={480} /><img className="tarhallogo tarhal-logo-dark" src={Tarhallogo} alt="" aria-hidden="true" width={480} height={480} /></Link>
         <Sidebar />
         <div className="home-controls"><HeaderControls /></div>
         <div className="Stage">

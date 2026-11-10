@@ -1,6 +1,7 @@
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'wouter';
 import { routes } from '@/config/routes';
+import { BrandLogo } from '@/components/brand-logo';
 import { useT } from '@/i18n/use-i18n';
 import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
@@ -16,10 +17,7 @@ export default function NotFound() {
           <Sidebar />
           <main className="city-guide-main">
             <header className="city-guide-header">
-              <Link className="city-guide-brand" href={routes.passenger.home}>
-                <span className="city-guide-brand-mark" aria-hidden="true" />
-                <span>TARHAL</span>
-              </Link>
+              <Link className="city-guide-brand" href={routes.passenger.home}><BrandLogo /></Link>
               <div className="header-end"><HeaderControls /></div>
             </header>
             <section className="city-guide-not-found" data-testid="page-not-found">

@@ -81,7 +81,8 @@
 .summary-plan-note { margin: 8px 0 0; color: #61758a; font-size: 12px; }
 .summary-error { margin: 12px 0 0; padding: 10px 12px; border-left: 3px solid #e9d6aa; border-radius: 10px; color: #203b55; background: #eef3f8; font-size: 13px; font-weight: 600; }
 .complete-reference { margin: 6px 0 0; color: #61758a; font-size: 13px; }
-.complete-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.complete-actions { display: flex; grid-column: 1 / -1; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.complete-actions .restart-button { white-space: nowrap; }
 .complete-actions .restart-button { text-decoration: none; }
 
 /*
@@ -214,3 +215,110 @@ img { max-width: none; }
 
 .Panel-Note { color: inherit; font-size: 14px; opacity: .85; }
 a.Panel-Note { text-decoration: underline; }
+
+/* ── Round trip, Ready step, payment (light panels: his #29455f / #527d9b / #f1f4f8 palette) ── */
+.trip-item-end { display: flex; flex: 0 0 auto; flex-direction: column; align-items: flex-end; gap: 6px; margin-inline-start: auto; }
+.trip-item-end b { color: #29455f; font-size: 12px; white-space: nowrap; }
+.complete-itinerary > div > .trip-item-end { flex-direction: column; }
+.trip-status { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border: 1px solid #d5e0e8; border-radius: 999px; color: #486983; background: #f2f6f9; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.trip-status.trip-status-paid { color: #f8f9fc; border-color: #2b66a3; background: #2b66a3; }
+.trip-status.trip-status-problem { border-color: #e9d6aa; }
+.trip-problem.trip-problem { color: #2b66a3; font-size: 11px; font-weight: 700; }
+.trip-payment { display: grid; grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px 16px; margin-top: 14px; padding: 16px; border: 1px solid #e3e8ee; border-radius: 13px; background: #f1f4f8; }
+.trip-payment > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.trip-payment .field-label { display: inline-flex; align-items: center; gap: 6px; }
+.trip-payment strong { color: #29455f; font-family: 'Manrope', sans-serif; font-size: 20px; }
+.trip-payment small { color: #486983; font-size: 11px; }
+.trip-payment .finish-button { margin: 0; }
+.trip-payment .summary-error { grid-column: 1 / -1; margin: 0; }
+.form-message.form-message-ok.form-message-ok { color: #486983; }
+@media (max-width: 600px) { .trip-payment { grid-template-columns: 1fr; } }
+
+/* ── Boarding pass: his "Last booking" panel (Booking-Panel, Booking-Tab, Booking-Route), a QR code where his barcode is ── */
+.boarding-passes { display: grid; grid-column: 1 / -1; gap: 14px; margin-top: 16px; }
+.boarding-pass.Booking-Panel { border-radius: 26px; }
+.boarding-pass .Booking-Tab { justify-content: space-between; padding-inline-end: 18px; }
+.boarding-airline { color: #f1f4fa; font-size: 12px; font-weight: 600; }
+.boarding-body { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 18px; padding: 16px 22px 20px; }
+.boarding-main { display: grid; gap: 14px; min-width: 0; }
+.boarding-details { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 16px; margin: 0; }
+.boarding-details div { min-width: 0; }
+.boarding-details .boarding-wide { grid-column: 1 / -1; }
+.boarding-details dt { color: #7c8da2; font-size: 11px; }
+.boarding-details dd { margin: 2px 0 0; color: #344d68; font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+.boarding-qr { width: 132px; height: 132px; border-radius: 12px; background: #ffffff; }
+.boarding-print.restart-button { justify-self: end; margin: 0; }
+@media (max-width: 600px) {
+  .boarding-body { grid-template-columns: 1fr; justify-items: center; }
+  .boarding-main { width: 100%; }
+  .boarding-details { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .boarding-pass .Booking-Tab { height: auto; min-height: 44px; flex-wrap: wrap; gap: 6px; padding-block: 6px; }
+}
+
+/* ── My bookings (his dark glass cards: light text) ── */
+.booking-service-detail { display: block; margin-top: 4px; color: rgba(248, 249, 252, .78); font-size: 12px; line-height: 1.45; }
+.booking-part-status { font-weight: 700; }
+.booking-service .booking-cancel-row { justify-content: flex-start; margin-top: 10px; padding-top: 10px; }
+.booking-pay-row, .booking-pass-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px 14px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(227, 237, 246, .25); color: rgba(248, 249, 252, .85); font-size: 13px; }
+.booking-pay-row strong { color: #f8f9fc; font-size: 15px; }
+.booking-card .boarding-passes { margin-top: 14px; }
+.booking-card-skeleton { min-height: 220px; }
+.profile-skeleton { min-height: 320px; }
+.booking-card-skeleton, .ai-skeleton span { position: relative; overflow: hidden; }
+.booking-card-skeleton::after, .ai-skeleton span::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .08), transparent); transform: translateX(-100%); animation: shimmer 1.4s ease-in-out infinite; }
+@keyframes shimmer { to { transform: translateX(100%); } }
+
+/* ── Profile (his booking card and traveler card fields) ── */
+.profile-card.booking-card { max-width: 760px; }
+.profile-card .traveler-card { margin-bottom: 8px; }
+.profile-note { display: block; margin-top: 6px; color: #486983; font-size: 12px; }
+.profile-card input[readonly] { opacity: .75; }
+
+/* ── AI destination guide and day plan, below his city page sections ── */
+.ai-guide.city-guide-recommendations { margin-top: 22px; }
+.ai-guide .city-guide-section-heading { align-items: center; }
+.ai-label { display: inline-flex; align-items: center; gap: 6px; width: fit-content; margin: 0 0 6px; padding: 4px 10px; border: 1px solid #e9d6aa; border-radius: 999px; color: #e9d6aa; font-size: 12px; font-weight: 700; }
+.ai-result { display: grid; gap: 8px; color: #f8f9fc; font-size: 14px; line-height: 1.6; }
+.ai-result h3 { margin: 10px 0 0; color: #f8f9fc; font-size: 15px; }
+.ai-result p { margin: 0; color: rgba(248, 249, 252, .86); }
+.ai-result .ai-summary { font-size: 15px; }
+.ai-places, .ai-tips, .ai-days { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.ai-places li { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid rgba(231, 241, 249, .2); border-radius: 14px; background: rgba(255, 255, 255, .06); }
+.ai-places span, .ai-tips li { color: rgba(248, 249, 252, .82); }
+.ai-tips li { position: relative; padding-inline-start: 14px; }
+.ai-tips li::before { content: ""; position: absolute; inset-inline-start: 0; top: .7em; width: 6px; height: 6px; border-radius: 50%; background: #e9d6aa; }
+.ai-days { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.ai-day { padding: 14px; border: 1px solid rgba(231, 241, 249, .2); border-radius: 17px 25px 25px 25px; background: rgba(255, 255, 255, .06); }
+.ai-day h3 { margin: 2px 0 8px; }
+.ai-day dl { display: grid; gap: 6px; margin: 0; }
+.ai-day dt { color: #e9d6aa; font-size: 12px; font-weight: 700; }
+.ai-day dd { margin: 0; color: rgba(248, 249, 252, .86); font-size: 13px; }
+.ai-plan-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px 22px; margin-bottom: 14px; }
+.ai-interests > div { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.ai-chip { min-height: 34px; padding: 6px 12px; border: 1px solid rgba(231, 241, 249, .32); border-radius: 999px; color: #f8f9fc; background: rgba(255, 255, 255, .08); font: inherit; font-size: 13px; cursor: pointer; transition: background 160ms ease, transform 120ms ease; }
+.ai-chip.chosen { border-color: #2b66a3; color: #f8f9fc; background: #2b66a3; }
+/* His hero title sits on the photo and takes the page's light text; it keeps it in light mode too. */
+.city-guide-hero-copy.city-guide-hero-copy { color: #f8f9fc; }
+.ai-chip:active { transform: scale(.97); }
+.ai-error { margin: 6px 0 0; padding: 10px 14px; border-inline-start: 3px solid #e9d6aa; border-radius: 10px; color: #f8f9fc; background: rgba(255, 255, 255, .08); font-size: 13px; }
+.ai-skeleton { display: grid; gap: 8px; }
+.ai-skeleton span { display: block; height: 14px; border-radius: 7px; background: rgba(255, 255, 255, .1); }
+.ai-skeleton span:nth-child(2) { width: 82%; }
+.ai-skeleton span:nth-child(3) { width: 64%; }
+
+/* ── Smooth: each booking step fades and slides in (from the reading side, also in RTL), gentle press feedback ── */
+.stage-view { display: contents; }
+.stage-view > * { animation: step-in 220ms ease-out both; }
+.stage-view > *:dir(rtl) { animation-name: step-in-rtl; }
+@keyframes step-in { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+@keyframes step-in-rtl { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
+.search-button:active, .finish-button:active, .bookings-button:active, .restart-button:active, .hc-pill:active, .booking-cancel-button:active { transform: scale(.98); }
+@media (prefers-reduced-motion: reduce) {
+  .stage-view > *, .booking-card-skeleton::after, .ai-skeleton span::after { animation: none; }
+  .search-button:active, .finish-button:active, .bookings-button:active, .restart-button:active, .hc-pill:active, .booking-cancel-button:active, .ai-chip:active { transform: none; }
+}
+
+/* ── Print: only the boarding passes that were asked for (the printing-pass class is set just before printing) ── */
+@media print {
+  .boarding-print { display: none; }
+}

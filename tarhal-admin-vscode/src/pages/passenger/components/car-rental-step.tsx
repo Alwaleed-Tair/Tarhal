@@ -7,23 +7,24 @@ import type { TranslationKey } from '@/i18n/translations';
 import { carService } from '@/services/carService';
 import { addDays, cityLabel, errorKey, riyadhToday, TRIP_CITIES } from '../trip';
 
-export type CarPlan = { location: string; pickup: string; returnDate: string; car: string; dailyRate: number };
+export type CarPlan = { carId: string; location: string; pickup: string; returnDate: string; car: string; dailyRate: number };
 
-type Props = { city: string; departure: string; onBack: () => void; onSkip: () => void; onComplete: (plan: CarPlan) => void };
+type Props = { city: string; departure: string; returnDay?: string | null; initial?: CarPlan | null; onBack: () => void; onSkip: () => void; onComplete: (plan: CarPlan) => void };
 
 /**
- * Tariq's car step on the real available cars of GET /api/cars?city=. There is no car rental booking API yet,
- * so the step says the car is only part of the plan. A Skip button is new: some cities have no cars.
+ * Tariq's car step on the real available cars of GET /api/cars?city= (the destination city by default). The car is rented with
+ * POST /api/car-rentals when the traveler confirms the trip. A Skip button is new: some cities have no cars.
  */
-export default function CarRentalStep({ city, departure, onBack, onSkip, onComplete }: Props) {
+export default function CarRentalStep({ city, departure, returnDay = null, initial = null, onBack, onSkip, onComplete }: Props) {
   const t = useT();
   const format = useFormat();
-  const [location, setLocation] = useState<string>((TRIP_CITIES as readonly string[]).includes(city) ? city : 'Riyadh');
-  const [pickup, setPickup] = useState(departure);
-  const [returnDate, setReturnDate] = useState(addDays(departure, 3));
+  const [location, setLocation] = useState<string>(initial?.location ?? ((TRIP_CITIES as readonly string[]).includes(city) ? city : 'Riyadh'));
+  const [pickup, setPickup] = useState(initial?.pickup ?? departure);
+  // Round trip: the car goes back on the day of the flight home.
+  const [returnDate, setReturnDate] = useState(initial?.returnDate ?? (returnDay && returnDay > departure ? returnDay : addDays(departure, 3)));
   const [cars, setCars] = useState<ResourceRow[] | null>(null);
   const [loadError, setLoadError] = useState<TranslationKey | null>(null);
-  const [carId, setCarId] = useState<string | null>(null);
+  const [carId, setCarId] = useState<string | null>(initial?.carId ?? null);
   const [error, setError] = useState<TranslationKey | null>(null);
   const [attempt, setAttempt] = useState(0);
 
@@ -31,7 +32,7 @@ export default function CarRentalStep({ city, departure, onBack, onSkip, onCompl
     let live = true;
     setCars(null);
     setLoadError(null);
-    setCarId(null);
+    setCarId((current) => (initial && location === initial.location ? current : null));
     carService.list({ page: 1, pageSize: 6, city: location })
       .then(({ rows }) => { if (live) setCars(rows); })
       .catch((err) => { if (live) setLoadError(errorKey(err)); });
@@ -46,10 +47,10 @@ export default function CarRentalStep({ city, departure, onBack, onSkip, onCompl
     event.preventDefault();
     if (!pickup || !returnDate) { setError('tpErrRentalDates'); return; }
     if (pickup < riyadhToday()) { setError('tpErrPickupPast'); return; }
-    if (returnDate < pickup) { setError('tpErrReturnBeforePickup'); return; }
+    if (returnDate <= pickup) { setError('tpErrReturnBeforePickup'); return; }
     if (!selectedCar) { setError('tpChooseCar'); return; }
     setError(null);
-    onComplete({ location, pickup, returnDate, car: selectedCar.id, dailyRate: selectedCar.price });
+    onComplete({ carId: String(selectedCar.apiId), location, pickup, returnDate, car: selectedCar.id, dailyRate: selectedCar.price });
   };
 
   return (
@@ -61,8 +62,6 @@ export default function CarRentalStep({ city, departure, onBack, onSkip, onCompl
           <p className="step-intro">{t('tpCarIntro', { city: cityLabel(t, city) })}</p>
         </div>
       </div>
-
-      <p className="passenger-note" role="note" data-testid="note-car-not-bookable">{t('tpCarNotBookable')}</p>
 
       <form onSubmit={onSubmit} noValidate>
         <div className="rental-fields">
@@ -86,7 +85,7 @@ export default function CarRentalStep({ city, departure, onBack, onSkip, onCompl
             <span className="field-label">{t('tpReturnDate')}</span>
             <span className="rental-input-wrap">
               <CalendarDays size={17} aria-hidden="true" />
-              <input type="date" dir="ltr" value={returnDate} min={pickup || riyadhToday()} onChange={(event) => { setReturnDate(event.target.value); setError(null); }} data-testid="input-car-return-date" aria-label={t('tpReturnDate')} />
+              <input type="date" dir="ltr" value={returnDate} min={addDays(pickup || riyadhToday(), 1)} onChange={(event) => { setReturnDate(event.target.value); setError(null); }} data-testid="input-car-return-date" aria-label={t('tpReturnDate')} />
             </span>
           </label>
         </div>
@@ -131,7 +130,7 @@ export default function CarRentalStep({ city, departure, onBack, onSkip, onCompl
           <div>
             <span className="field-label">{t('tpCarEstimate')}</span>
             <strong data-testid="text-car-estimate">{selectedCar ? <Money sar={estimatedTotal} /> : '—'}</strong>
-            <small>{t(rentalDays === 1 ? 'tpDay1' : 'tpDays', { count: format.number(rentalDays) })} · {t('tpEstimateOnly')}</small>
+            <small>{t(rentalDays === 1 ? 'tpDay1' : 'tpDays', { count: format.number(rentalDays) })}</small>
           </div>
         </div>
 

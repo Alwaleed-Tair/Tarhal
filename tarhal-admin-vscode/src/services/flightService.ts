@@ -12,14 +12,14 @@ export type FlightOption = {
   basePrice: number; airline: { name: string; nameAr: string; iataCode: string; logoUrl: string };
   availableSeats: number; lowestPrice: number | null;
 };
-/** A seat of GET /api/flights/:id. A hold that has run out counts as free again, as the API does. */
-export type Seat = { id: string; code: string; ticketClass: TicketClass; priceMultiplier: number; status: 'AVAILABLE' | 'HELD' | 'BOOKED'; free: boolean };
+/** A seat of GET /api/flights/:id. The API says whether it is free and whether this traveler holds it, never who else does. */
+export type Seat = { id: string; code: string; ticketClass: TicketClass; priceMultiplier: number; status: 'AVAILABLE' | 'HELD' | 'BOOKED'; free: boolean; heldByMe: boolean };
 export type FlightDetails = FlightOption & { seats: Seat[] };
 /** Body of POST /api/admin/flights. Times are UTC ISO strings, `basePrice` is SAR. */
 export type FlightCreateInput = { flightNumber: string; airlineId: string; from: string; to: string; departureTime: string; arrivalTime: string; basePrice: number; seats: { seatCode: string; ticketClass: TicketClass; priceMultiplier: number }[] };
-/** Body of PATCH /api/admin/flights/:id: the API only updates these two fields. */
-export type FlightUpdateInput = { basePrice?: number; departureTime?: string };
-export type FlightSearchParams = { from?: string; to?: string; date?: string; airline?: string };
+/** Body of PATCH /api/admin/flights/:id. */
+export type FlightUpdateInput = { basePrice?: number; departureTime?: string; arrivalTime?: string };
+export type FlightSearchParams = { from?: string; to?: string; date?: string; returnDate?: string; passengers?: number; airline?: string };
 
 /** `airline` may be a string or an object like { name, nameAr, iataCode }. */
 const airlineName = (v: unknown): string => (v && typeof v === 'object' ? str(pick(v as Raw, 'name', 'nameEn')) : str(v));
@@ -52,11 +52,10 @@ const toOption = (r: Raw): FlightOption => {
   };
 };
 
-const toSeat = (s: Raw, now: number): Seat => {
+const toSeat = (s: Raw): Seat => {
   const status = (str(s.status, 'AVAILABLE').toUpperCase() as Seat['status']);
-  const heldUntil = Date.parse(str(s.heldUntil));
   const ticketClass = str(s.ticketClass, 'ECONOMY').toUpperCase() as TicketClass;
-  return { id: str(s.id), code: str(s.seatCode), ticketClass, priceMultiplier: num(s.priceMultiplier, 1), status, free: status === 'AVAILABLE' || (status === 'HELD' && heldUntil < now) };
+  return { id: str(s.id), code: str(s.seatCode), ticketClass, priceMultiplier: num(s.priceMultiplier, 1), status, free: s.free === true || (s.free === undefined && status === 'AVAILABLE'), heldByMe: s.heldByMe === true };
 };
 
 export const flightService = {
@@ -85,23 +84,26 @@ export const flightService = {
   async update(apiId: string | number, input: FlightUpdateInput): Promise<void> {
     assertWrite((await api.patch<Raw>(`/admin/flights/${encodeURIComponent(String(apiId))}`, input)).data);
   },
-  /** DELETE /api/admin/flights/:id does not exist yet, so nothing calls this while WRITE_ACTIONS.flight.remove is false. */
+  /** DELETE /api/admin/flights/:id. 409 while the flight has bookings (the page explains why). */
   async remove(apiId: string | number): Promise<void> {
     assertWrite((await api.delete<Envelope<Raw>>(`/admin/flights/${encodeURIComponent(String(apiId))}`)).data);
   },
-  /** GET /api/flights/search?from&to&date[&airline]: airport codes (RUH, JED...) and one Riyadh day "YYYY-MM-DD". 400 for a past day. */
-  async search(params: FlightSearchParams = {}): Promise<FlightOption[]> {
+  /**
+   * GET /api/flights/search?from&to&date[&returnDate][&passengers][&airline]: airport codes (RUH, JED...), Riyadh days "YYYY-MM-DD".
+   * Flights with fewer free seats than `passengers` are left out. With returnDate, `returnFlights` are the flights back. 400 for a past day.
+   */
+  async search(params: FlightSearchParams = {}): Promise<{ outbound: FlightOption[]; returnFlights: FlightOption[] | null }> {
     const clean = Object.fromEntries(Object.entries(params).filter(([, v]) => v));
-    const { data } = await api.get<Envelope<Raw[]>>('/flights/search', { params: clean });
+    const { data } = await api.get<Envelope<Raw[]> & { returnFlights?: Raw[] }>('/flights/search', { params: clean });
     assertSuccess(data);
-    return toList(data).map(toOption);
+    return { outbound: toList(data).map(toOption), returnFlights: Array.isArray(data.returnFlights) ? data.returnFlights.map(toOption) : null };
   },
   /** GET /api/flights/:id: the flight, its airline and the full seat map. 404 when the flight does not exist. */
   async getById(id: string | number): Promise<FlightDetails> {
     const { data } = await api.get<Envelope<Raw>>(`/flights/${encodeURIComponent(String(id))}`);
     assertSuccess(data);
-    const d = data.data, now = Date.now();
-    return { ...toOption(d), seats: ((d.seats as Raw[]) ?? []).map((seat) => toSeat(seat, now)) };
+    const d = data.data;
+    return { ...toOption(d), seats: ((d.seats as Raw[]) ?? []).map(toSeat) };
   },
   /**
    * POST /api/flights/:id/hold { seatIds }: keeps the seats for this traveler for 10 minutes and releases their other holds on the flight.

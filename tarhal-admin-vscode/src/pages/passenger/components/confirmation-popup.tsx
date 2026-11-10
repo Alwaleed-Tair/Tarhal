@@ -9,21 +9,24 @@ import type { CarPlan } from './car-rental-step';
 import type { HotelPlan } from './hotel-stay-step';
 import type { ChosenSeat } from './seat-selection-step';
 
+export type TripLeg = { flight: FlightOption; seats: ChosenSeat[] };
+
 type Props = {
-  flight: FlightOption;
-  seats: ChosenSeat[];
+  legs: TripLeg[];
   hotel: HotelPlan | null;
   car: CarPlan | null;
-  /** Sends POST /api/bookings. Returns a message key when it failed. */
+  /** Books everything (flights, hotel, car). Returns a message key when the flight booking failed. */
   onBook: () => Promise<TranslationKey | null>;
   onClose: () => void;
 };
 
+export const carDays = (car: CarPlan) => Math.max(1, Math.round((Date.parse(`${car.returnDate}T12:00:00Z`) - Date.parse(`${car.pickup}T12:00:00Z`)) / 86_400_000));
+
 /**
- * Tariq's summary dialog. The flight is really booked here (button "Confirm flight booking");
- * the hotel and car stay estimates, marked "not booked", because their booking APIs do not exist yet.
+ * Tariq's summary dialog. "Confirm booking" books the flight(s), the hotel and the car on the API
+ * (prices are calculated again on the server, with the same rules). Payment follows on the Ready step.
  */
-export default function ConfirmationPopup({ flight, seats, hotel, car, onBook, onClose }: Props) {
+export default function ConfirmationPopup({ legs, hotel, car, onBook, onClose }: Props) {
   const t = useT();
   const format = useFormat();
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -37,10 +40,13 @@ export default function ConfirmationPopup({ flight, seats, hotel, car, onBook, o
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [onClose, busy]);
 
-  const rentalDays = car ? Math.max(1, Math.ceil((Date.parse(`${car.returnDate}T12:00:00Z`) - Date.parse(`${car.pickup}T12:00:00Z`)) / 86_400_000)) : 0;
-  const carTotal = car ? car.dailyRate * rentalDays : 0;
-  const flightTotal = seats.reduce((sum, seat) => sum + seat.price, 0);
+  const legTotal = (leg: TripLeg) => leg.seats.reduce((sum, seat) => sum + seat.price, 0);
+  const flightsTotal = legs.reduce((sum, leg) => sum + legTotal(leg), 0);
   const hotelTotal = hotel ? hotel.nightlyRate * hotel.nights : 0;
+  const carTotal = car ? car.dailyRate * carDays(car) : 0;
+  const travelers = legs[0]?.seats.length ?? 0;
+  let n = 0;
+  const number = () => String(++n).padStart(2, '0');
 
   const book = async () => {
     setBusy(true);
@@ -59,42 +65,35 @@ export default function ConfirmationPopup({ flight, seats, hotel, car, onBook, o
         <p className="dialog-intro" id="confirmation-description">{t('tpSummaryIntro')}</p>
 
         <div className="summary-list">
-          <div className="summary-entry">
-            <span className="summary-icon">01</span>
-            <div>
-              <strong>{t('tpFlight')} · <bdi dir="ltr">{flight.flightNumber}</bdi></strong>
-              <span>{cityLabel(t, flight.from)} → {cityLabel(t, flight.to)}</span>
-              <small>{format.date(riyadhDay(flight.departureTime))} · <bdi dir="ltr">{riyadhTime(flight.departureTime)}</bdi> · {t(seats.length === 1 ? 'tpTravelerCount1' : 'tpTravelerCount', { count: format.number(seats.length) })}</small>
+          {legs.map((leg, index) => (
+            <div className="summary-entry" key={leg.flight.id}>
+              <span className="summary-icon">{number()}</span>
+              <div>
+                <strong>{t(legs.length > 1 ? (index === 0 ? 'tpOutboundFlight' : 'tpReturnFlight') : 'tpFlight')} · <bdi dir="ltr">{leg.flight.flightNumber}</bdi></strong>
+                <span>{cityLabel(t, leg.flight.from)} → {cityLabel(t, leg.flight.to)} · <bdi dir="ltr">{leg.seats.map((seat) => seat.code).join(', ')}</bdi></span>
+                <small>{format.date(riyadhDay(leg.flight.departureTime))} · <bdi dir="ltr">{riyadhTime(leg.flight.departureTime)}</bdi> · {t(travelers === 1 ? 'tpTravelerCount1' : 'tpTravelerCount', { count: format.number(travelers) })}</small>
+              </div>
+              <b data-testid={`text-flight-total-${index}`}><Money sar={legTotal(leg)} /></b>
             </div>
-            <b data-testid="text-flight-total"><Money sar={flightTotal} /></b>
-          </div>
-          <div className="summary-entry">
-            <span className="summary-icon">02</span>
-            <div>
-              <strong>{t('tpSeatsSelected')}</strong>
-              <span dir="ltr">{seats.map((seat) => seat.code).join(', ')}</span>
-              <small>{t('tpIncludedInFlight')}</small>
-            </div>
-            <b>—</b>
-          </div>
+          ))}
           {hotel && (
-            <div className="summary-entry summary-entry-plan">
-              <span className="summary-icon">03</span>
+            <div className="summary-entry">
+              <span className="summary-icon">{number()}</span>
               <div>
                 <strong>{t('tpHotel')} · {hotel.name}</strong>
                 <span>{cityLabel(t, hotel.city)} · {format.dayMonth(hotel.checkIn)} → {format.dayMonth(hotel.checkOut)}</span>
-                <small className="summary-not-booked">{t('tpNotBookedYet')}</small>
+                <small>{t(hotel.nights === 1 ? 'tpNight1' : 'tpNights', { count: format.number(hotel.nights) })}</small>
               </div>
               <b data-testid="text-hotel-estimate"><Money sar={hotelTotal} /></b>
             </div>
           )}
           {car && (
-            <div className="summary-entry summary-entry-plan">
-              <span className="summary-icon">{hotel ? '04' : '03'}</span>
+            <div className="summary-entry">
+              <span className="summary-icon">{number()}</span>
               <div>
                 <strong>{t('tpCar')} · {car.car}</strong>
                 <span>{cityLabel(t, car.location)} · {format.dayMonth(car.pickup)} → {format.dayMonth(car.returnDate)}</span>
-                <small className="summary-not-booked">{t('tpNotBookedYet')}</small>
+                <small>{t(carDays(car) === 1 ? 'tpDay1' : 'tpDays', { count: format.number(carDays(car)) })}</small>
               </div>
               <b data-testid="text-car-estimate-summary"><Money sar={carTotal} /></b>
             </div>
@@ -102,10 +101,10 @@ export default function ConfirmationPopup({ flight, seats, hotel, car, onBook, o
         </div>
 
         <div className="demo-total-row">
-          <span>{t('tpFlightToPay')}</span>
-          <strong data-testid="text-estimated-total"><Money sar={flightTotal} /></strong>
+          <span>{t('tpTripTotal')}</span>
+          <strong data-testid="text-estimated-total"><Money sar={flightsTotal + hotelTotal + carTotal} /></strong>
         </div>
-        {(hotel || car) && <p className="summary-plan-note">{t('tpPlanEstimate')} <Money sar={hotelTotal + carTotal} /></p>}
+        <p className="summary-plan-note">{t('tpPayOnNextStep')}</p>
 
         {error && <p className="summary-error" role="alert">{t(error)}</p>}
         <button className="finish-button" type="button" onClick={() => void book()} disabled={busy} data-testid="button-confirm-booking">

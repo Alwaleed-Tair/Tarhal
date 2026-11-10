@@ -13,13 +13,13 @@ export const passengerEn = {
   tpGuestBookingsNote: 'Your bookings show here once you are signed in.',
   tpPageNotFound: 'Page not found', tpPageNotOnMap: 'That page isn’t on the map.', tpBackHome: 'Back to home',
   // Hotels and car rentals search
- 
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
+
   // Cities and regions
   tpCityAlUla: 'AlUla', tpCityKhobar: 'Khobar', tpCityAbha: 'Abha', tpCityAlBaha: 'Al Baha', tpCityRiyadh: 'Riyadh', tpCityDammam: 'Dammam',
   tpCityUmluj: 'Umluj', tpCityTaif: 'Taif', tpCityJeddah: 'Jeddah', tpCityMadinah: 'Madinah',
@@ -35,7 +35,7 @@ export const passengerEn = {
   tpErrOffline: 'We cannot reach the server. Check your connection and try again.',
   tpErrSeatTaken: 'One of your seats was just taken by someone else. Please choose again.',
   tpErrCancel409: 'This booking could not be cancelled. Please refresh the page.',
-  tpNotAvailableYet: 'Not available yet',
+
   // Traveler home (Tariq's Dashboard)
   tpGoodDay: 'Good day', tpGoodEvening: 'Good evening', tpGreeting: '{greeting}!', tpGreetingName: '{greeting}, {name}!',
   tpNiceWeekend: 'Have a nice weekend', tpNiceDay: 'Have a nice {day}',
@@ -71,7 +71,7 @@ export const passengerEn = {
   tpEyebrowTravelers: 'WHO IS FLYING', tpTitleTravelers1: 'Tell us who', tpTitleTravelers2: 'is coming along.', tpNoteTravelers: 'Each seat needs a traveler’s details.',
   tpEyebrowHotel: 'A PLACE TO STAY', tpTitleHotel1: 'Rest well,', tpTitleHotel2: 'wherever you land.', tpNoteHotel: 'Pick a hotel in {city}.',
   tpEyebrowCar: 'YOUR JOURNEY, IN ONE PLACE', tpTitleCar1: 'Make the most', tpTitleCar2: 'of the road.', tpNoteCar: 'Choose a car for your time in {city}.',
-  tpEyebrowDone: 'A LITTLE TRIP, ALL TOGETHER', tpTitleDone1: 'Your journey is', tpTitleDone2: 'ready to go.', tpNoteDone: 'Your flight is booked. Find it any time in My bookings.',
+  tpEyebrowDone: 'A LITTLE TRIP, ALL TOGETHER', tpTitleDone1: 'Your journey is', tpTitleDone2: 'ready to go.', tpNoteDone: 'Your trip is booked. Find it any time in My bookings.',
   tpTripType: 'Trip type', tpOneWay: 'One way', tpRoundTrip: 'Round trip', tpMultiCity: 'Multi-city',
   tpPassenger: 'Passenger', tpPassengers: 'Passengers', tpPassengerCaption: 'Ages 2 and above · up to 6',
   tpRemovePassenger: 'Remove one passenger', tpAddPassenger: 'Add one passenger', tpCabinClass: 'Cabin class',
@@ -104,7 +104,7 @@ export const passengerEn = {
   tpFixTravelers: 'Please fix the highlighted details.', tpBackToSeats: 'Back to seats', tpContinueHotel: 'Continue to hotel',
   // Hotel step
   tpHotelKicker: 'A PLACE TO STAY', tpHotelTitle: 'Rest well in {city}.', tpHotelIntro: 'Pick a hotel and choose how many nights you would like to stay.',
-  tpHotelNotBookable: 'Hotel booking is not available yet. A hotel you pick here is part of your plan only and is not booked.',
+
   tpNightsLabel: 'NIGHTS', tpFewerNights: 'Fewer nights', tpMoreNights: 'More nights', tpYourStay: 'YOUR STAY',
   tpChooseYourHotel: 'CHOOSE YOUR HOTEL', tpHotelsIn: 'Hotels in {city}', tpPricePerNight: 'Price per night',
   tpNoHotels: 'No hotels are listed for {city} yet.', tpNight1: '{count} night', tpNights: '{count} nights', tpNightShort: 'night',
@@ -112,21 +112,42 @@ export const passengerEn = {
   tpBackToTravelers: 'Back to travelers', tpSkipHotel: 'Skip hotel', tpContinueCar: 'Continue to car',
   // Car step
   tpCarKicker: 'YOUR JOURNEY, IN ONE PLACE', tpCarTitle: 'Make the most of the road.', tpCarIntro: 'Add a car for your time in {city}.',
-  tpCarNotBookable: 'Car rental booking is not available yet. A car you pick here is part of your plan only and is not booked.',
+
   tpPickupLocation: 'PICKUP LOCATION', tpPickupDate: 'PICKUP DATE', tpReturnDate: 'RETURN DATE',
   tpChooseRide: 'CHOOSE YOUR RIDE', tpCarsIn: 'Available cars in {city}', tpPricePerDay: 'Price per day', tpNoCars: 'No cars are available in {city} yet.',
   tpSeatsCount: '{count} seats', tpManual: 'Manual', tpAutomatic: 'Automatic', tpDayShort: 'day', tpDay1: '{count} day', tpDays: '{count} days',
-  tpCarEstimate: 'CAR ESTIMATE', tpEstimateOnly: 'estimate only',
+  tpCarEstimate: 'CAR ESTIMATE',
   tpErrRentalDates: 'Choose both rental dates to continue.', tpErrPickupPast: 'Pickup date cannot be in the past.',
   tpErrReturnBeforePickup: 'Return date must be the same day or after pickup.', tpChooseCar: 'Choose a car to continue, or skip the car.',
   tpBackToHotel: 'Back to hotel', tpSkipCar: 'Skip car', tpReviewTrip: 'Review and book',
   // Summary and confirmation
-  tpSummaryEyebrow: 'TRIP SUMMARY', tpSummaryTitle: 'Review your trip, then book the flight.',
-  tpSummaryIntro: 'Your flight is booked when you confirm. No payment is taken now.', tpCloseSummary: 'Close summary',
-  tpSeatsSelected: 'Seats selected', tpIncludedInFlight: 'Included in the flight price', tpNotBookedYet: 'Not booked: booking not available yet',
-  tpFlightToPay: 'Flight total', tpPlanEstimate: 'Hotel and car estimate (not booked):', tpConfirmBooking: 'Confirm flight booking',
+  tpSummaryEyebrow: 'TRIP SUMMARY', tpSummaryTitle: 'Your itinerary is ready to review.',
+  tpSummaryIntro: 'Your flights, hotel and car are booked when you confirm. Payment comes next.', tpCloseSummary: 'Close summary',
+
+tpConfirmBooking: 'Confirm booking',
   tpBookingConfirmedKicker: 'BOOKING CONFIRMED', tpBookingConfirmedTitle: 'All set for the journey.',
   tpSeatCount: '{count} seats', tpSeatCount1: '{count} seat', tpViewMyBookings: 'View my bookings', tpPlanAnother: 'Plan another journey',
+  // Round trip, payment, boarding pass, profile, AI guide
+  tpReturnLabel: 'RETURN', tpReturnDateLabel: 'Return date', tpOutboundFlight: 'Outbound flight', tpReturnFlight: 'Return flight',
+  tpReturnResultsTitle: 'Choose your flight back', tpOutboundChosen: 'Outbound: {number}', tpNoReturnFlights: 'No flights back on that day. Try another return date.', tpBackToOutbound: 'Back to outbound flights',
+  tpErrNoReturnDate: 'Choose a return date to continue.', tpErrReturnBeforeDeparture: 'Your return date needs to be after your departure date.', tpErrCarTaken: 'This car is already rented for those days. Choose another car or other dates.', tpTripTotal: 'Trip total',
+  tpPayOnNextStep: 'Everything is booked when you confirm. You pay on the next step.', tpNotBooked: 'Not booked', tpAwaitingPayment: 'Awaiting payment', tpTripPaidKicker: 'ALL PAID',
+  tpTripPaidTitle: 'Paid and ready. Have a good journey.', tpPayment: 'PAYMENT', tpSimulatedPaymentNote: 'Simulated payment: no card is needed and nothing is charged.', tpPayNowSimulated: 'Pay now (simulated)',
+  tpRefunded: 'Refunded', tpBoardingPass: 'Boarding pass', tpBoardingPassFor: 'Boarding pass for {name}', tpDate: 'Date',
+  tpDepartureTime: 'Departure', tpClass: 'Class', tpQrLabel: 'QR code of booking reference {reference}', tpPrintBoardingPass: 'Print boarding pass',
+  tpShowBoardingPass: 'Show boarding pass', tpHideBoardingPass: 'Hide boarding pass', tpNoHotelInTrip: 'No hotel booked', tpNoCarInTrip: 'No car booked',
+  tpCancelHotel: 'Cancel hotel', tpCancelCar: 'Cancel car', tpHotelStay: 'Hotel stay', tpCarRental: 'Car rental',
+  tpGuestCount1: '1 guest', tpGuestCount: '{count} guests', tpProfile: 'Profile', tpProfileEyebrow: 'YOUR ACCOUNT',
+  tpProfileIntro: 'The details used for your bookings and boarding passes.', tpEmailFixed: 'Your email signs you in and cannot be changed here.', tpSaved: 'Saved.', tpMemberSince: 'Member since {date}',
+  tpErrName: 'Enter your name.', tpErrPhone: 'Enter a valid phone number (8 to 15 digits).', tpErrPhoneInUse: 'Another account already uses this phone number.', tpAiGuideTitle: 'Destination guide',
+  tpAiGenerated: 'AI-generated. Check opening times and rules before you go.', tpAiGuideButton: 'Get a guide to {city}', tpBestTime: 'Best time to visit', tpPlacesToVisit: 'Places to visit',
+  tpTips: 'Tips', tpAiPlanTitle: 'Plan your days', tpAiPlanIntro: 'Tell us how long you stay and what you enjoy.', tpDaysLabel: 'DAYS',
+  tpInterestsLabel: 'INTERESTS', tpMakePlan: 'Make my plan', tpDayN: 'Day {n}', tpMorning: 'Morning',
+  tpAfternoon: 'Afternoon', tpEvening: 'Evening', tpTip: 'Tip', tpAiLoading: 'Preparing…',
+  tpAiErrNotConfigured: 'The travel assistant is not set up on this server yet.', tpAiErrBusy: 'That was a lot of requests in a short time. Please try again in a few minutes.', tpAiErrTimeout: 'The assistant took too long. Please try again.', tpAiErrFailed: 'The assistant could not prepare this right now. Please try again.',
+  tpInterestCulture: 'Culture', tpInterestHistory: 'History', tpInterestNature: 'Nature', tpInterestFood: 'Food',
+  tpInterestShopping: 'Shopping', tpInterestBeach: 'Beach', tpInterestAdventure: 'Adventure', tpInterestFamily: 'Family',
+  tpInterestReligious: 'Religious sites',
 } as const;
 
 export const passengerAr: Record<keyof typeof passengerEn, string> = {
@@ -137,13 +158,13 @@ export const passengerAr: Record<keyof typeof passengerEn, string> = {
   tpCreateAccount: 'إنشاء حساب', tpSignUp: 'إنشاء الحساب', tpLogInHere: 'سجّل الدخول من هنا.',
   tpGuestBookingsNote: 'تظهر حجوزاتك هنا بعد تسجيل الدخول.',
   tpPageNotFound: 'الصفحة غير موجودة', tpPageNotOnMap: 'هذه الصفحة ليست على الخريطة.', tpBackHome: 'العودة إلى الرئيسية',
- 
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
+
   tpCityAlUla: 'العُلا', tpCityKhobar: 'الخبر', tpCityAbha: 'أبها', tpCityAlBaha: 'الباحة', tpCityRiyadh: 'الرياض', tpCityDammam: 'الدمام',
   tpCityUmluj: 'أملج', tpCityTaif: 'الطائف', tpCityJeddah: 'جدة', tpCityMadinah: 'المدينة المنورة',
   tpRegionRedSea: 'ساحل البحر الأحمر', tpRegionAsir: 'مرتفعات عسير', tpRegionEastern: 'المنطقة الشرقية', tpRegionHighlands: 'المرتفعات',
@@ -157,7 +178,7 @@ export const passengerAr: Record<keyof typeof passengerEn, string> = {
   tpErrOffline: 'تعذّر الوصول إلى الخادم. تحقق من الاتصال وحاول مرة أخرى.',
   tpErrSeatTaken: 'حُجز أحد مقاعدك للتو من شخص آخر. اختر مرة أخرى.',
   tpErrCancel409: 'تعذّر إلغاء هذا الحجز. حدّث الصفحة.',
-  tpNotAvailableYet: 'غير متاح بعد',
+
   tpGoodDay: 'يومك سعيد', tpGoodEvening: 'مساء الخير', tpGreeting: '{greeting}!', tpGreetingName: '{greeting}، {name}!',
   tpNiceWeekend: 'نهاية أسبوع سعيدة', tpNiceDay: 'أتمنى لك {day} سعيداً',
   tpDiscoverMore: 'اكتشف المزيد عن المملكة العربية السعودية', tpDiscoverCity: 'اكتشف {city}',
@@ -219,25 +240,45 @@ export const passengerAr: Record<keyof typeof passengerEn, string> = {
   tpErrFullName: 'أدخل الاسم الأول والأخير.', tpErrPassport: 'استخدم من 5 إلى 20 حرفاً ورقماً.', tpErrBirthDate: 'أدخل تاريخ ميلاد في الماضي.',
   tpFixTravelers: 'صحّح البيانات المحددة.', tpBackToSeats: 'العودة إلى المقاعد', tpContinueHotel: 'المتابعة إلى الفندق',
   tpHotelKicker: 'مكان للإقامة', tpHotelTitle: 'استرح جيداً في {city}.', tpHotelIntro: 'اختر فندقاً وعدد الليالي التي تريد الإقامة فيها.',
-  tpHotelNotBookable: 'حجز الفنادق غير متاح بعد. الفندق الذي تختاره هنا جزء من خطتك فقط ولا يُحجز.',
+
   tpNightsLabel: 'الليالي', tpFewerNights: 'ليالٍ أقل', tpMoreNights: 'ليالٍ أكثر', tpYourStay: 'إقامتك',
   tpChooseYourHotel: 'اختر فندقك', tpHotelsIn: 'فنادق في {city}', tpPricePerNight: 'السعر لليلة',
   tpNoHotels: 'لا توجد فنادق مدرجة في {city} بعد.', tpNight1: 'ليلة واحدة', tpNights: '{count} ليالٍ', tpNightShort: 'ليلة',
   tpHotelEstimate: 'تقدير الفندق', tpSelectHotelTotal: 'اختر فندقاً لعرض الإجمالي', tpChooseHotel: 'اختر فندقاً للمتابعة، أو تخطَّ الفندق.',
   tpBackToTravelers: 'العودة إلى المسافرين', tpSkipHotel: 'تخطي الفندق', tpContinueCar: 'المتابعة إلى السيارة',
   tpCarKicker: 'رحلتك في مكان واحد', tpCarTitle: 'استمتع بالطريق.', tpCarIntro: 'أضف سيارة لوقتك في {city}.',
-  tpCarNotBookable: 'حجز السيارات غير متاح بعد. السيارة التي تختارها هنا جزء من خطتك فقط ولا تُحجز.',
+
   tpPickupLocation: 'مكان الاستلام', tpPickupDate: 'تاريخ الاستلام', tpReturnDate: 'تاريخ الإرجاع',
   tpChooseRide: 'اختر سيارتك', tpCarsIn: 'السيارات المتاحة في {city}', tpPricePerDay: 'السعر لليوم', tpNoCars: 'لا توجد سيارات متاحة في {city} بعد.',
   tpSeatsCount: '{count} مقاعد', tpManual: 'يدوي', tpAutomatic: 'أوتوماتيك', tpDayShort: 'يوم', tpDay1: 'يوم واحد', tpDays: '{count} أيام',
-  tpCarEstimate: 'تقدير السيارة', tpEstimateOnly: 'تقدير فقط',
+  tpCarEstimate: 'تقدير السيارة',
   tpErrRentalDates: 'اختر تاريخي الاستئجار للمتابعة.', tpErrPickupPast: 'لا يمكن أن يكون تاريخ الاستلام في الماضي.',
   tpErrReturnBeforePickup: 'يجب أن يكون تاريخ الإرجاع في يوم الاستلام أو بعده.', tpChooseCar: 'اختر سيارة للمتابعة، أو تخطَّ السيارة.',
   tpBackToHotel: 'العودة إلى الفندق', tpSkipCar: 'تخطي السيارة', tpReviewTrip: 'المراجعة والحجز',
-  tpSummaryEyebrow: 'ملخص الرحلة', tpSummaryTitle: 'راجع رحلتك، ثم احجز الطيران.',
-  tpSummaryIntro: 'تُحجز رحلتك عند التأكيد. لا يُدفع أي مبلغ الآن.', tpCloseSummary: 'إغلاق الملخص',
-  tpSeatsSelected: 'المقاعد المختارة', tpIncludedInFlight: 'مشمولة في سعر الرحلة', tpNotBookedYet: 'غير محجوز: الحجز غير متاح بعد',
-  tpFlightToPay: 'إجمالي الرحلة', tpPlanEstimate: 'تقدير الفندق والسيارة (غير محجوز):', tpConfirmBooking: 'تأكيد حجز الرحلة',
+  tpSummaryEyebrow: 'ملخص الرحلة', tpSummaryTitle: 'خط رحلتك جاهز للمراجعة.',
+  tpSummaryIntro: 'تُحجز رحلاتك والفندق والسيارة عند التأكيد، ثم يأتي الدفع.', tpCloseSummary: 'إغلاق الملخص',
+
+tpConfirmBooking: 'تأكيد الحجز',
   tpBookingConfirmedKicker: 'تم تأكيد الحجز', tpBookingConfirmedTitle: 'كل شيء جاهز للرحلة.',
   tpSeatCount: '{count} مقاعد', tpSeatCount1: 'مقعد واحد', tpViewMyBookings: 'عرض حجوزاتي', tpPlanAnother: 'خطط لرحلة أخرى',
+  tpReturnLabel: 'العودة', tpReturnDateLabel: 'تاريخ العودة', tpOutboundFlight: 'رحلة الذهاب', tpReturnFlight: 'رحلة العودة',
+  tpReturnResultsTitle: 'اختر رحلة العودة', tpOutboundChosen: 'الذهاب: {number}', tpNoReturnFlights: 'لا توجد رحلات عودة في ذلك اليوم. جرّب تاريخ عودة آخر.', tpBackToOutbound: 'العودة إلى رحلات الذهاب',
+  tpErrNoReturnDate: 'اختر تاريخ العودة للمتابعة.', tpErrReturnBeforeDeparture: 'يجب أن يكون تاريخ العودة بعد تاريخ المغادرة.', tpErrCarTaken: 'هذه السيارة مستأجرة في تلك الأيام. اختر سيارة أخرى أو تواريخ أخرى.', tpTripTotal: 'إجمالي الحجز',
+  tpPayOnNextStep: 'يُحجز كل شيء عند التأكيد، والدفع في الخطوة التالية.', tpNotBooked: 'لم يُحجز', tpAwaitingPayment: 'بانتظار الدفع', tpTripPaidKicker: 'تم الدفع',
+  tpTripPaidTitle: 'تم الدفع وكل شيء جاهز. رحلة سعيدة.', tpPayment: 'الدفع', tpSimulatedPaymentNote: 'دفع تجريبي: لا حاجة لبطاقة ولا يُخصم أي مبلغ.', tpPayNowSimulated: 'ادفع الآن (تجريبي)',
+  tpRefunded: 'مُسترد', tpBoardingPass: 'بطاقة الصعود', tpBoardingPassFor: 'بطاقة صعود {name}', tpDate: 'التاريخ',
+  tpDepartureTime: 'المغادرة', tpClass: 'الدرجة', tpQrLabel: 'رمز QR لمرجع الحجز {reference}', tpPrintBoardingPass: 'طباعة بطاقة الصعود',
+  tpShowBoardingPass: 'عرض بطاقة الصعود', tpHideBoardingPass: 'إخفاء بطاقة الصعود', tpNoHotelInTrip: 'لا يوجد فندق محجوز', tpNoCarInTrip: 'لا توجد سيارة محجوزة',
+  tpCancelHotel: 'إلغاء الفندق', tpCancelCar: 'إلغاء السيارة', tpHotelStay: 'الإقامة في فندق', tpCarRental: 'استئجار سيارة',
+  tpGuestCount1: 'نزيل واحد', tpGuestCount: '{count} نزلاء', tpProfile: 'الملف الشخصي', tpProfileEyebrow: 'حسابك',
+  tpProfileIntro: 'البيانات المستخدمة في حجوزاتك وبطاقات الصعود.', tpEmailFixed: 'تسجّل الدخول ببريدك الإلكتروني ولا يمكن تغييره هنا.', tpSaved: 'تم الحفظ.', tpMemberSince: 'عضو منذ {date}',
+  tpErrName: 'أدخل اسمك.', tpErrPhone: 'أدخل رقم جوال صحيحاً (من 8 إلى 15 رقماً).', tpErrPhoneInUse: 'رقم الجوال هذا مستخدم في حساب آخر.', tpAiGuideTitle: 'دليل الوجهة',
+  tpAiGenerated: 'مُنشأ بالذكاء الاصطناعي. تحقق من المواعيد والأنظمة قبل الزيارة.', tpAiGuideButton: 'احصل على دليل {city}', tpBestTime: 'أفضل وقت للزيارة', tpPlacesToVisit: 'أماكن للزيارة',
+  tpTips: 'نصائح', tpAiPlanTitle: 'خطّط أيامك', tpAiPlanIntro: 'أخبرنا بمدة إقامتك وما تحب.', tpDaysLabel: 'الأيام',
+  tpInterestsLabel: 'الاهتمامات', tpMakePlan: 'أنشئ خطتي', tpDayN: 'اليوم {n}', tpMorning: 'الصباح',
+  tpAfternoon: 'بعد الظهر', tpEvening: 'المساء', tpTip: 'نصيحة', tpAiLoading: 'جارٍ التحضير…',
+  tpAiErrNotConfigured: 'المساعد غير مُعدّ على هذا الخادم بعد.', tpAiErrBusy: 'طلبات كثيرة في وقت قصير. حاول مرة أخرى بعد دقائق.', tpAiErrTimeout: 'تأخر المساعد في الرد. حاول مرة أخرى.', tpAiErrFailed: 'تعذّر على المساعد تحضير ذلك الآن. حاول مرة أخرى.',
+  tpInterestCulture: 'الثقافة', tpInterestHistory: 'التاريخ', tpInterestNature: 'الطبيعة', tpInterestFood: 'الطعام',
+  tpInterestShopping: 'التسوق', tpInterestBeach: 'الشاطئ', tpInterestAdventure: 'المغامرة', tpInterestFamily: 'العائلة',
+  tpInterestReligious: 'المواقع الدينية',
 };
