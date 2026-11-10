@@ -3,13 +3,14 @@ import { Prisma, Role } from '@prisma/client';
 import { getFlights, createFlightWithSeats, getAirlines, getBookings } from '../../../../lib/db/queries.ts';
 import { getCurrentUser } from '../../../../lib/auth.ts';
 import { prisma } from '../../../../lib/prisma.ts';
-import { ValidationError, carCreate, carUpdate, flightCreate, flightUpdate, hotelCreate, hotelUpdate } from '../../../../lib/admin-validation.ts';
+import { ValidationError, adminPage, carCreate, carUpdate, flightCreate, flightUpdate, hotelCreate, hotelUpdate } from '../../../../lib/admin-validation.ts';
 import { bookingErrorResponse, cancelBooking, isBookingType, payBooking, BOOKING_TYPES } from '../../../../lib/bookings.ts';
 
 /**
  * Admin API. Each path has its own handler; anything else under /api/admin answers 404.
  *
  *   GET    /api/admin/airlines | flights | bookings
+ *   GET    /api/admin/users | cars        (?page&pageSize, { success, data, pagination })
  *   POST   /api/admin/flights | hotels | cars
  *   PATCH  /api/admin/flights/:id | hotels/:id | cars/:id | bookings/:id
  *   DELETE /api/admin/flights/:id            (409 while the flight has bookings)
@@ -113,6 +114,36 @@ const updateBooking: Handler = async (req, id) => {
   }
 };
 
+// ─── Users and all cars (paged) ──────────────────────────
+
+/** A paged list: { success, data, pagination } like GET /api/hotels and /api/cars. */
+const paged = <T>(what: string, load: (skip: number, take: number) => Promise<[T[], number]>): Handler => async (req) => {
+  try {
+    const { page, pageSize, skip, take } = adminPage(new URL(req.url).searchParams);
+    const [data, total] = await load(skip, take);
+    const totalPages = Math.ceil(total / pageSize);
+    return json({ success: true, data, pagination: { page, pageSize, total, totalPages, hasNextPage: page < totalPages, hasPreviousPage: page > 1 && totalPages > 0 } });
+  } catch (error) {
+    if (error instanceof ValidationError) return fail(400, error.message, { code: 'INVALID_FIELD', field: error.field });
+    return fail(500, `Could not load ${what}`);
+  }
+};
+
+// GET /api/admin/users — every account, newest first, with how many bookings of each kind. Never the password.
+const listUsers = paged('users', (skip, take) => prisma.$transaction([
+  prisma.user.findMany({
+    skip, take, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
+    select: { id: true, name: true, email: true, phoneNumber: true, role: true, createdAt: true, _count: { select: { bookings: true, hotelBookings: true, carRentals: true } } },
+  }),
+  prisma.user.count(),
+]));
+
+// GET /api/admin/cars — all cars, including unavailable ones (the public /api/cars lists only available cars).
+const listCars = paged('cars', (skip, take) => prisma.$transaction([
+  prisma.car.findMany({ skip, take, orderBy: [{ city: 'asc' }, { pricePerDay: 'asc' }, { id: 'asc' }] }),
+  prisma.car.count(),
+]));
+
 // ─── Routing ─────────────────────────────────────────────
 
 /** [method][resource] for collections, and [method][resource/:id] for single records. */
@@ -121,6 +152,8 @@ const ROUTES: Record<string, Record<string, Handler>> = {
     airlines: list(getAirlines, 'airlines'),
     flights: list(getFlights, 'flights'),
     bookings: list(getBookings, 'bookings'),
+    users: listUsers,
+    cars: listCars,
   },
   POST: { flights: createFlight, hotels: createHotel, cars: createCar },
   PATCH: { 'flights/:id': updateFlight, 'hotels/:id': updateHotel, 'cars/:id': updateCar, 'bookings/:id': updateBooking },
