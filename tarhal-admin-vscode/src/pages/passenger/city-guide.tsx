@@ -6,6 +6,8 @@ import { useFormat, useT } from '@/i18n/use-i18n';
 import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
 import { cities } from './data/cities';
+import { useDemoState } from '@/store/demoStore';
+import { cityDescriptionAr, isPlaceholderDescription, isPlaceholderTitle, placeTitleAr } from './data/cities-ar';
 import { cityLabel, regionLabel } from './trip';
 import './styles/CityGuide.css';
 
@@ -41,6 +43,7 @@ const Back = () => <ArrowLeft className="rtl:-scale-x-100" size={16} />;
 export default function CityGuide() {
   const t = useT();
   const format = useFormat();
+  const { language } = useDemoState().settings;
   const { slug } = useParams<{ slug: string }>();
   const city = cities.find((item) => item.slug === slug);
   if (!city) {
@@ -56,6 +59,8 @@ export default function CityGuide() {
   }
   const places = city.places ?? [];
   const name = cityLabel(t, city.name);
+  const english = isPlaceholderDescription(city.description) ? '' : city.description.replace(/\s+/g, ' ').trim();
+  const description = language === 'ar' ? cityDescriptionAr[city.slug] ?? english : english;
   return (
     <CityGuideLayout>
       <div className="city-guide-topline">
@@ -71,7 +76,7 @@ export default function CityGuide() {
         <div className="city-guide-hero-copy">
           <p className="city-guide-eyebrow">{t('tpDiscoverSaudi')}</p>
           <h1>{name}</h1>
-          <p>{city.description}</p>
+          {description && <p>{description}</p>}
         </div>
       </section>
       <section className="city-guide-recommendations">
@@ -84,16 +89,19 @@ export default function CityGuide() {
         </div>
         {places.length > 0 ? (
           <div className="city-guide-place-grid">
-            {places.map((place) => (
-              <article className="city-guide-place-card" key={place.id}>
-                {place.photo ? (
-                  <img className="city-guide-place-image" src={place.photo} alt={place.title} loading="lazy" />
-                ) : (
-                  <div className="city-guide-place-placeholder"><ImageIcon size={20} /><span>{t('tpAddPlacePhoto')}</span></div>
-                )}
-                <div className="city-guide-place-title">{place.title}</div>
-              </article>
-            ))}
+            {places.map((place) => {
+              const title = isPlaceholderTitle(place.title) ? '' : (language === 'ar' && placeTitleAr[place.id]) || place.title;
+              return (
+                <article className="city-guide-place-card" key={place.id}>
+                  {place.photo ? (
+                    <img className="city-guide-place-image" src={place.photo} alt={title || name} loading="lazy" />
+                  ) : (
+                    <div className="city-guide-place-placeholder"><ImageIcon size={20} /><span>{t('tpAddPlacePhoto')}</span></div>
+                  )}
+                  {title && <div className="city-guide-place-title">{title}</div>}
+                </article>
+              );
+            })}
           </div>
         ) : (
           <p className="city-guide-empty">{t('tpPlacesLater')}</p>
