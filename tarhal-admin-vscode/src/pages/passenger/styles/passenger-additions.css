@@ -270,9 +270,12 @@ a.Panel-Note { text-decoration: underline; }
 
 /* ── Profile (his booking card and traveler card fields) ── */
 .profile-card.booking-card { max-width: 760px; }
-.profile-card .traveler-card { margin-bottom: 8px; }
+/* On his dark glass card the fields sit on the same glass (his white traveler card is for the light booking panels). */
+.profile-card .traveler-card.traveler-card { margin-bottom: 8px; border-color: rgba(231, 241, 249, .2); background: transparent; }
 .profile-note { display: block; margin-top: 6px; color: #486983; font-size: 12px; }
-.profile-card input[readonly] { opacity: .75; }
+/* Larger text on a phone: the "Member since" pill wraps under the title instead of running off the screen. */
+.bookings-intro.bookings-intro { flex-wrap: wrap; }
+.bookings-count.bookings-count { max-width: 100%; white-space: normal; }
 
 /* ── AI destination guide and day plan, below his city page sections ── */
 .ai-guide.city-guide-recommendations { margin-top: 22px; }
