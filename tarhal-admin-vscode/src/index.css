@@ -53,8 +53,8 @@
   --card: 218 34% 97%;
   --card-foreground: 214 43% 18%;
   --card-border: 214 30% 88%;
-  /* 50% (was 53%): white text on primary buttons reaches WCAG AA 4.5:1. Same hue. */
-  --primary: 216 86% 50%;
+  /* 47% (was 53%): white text on primary buttons, and primary links on the page background, reach WCAG AA 4.5:1. Same hue. */
+  --primary: 216 86% 47%;
   --primary-foreground: 0 0% 100%;
   --secondary: 211 40% 76%;
   --secondary-foreground: 214 43% 18%;

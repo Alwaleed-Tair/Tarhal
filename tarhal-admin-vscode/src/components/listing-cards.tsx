@@ -61,7 +61,7 @@ export function CarCard({ car }: { car: Car }) {
       <CardContent className="grid flex-1 content-start gap-3 p-4">
         <div className="flex items-start justify-between gap-2">
           <h3 className="text-base font-semibold text-foreground">{title}</h3>
-          <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">{format.year(car.year)}</span>
+          <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-foreground">{format.year(car.year)}</span>
         </div>
         <div className="flex flex-wrap gap-x-4 gap-y-1.5">
           <span className={spec}><Users className="size-4" aria-hidden="true" />{t('seatsCount', { count: format.number(car.seats) })}</span>
