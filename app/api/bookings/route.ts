@@ -1,5 +1,5 @@
 import { getCurrentUser } from '../../../lib/auth.ts';
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server.js';
 import { prisma } from '../../../lib/prisma';
 
 const DAY = /^\d{4}-\d{2}-\d{2}$/;

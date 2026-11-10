@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server.js';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '../../../../lib/prisma.ts';
 import { releaseExpiredHolds } from '../../../../lib/seats.ts';

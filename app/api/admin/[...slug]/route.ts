@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server.js';
 import { Prisma, Role } from '@prisma/client';
 import { getFlights, createFlightWithSeats, getAirlines, getBookings } from '../../../../lib/db/queries.ts';
 import { getCurrentUser } from '../../../../lib/auth.ts';

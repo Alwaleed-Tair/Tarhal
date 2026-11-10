@@ -5,7 +5,8 @@ import type { Prisma, TicketClass, Transmission } from '@prisma/client';
  * and the limits follow the column types: Decimal(10,2) prices, Decimal(4,2) seat multipliers. Pure functions, easy to test.
  */
 export class ValidationError extends Error {
-  constructor(readonly field: string, message: string) { super(message); }
+  readonly field: string;
+  constructor(field: string, message: string) { super(message); this.field = field; }
 }
 
 type Body = Record<string, unknown>;

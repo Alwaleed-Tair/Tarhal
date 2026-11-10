@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server.js';
 import { Prisma } from '@prisma/client';
 import { getCurrentUser } from '../../../lib/auth.ts';
 import { jsonObject } from '../../../lib/auth-http.ts';

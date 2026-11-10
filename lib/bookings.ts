@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server.js';
 import type { PaymentStatus, Prisma } from '@prisma/client';
 import { getCurrentUser } from './auth.ts';
 import { prisma } from './prisma.ts';
@@ -10,7 +10,9 @@ export const isBookingType = (value: unknown): value is BookingType => BOOKING_T
 
 /** A booking problem with the HTTP status it should be answered with. */
 export class BookingError extends Error {
-  constructor(readonly status: number, readonly code: string, message: string) { super(message); }
+  readonly status: number;
+  readonly code: string;
+  constructor(status: number, code: string, message: string) { super(message); this.status = status; this.code = code; }
 }
 const notFound = () => new BookingError(404, 'BOOKING_NOT_FOUND', 'Booking not found');
 
@@ -74,7 +76,7 @@ export function bookingErrorResponse(error: unknown, fallback: string) {
 
 /**
  * Cancels a flight booking owned by the logged-in user and releases its seats.
- * Used by POST /api/bookings/[id]/cancel (and the older /api/flights/[id]/cancel path).
+ * Used by POST /api/bookings/[id]/cancel, /api/hotel-bookings/[id]/cancel and /api/car-rentals/[id]/cancel.
  */
 export async function cancelBookingForCurrentUser(bookingId: string, type: BookingType = 'flight') {
   const user = await getCurrentUser();

@@ -8,7 +8,8 @@ export const MAX_DAYS_AHEAD = 365;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export class StayError extends Error {
-  constructor(message: string, readonly field?: string) { super(message); }
+  readonly field?: string;
+  constructor(message: string, field?: string) { super(message); this.field = field; }
 }
 
 /** Today in Riyadh (UTC+3) as "YYYY-MM-DD". */

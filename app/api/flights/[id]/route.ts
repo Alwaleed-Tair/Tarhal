@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server.js';
 import { prisma } from '../../../../lib/prisma.ts';
 import { getCurrentUser } from '../../../../lib/auth.ts';
 import { publicSeat, releaseExpiredHolds } from '../../../../lib/seats.ts';
