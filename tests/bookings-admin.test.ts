@@ -94,7 +94,7 @@ test('admin router: 401, 403, 404 for unknown paths, 409 duplicates and flights 
     prisma.user.findUnique = (async ({ where }: any) => Object.values(users).find((u) => u.id === where.id) ?? null) as any;
     assert.equal((await call(adminGet, 'GET', 'flights')).status, 401);
     assert.equal((await call(adminGet, 'GET', 'flights', 'traveler')).status, 403);
-    for (const [handler, method, path] of [[adminGet, 'GET', 'unknown'], [adminPost, 'POST', 'airlines'], [adminPatch, 'PATCH', 'flights'], [adminDelete, 'DELETE', 'hotels/h1'], [adminGet, 'GET', 'flights/a/b']] as const) {
+    for (const [handler, method, path] of [[adminGet, 'GET', 'unknown'], [adminPost, 'POST', 'airlines'], [adminPatch, 'PATCH', 'flights'], [adminDelete, 'DELETE', 'hotels'], [adminGet, 'GET', 'flights/a/b']] as const) {
       assert.equal((await call(handler, method, path, 'admin', method === 'GET' ? undefined : {})).status, 404, `${method} ${path}`);
     }
     prisma.airline.findUnique = (async () => ({ id: 'a1' })) as any;
