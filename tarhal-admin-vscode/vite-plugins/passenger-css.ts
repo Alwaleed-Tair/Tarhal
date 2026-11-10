@@ -57,7 +57,7 @@ function lightSelector(scoped: string): string {
 }
 
 /** Rules that keep his colours in light mode too: his rail, and text and panels laid over photos. */
-const KEEP_IN_LIGHT = /\.(sidebar|Travel-Card|Destination|card-copy|card-arrow|card-visual|card-photo|city-guide-hero|login-image-panel|login-airplane|login-form button|Dashboard-Airplane|Booking-Tab|boarding-airline)\b/;
+const KEEP_IN_LIGHT = /\.(sidebar|Travel-Card|Destination|card-copy|card-arrow|card-visual|card-photo|city-guide-hero|login-image-panel|login-airplane|login-form button|Dashboard-Airplane|Booking-Tab|boarding-airline|city-guide-place-reveal)\b/;
 
 // ---------- colours ----------
 type Rgba = { r: number; g: number; b: number; a: number };

@@ -50,7 +50,7 @@ export const passengerEn = {
   tpGuideCount: '{count} DESTINATIONS', tpAddCityPhoto: 'Add city photo', tpAddPlacePhoto: 'Add place photo',
   tpCityNotFound: 'Destination not found', tpCityNotOnMap: 'That city isn’t on the map yet.', tpBackToCities: 'Back to city selection',
   tpAllCities: 'All cities', tpCityGuideOf: 'City guide / {region}', tpDiscoverSaudi: 'Discover Saudi Arabia',
-  tpPlacesTitle: 'Recommended Places to Visit', tpPlacesNote: 'Explore places worth adding to your trip.', tpPlacesCount: '{count} PLACES',
+  tpPlacesTitle: 'Recommended Places to Visit', tpPlacesNote: 'Explore places worth adding to your trip.', tpPlacesCount: '{count} PLACES', tpOpenInHudhud: 'Open in Hudhud', tpOpensNewTab: '(opens in a new tab)',
   tpPlacesLater: 'Recommended places will be added later.', tpAnotherCity: 'Want to explore another destination?', tpBrowseCities: 'Browse all cities',
   // My bookings
   tpBookingsHeaderNote: 'Your journeys, in one place', tpBookingsEyebrow: 'YOUR TRAVEL PLANS', tpBookingsIntro: 'Your flights and seats, straight from your account.',
@@ -191,7 +191,7 @@ export const passengerAr: Record<keyof typeof passengerEn, string> = {
   tpGuideCount: '{count} وجهات', tpAddCityPhoto: 'أضف صورة للمدينة', tpAddPlacePhoto: 'أضف صورة للمكان',
   tpCityNotFound: 'الوجهة غير موجودة', tpCityNotOnMap: 'هالمدينة مو على الخريطة للحين.', tpBackToCities: 'ارجع لاختيار المدينة',
   tpAllCities: 'كل المدن', tpCityGuideOf: 'دليل المدينة / {region}', tpDiscoverSaudi: 'اكتشف المملكة العربية السعودية',
-  tpPlacesTitle: 'أماكن تستاهل الزيارة', tpPlacesNote: 'أماكن تستاهل تضيفها لرحلتك.', tpPlacesCount: '{count} أماكن',
+  tpPlacesTitle: 'أماكن تستاهل الزيارة', tpPlacesNote: 'أماكن تستاهل تضيفها لرحلتك.', tpPlacesCount: '{count} أماكن', tpOpenInHudhud: 'افتحه في هدهد', tpOpensNewTab: '(يفتح في تبويب جديد)',
   tpPlacesLater: 'بنضيف الأماكن المقترحة قريب.', tpAnotherCity: 'تبي تكتشف وجهة ثانية؟', tpBrowseCities: 'تصفّح كل المدن',
   tpBookingsHeaderNote: 'رحلاتك كلها في مكان واحد', tpBookingsEyebrow: 'خطط سفرك', tpBookingsIntro: 'رحلاتك ومقاعدك من حسابك مباشرة.',
   tpBookingCount: '{count} حجوزات', tpBookingCount1: 'حجز واحد', tpBookingNumber: 'الحجز {n}',
