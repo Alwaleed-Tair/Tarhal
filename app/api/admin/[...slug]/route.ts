@@ -5,6 +5,7 @@ import { getCurrentUser } from '../../../../lib/auth.ts';
 import { prisma } from '../../../../lib/prisma.ts';
 import { ValidationError, adminPage, carCreate, carUpdate, flightCreate, flightUpdate, hotelCreate, hotelUpdate } from '../../../../lib/admin-validation.ts';
 import { bookingErrorResponse, cancelBooking, isBookingType, payBooking, BOOKING_TYPES } from '../../../../lib/bookings.ts';
+import { carFilters, FilterError } from '../../../../lib/catalog-filters.ts';
 
 /**
  * Admin API. Each path has its own handler; anything else under /api/admin answers 404.
@@ -139,10 +140,21 @@ const listUsers = paged('users', (skip, take) => prisma.$transaction([
 ]));
 
 // GET /api/admin/cars — all cars, including unavailable ones (the public /api/cars lists only available cars).
-const listCars = paged('cars', (skip, take) => prisma.$transaction([
-  prisma.car.findMany({ skip, take, orderBy: [{ city: 'asc' }, { pricePerDay: 'asc' }, { id: 'asc' }] }),
-  prisma.car.count(),
-]));
+// Takes the same filters as /api/cars (city, make, category, transmission, minSeats, minYear, minPrice, maxPrice).
+const listCars: Handler = async (req) => {
+  let where: Prisma.CarWhereInput;
+  try {
+    const { isAvailable: _availableOnly, ...filters } = carFilters(new URL(req.url).searchParams);
+    where = filters;
+  } catch (error) {
+    if (error instanceof FilterError) return fail(400, error.message, { code: 'INVALID_FILTER' });
+    throw error;
+  }
+  return paged('cars', (skip, take) => prisma.$transaction([
+    prisma.car.findMany({ where, skip, take, orderBy: [{ pricePerDay: 'asc' }, { id: 'asc' }] }),
+    prisma.car.count({ where }),
+  ]))(req, undefined);
+};
 
 // ─── Routing ─────────────────────────────────────────────
 
