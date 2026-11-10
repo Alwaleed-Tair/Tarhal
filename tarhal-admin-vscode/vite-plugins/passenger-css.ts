@@ -10,8 +10,10 @@ import type { Plugin } from 'vite';
  *     so Arabic pages mirror the layout.
  *  4. Senior Mode: font sizes follow --text-scale (1, or 1.25 with larger text).
  *  5. Light mode: his design is dark blue, and dark mode shows it exactly as he made it. For light mode a
- *     `html:not(.dark)` copy of each colour is added: his dark surfaces turn light and his light text turns dark,
- *     in the same hues. Left as they are: his rail (the navy accent) and text that sits on photos.
+ *     `html:not(.dark)` copy of each colour is added, in the admin's light look (pale page, white panels, blue accents):
+ *     his dark page colours turn into the admin's pale page tone, his glass panels and light panels turn white,
+ *     faint white overlays (chips, pills, lines) turn into faint navy ones, and his light text turns dark.
+ *     Left as they are: solid accent blues (with the text on them), his rail, his tab strips, and text on photos.
  */
 const SCOPE = '.passenger-app';
 const FILES = /[\\/]src[\\/]pages[\\/]passenger[\\/]styles[\\/][^\\/]+\.css(\?.*)?$/;
@@ -55,7 +57,7 @@ function lightSelector(scoped: string): string {
 }
 
 /** Rules that keep his colours in light mode too: his rail, and text and panels laid over photos. */
-const KEEP_IN_LIGHT = /\.(sidebar|Travel-Card|Destination|card-copy|card-arrow|card-visual|card-photo|city-guide-hero|login-image-panel|login-airplane|Dashboard-Airplane)\b/;
+const KEEP_IN_LIGHT = /\.(sidebar|Travel-Card|Destination|card-copy|card-arrow|card-visual|card-photo|city-guide-hero|login-image-panel|login-airplane|Dashboard-Airplane|Booking-Tab|boarding-airline)\b/;
 
 // ---------- colours ----------
 type Rgba = { r: number; g: number; b: number; a: number };
@@ -92,18 +94,33 @@ function toHsl({ r, g, b }: Rgba) {
 const fmt = (n: number) => Math.round(n * 10) / 10;
 const hsla = (h: number, s: number, l: number, a: number) => `hsl(${fmt(h)} ${fmt(s * 100)}% ${fmt(l * 100)}%${a < 1 ? ` / ${fmt(a * 100) / 100}` : ''})`;
 
-/** Dark surfaces become light tints of the same hue (navy page -> pale blue); light text becomes deep ink. */
-const lightSurface = (l: number) => 0.8 + (1 - l) * 0.18;
+/** Light text becomes deep ink of the same hue. */
 const darkText = (l: number) => 0.12 + (1 - l) * 0.5;
 
+/** A solid, saturated mid blue (his #2b66a3 buttons, #4f83a8 marks): an accent, kept in light mode. */
+export function isAccent(token: string): boolean {
+  const c = parseColor(token);
+  if (!c || c.a < 0.6) return false;
+  const { s, l } = toHsl(c);
+  return s >= 0.3 && l >= 0.28 && l <= 0.72;
+}
+
 type Role = 'surface' | 'text';
-function lightColor(token: string, role: Role): string | null {
+/** `inGradient`: page gradients are page colour, never accents. */
+export function lightColor(token: string, role: Role, inGradient = false): string | null {
   const c = parseColor(token);
   if (!c) return null;
   const { h, s, l } = toHsl(c);
-  if (role === 'surface' && l >= 0.5) return null; // Already light: keep it.
-  if (role === 'text' && l <= 0.5) return null; // Already dark: keep it.
-  return hsla(h, s, role === 'surface' ? lightSurface(l) : darkText(l), c.a);
+  if (role === 'text') return l <= 0.5 ? null : hsla(h, s, darkText(l), c.a);
+  if (!inGradient && isAccent(token)) return null;
+  // Faint white overlays (glass chips, pills, hairlines) would vanish on a pale page: the same faint touch in navy.
+  if (l >= 0.85 && c.a < 0.5) return hsla(210, 0.45, 0.2, Math.min(0.14, c.a * 1.2 + 0.02));
+  // His light panels (#f7f8fc, #f8f9fc) become white, like the admin's cards.
+  if (l >= 0.97) return c.r === 255 && c.g === 255 && c.b === 255 ? null : hsla(0, 0, 1, c.a);
+  if (l >= 0.5) return null; // Other light colours stay.
+  // His translucent dark glass becomes a white panel; his solid dark page colours become the admin's pale page tone.
+  if (c.a < 1) return hsla(h, Math.min(s, 0.3), 0.99, Math.max(c.a, 0.86));
+  return hsla(h, Math.min(s, 0.38), 0.93 + (1 - l) * 0.03, c.a);
 }
 
 const COLOR_TOKEN = /#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)|\b(?:white|black)\b/g;
@@ -119,8 +136,9 @@ function roleOf(prop: string): Role | null {
 /** Replaces colours outside url(...) only. Returns null when nothing changes. */
 function lightValue(value: string, role: Role): string | null {
   let changed = false;
+  const inGradient = /gradient\(/.test(value);
   const out = value.split(/(url\([^)]*\))/).map((part) => (part.startsWith('url(') ? part : part.replace(COLOR_TOKEN, (token) => {
-    const next = lightColor(token, role);
+    const next = lightColor(token, role, inGradient);
     if (next) { changed = true; return next; }
     return token;
   }))).join('');
@@ -152,6 +170,9 @@ export function transformPassengerCss(css: string, from?: string): string {
     // A masked element uses its background colour as the icon colour (his sidebar icons): keep it as he chose.
     let masked = false;
     rule.walkDecls(/mask/, () => { masked = true; });
+    // A rule that paints a solid accent background keeps its own text colour too (white on blue stays readable).
+    let onAccent = false;
+    rule.walkDecls(/^background(-color)?$/, (decl) => { if (!/gradient\(/.test(decl.value) && (decl.value.match(COLOR_TOKEN) ?? []).some(isAccent)) onAccent = true; });
     rule.walkDecls((decl) => {
       const prop = decl.prop.toLowerCase();
       if (/^animation(-name)?$/.test(prop) && names.size) {
@@ -179,7 +200,7 @@ export function transformPassengerCss(css: string, from?: string): string {
       }
       const role = roleOf(prop);
       if (role && !(masked && prop === 'background-color')) {
-        const light = KEEP_IN_LIGHT.test(rule.selector) ? null : lightValue(decl.value, role);
+        const light = KEEP_IN_LIGHT.test(rule.selector) || (onAccent && role === 'text') ? null : lightValue(decl.value, role);
         if (light) darkDecls.push(postcss.decl({ prop: decl.prop, value: light, important: decl.important }));
       }
     });

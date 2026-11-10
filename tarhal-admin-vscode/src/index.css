@@ -1128,9 +1128,15 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
    His colours only: page gradient #142c43 → #1c4265 → #326d9f, panels #f7f8fc with ink #203b55 and
    #486983, lines #e2e7ef, chips #eef3f8, rail #102b43 with #2b66a3 for the active item, gold #e9d6aa,
    Manrope for headings, his panel corners (17px 25px 25px 25px) and shadow. Only the look changes.
+   One look for the whole site: LIGHT mode is the admin's own light style (light page, white panels, blue accents) with
+   his shapes; DARK mode is his blue page with his panels, the same as his traveler pages in dark mode.
    High-contrast mode (Senior Mode) keeps its own colours: everything colour-related is under :not(.accessibility-contrast).
    ========================================================================== */
 :root:not(.accessibility-contrast) .app-shell {
+  --adm-radius: 22px; --adm-radius-sm: 12px;
+  --adm-shadow: 0 10px 30px rgba(16, 38, 61, .08); --adm-shadow-lift: 0 14px 36px rgba(16, 38, 61, .14);
+}
+:root.dark:not(.accessibility-contrast) .app-shell {
   --background: 210 44% 95%; --foreground: 209 45% 23%;
   --card: 228 45% 98%; --card-foreground: 209 45% 23%; --card-border: 216 26% 91%;
   --border: 216 26% 91%; --input: 216 26% 86%;
@@ -1139,24 +1145,17 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
   --primary: 210 58% 40%; --primary-foreground: 0 0% 100%; --ring: 210 58% 40%;
   --sidebar: 208 61% 16%; --sidebar-foreground: 228 54% 97%; --sidebar-border: 208 50% 22%; --sidebar-primary: 210 58% 40%;
   --metric-surface: 228 45% 98%; --metric-text: 209 45% 23%; --section-surface: 228 45% 98%;
-  --adm-radius: 22px; --adm-radius-sm: 12px;
   --adm-shadow: 0 21px 54px rgba(8, 27, 44, .22); --adm-shadow-lift: 0 21px 54px rgba(8, 27, 44, .32);
   background: radial-gradient(ellipse at 77% 83%, rgba(71, 134, 185, .58) 0%, transparent 42%), linear-gradient(158deg, #142c43 0%, #1c4265 44%, #326d9f 100%);
   background-attachment: fixed;
 }
-:root.dark:not(.accessibility-contrast) .app-shell {
-  --background: 210 49% 13%; --foreground: 228 54% 97%;
-  --card: 210 45% 16%; --card-foreground: 228 54% 97%; --card-border: 210 40% 26%;
-  --border: 210 40% 26%; --input: 210 40% 30%;
-  --muted: 210 40% 21%; --muted-foreground: 210 35% 80%;
-  --secondary: 210 40% 21%; --secondary-foreground: 228 54% 97%;
-  --primary: 215 46% 60%; --primary-foreground: 210 59% 15%; --ring: 215 46% 60%;
-  --sidebar: 210 58% 10%; --sidebar-foreground: 228 54% 97%; --sidebar-border: 210 45% 20%; --sidebar-primary: 210 58% 40%;
-  --metric-surface: 210 45% 16%; --metric-text: 228 54% 97%; --section-surface: 210 45% 16%;
-  --adm-shadow: 0 21px 54px rgba(0, 0, 0, .35); --adm-shadow-lift: 0 21px 54px rgba(0, 0, 0, .45);
-  background: radial-gradient(ellipse at 77% 83%, rgba(43, 102, 163, .35) 0%, transparent 42%), linear-gradient(158deg, #0b1a29 0%, #11283f 44%, #1d4a72 100%);
-  background-attachment: fixed;
-}
+/* In dark mode his panels are light, so the admin's own dark-mode text colours (made for dark cards) go back to their light-panel values. */
+:root.dark:not(.accessibility-contrast) .app-shell .data-table td { color: hsl(215 37% 31%); }
+:root.dark:not(.accessibility-contrast) .app-shell .data-table td.cell-muted { color: hsl(var(--muted-foreground)); }
+:root.dark:not(.accessibility-contrast) .app-shell .bar-navy { background: #142845; }
+:root.dark:not(.accessibility-contrast) .app-shell .context-badge-success { color: #1f9d61; }
+:root.dark:not(.accessibility-contrast) .app-shell :is(.status-pending, .status-boarding, .status-limited, .context-badge-warning) { color: #8a5a00; }
+:root.dark:not(.accessibility-contrast) .app-shell .status-cancelled { color: #a61b1b; }
 :where(.app-shell) :is(h1, h2, .metric-value, .chart-total strong, .brand-name, .modal-header h2) { font-family: 'Manrope', var(--app-font-sans); }
 
 /* His rail: a floating rounded navy panel, the active item in his blue. */
@@ -1169,24 +1168,24 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
   :root:not(.accessibility-contrast) html[data-admin-sidebar] .chat-launcher, :root:not(.accessibility-contrast)[data-admin-sidebar] .chat-launcher { inset-inline-start: 28px; bottom: 30px; }
 }
 
-/* Top bar on his blue page: glass controls with his light text. */
-:root:not(.accessibility-contrast) :where(.app-shell) .topbar { background: rgba(20, 44, 67, .72); border-bottom-color: rgba(255, 255, 255, .12); }
-:root:not(.accessibility-contrast) :where(.topbar) :is(.global-search, .currency-select, .lang-pill, .theme-pill, .top-action, .user-button, .menu-toggle) {
+/* Top bar on his blue page (dark mode): glass controls with his light text. */
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .topbar { background: rgba(20, 44, 67, .72); border-bottom-color: rgba(255, 255, 255, .12); }
+:root.dark:not(.accessibility-contrast) :where(.topbar) :is(.global-search, .currency-select, .lang-pill, .theme-pill, .top-action, .user-button, .menu-toggle) {
   border-color: rgba(255, 255, 255, .22); background: rgba(255, 255, 255, .1); color: #f8f9fc;
 }
-:root:not(.accessibility-contrast) :where(.topbar) .global-search::placeholder { color: rgba(227, 237, 246, .78); }
-:root:not(.accessibility-contrast) :where(.topbar) :is(.top-action, .user-button, .lang-pill, .menu-toggle):hover { background: rgba(255, 255, 255, .18); }
-:root:not(.accessibility-contrast) :where(.topbar) .theme-pill span { color: #f8f9fc; }
-:root:not(.accessibility-contrast) :where(.topbar) .theme-pill span.selected, :root:not(.accessibility-contrast) :where(.topbar) .senior-toggle.active { background: #2b66a3; color: #ffffff; }
+:root.dark:not(.accessibility-contrast) :where(.topbar) .global-search::placeholder { color: rgba(227, 237, 246, .78); }
+:root.dark:not(.accessibility-contrast) :where(.topbar) :is(.top-action, .user-button, .lang-pill, .menu-toggle):hover { background: rgba(255, 255, 255, .18); }
+:root.dark:not(.accessibility-contrast) :where(.topbar) .theme-pill span { color: #f8f9fc; }
+:root.dark:not(.accessibility-contrast) :where(.topbar) .theme-pill span.selected, :root.dark:not(.accessibility-contrast) :where(.topbar) .senior-toggle.active { background: #2b66a3; color: #ffffff; }
 :where(.topbar) .currency-select select, :where(.topbar) .currency-select select option { color: inherit; }
 :where(.topbar) .currency-select select option { color: #203b55; background: #f7f8fc; }
 
-/* Page heading on his blue page: light text, his gold for the current page. */
-:root:not(.accessibility-contrast) :where(.app-shell) .page-header :is(h1, .page-title-row h1) { color: #f8f9fc; font-weight: 800; }
-:root:not(.accessibility-contrast) :where(.app-shell) .page-subtitle { color: rgba(227, 237, 246, .86); }
-:root:not(.accessibility-contrast) :where(.app-shell) .breadcrumb { color: rgba(227, 237, 246, .8); }
-:root:not(.accessibility-contrast) :where(.app-shell) .breadcrumb [aria-current='page'], :root:not(.accessibility-contrast) :where(.app-shell) .breadcrumb a:hover { color: #e9d6aa; }
-:root:not(.accessibility-contrast) :where(.app-shell) .page-header .context-badge { border: 1px solid rgba(255, 255, 255, .22); background: rgba(255, 255, 255, .1); color: #f8f9fc; }
+/* Page heading on his blue page (dark mode): light text, his gold for the current page. */
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .page-header :is(h1, .page-title-row h1) { color: #f8f9fc; font-weight: 800; }
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .page-subtitle { color: rgba(227, 237, 246, .86); }
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .breadcrumb { color: rgba(227, 237, 246, .8); }
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .breadcrumb [aria-current='page'], :root.dark:not(.accessibility-contrast) :where(.app-shell) .breadcrumb a:hover { color: #e9d6aa; }
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .page-header .context-badge { border: 1px solid rgba(255, 255, 255, .22); background: rgba(255, 255, 255, .1); color: #f8f9fc; }
 
 /* His panels: stat cards, sections, chart, settings, dialogs. */
 :root:not(.accessibility-contrast) :where(.app-shell) :is(.metric-card, .section-card, .chart-panel, .setting-card, .filter-bar) {
@@ -1196,15 +1195,15 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 :root:not(.accessibility-contrast) :where(.app-shell) .metric-label { color: hsl(var(--muted-foreground)); opacity: 1; }
 [dir='rtl'] :where(.app-shell) .metric-label { text-transform: none; letter-spacing: normal; font-size: calc(13px * var(--text-scale)); }
 :where(.app-shell) .metric-value { font-weight: 800; }
-:root:not(.accessibility-contrast) :where(.app-shell) .section-title { background: linear-gradient(90deg, #10263d 0%, #2b66a3 100%); color: #ffffff; font-family: 'Manrope', var(--app-font-sans); font-weight: 700; border-radius: 16px 24px 0 0; }
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .section-title { background: linear-gradient(90deg, #10263d 0%, #2b66a3 100%); color: #ffffff; font-family: 'Manrope', var(--app-font-sans); font-weight: 700; border-radius: 16px 24px 0 0; }
 :root:not(.accessibility-contrast) :where(.app-shell) .modal-card { border-radius: 17px 25px 25px 25px; }
 :root:not(.accessibility-contrast) :where(.app-shell) .modal-backdrop { background: rgba(8, 27, 44, .6); }
 :where(.app-shell) .button { border-radius: var(--adm-radius-sm); }
 :where(.app-shell) :is(.select-control, .input-control, .page-search) { border-radius: var(--adm-radius-sm); }
 
-:root:not(.accessibility-contrast) :where(.app-shell) .metric-card { color: hsl(var(--metric-text)); }
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .metric-card { color: hsl(var(--metric-text)); }
 :root.dark:not(.accessibility-contrast) .app-shell .button-primary { color: hsl(var(--primary-foreground)); }
-:root:not(.accessibility-contrast) .app-shell .button-primary { background: hsl(var(--primary)); }
+:root.dark:not(.accessibility-contrast) .app-shell .button-primary { background: hsl(var(--primary)); }
 @media (max-width: 1120px) {
   :root:not(.accessibility-contrast) :where(.app-shell) .sidebar { top: 8px; height: calc(100dvh - 16px); margin-block: 8px; margin-inline-start: 8px; }
   :root:not(.accessibility-contrast)[data-admin-sidebar] .chat-launcher { inset-inline-start: 20px; bottom: 22px; }
@@ -1212,4 +1211,35 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 @media (max-width: 900px) {
   :root:not(.accessibility-contrast) :where(.app-shell) .sidebar { top: 0; height: 100dvh; margin: 0; border-radius: 0; }
   :root:not(.accessibility-contrast)[data-admin-sidebar] .chat-launcher { inset-inline-start: 12px; bottom: 24px; }
+}
+
+/* Boarding pass printing (pages/passenger/components/boarding-pass.tsx): only the passes that were asked for are printed. */
+@media print {
+  html.printing-pass body * { visibility: hidden !important; }
+  html.printing-pass .boarding-passes.printing, html.printing-pass .boarding-passes.printing * { visibility: visible !important; }
+  html.printing-pass .boarding-passes.printing { position: absolute; inset: 0 auto auto 0; width: 100%; padding: 12px; }
+  html.printing-pass .boarding-passes.printing .boarding-print { display: none !important; }
+  html.printing-pass .boarding-pass { break-inside: avoid; box-shadow: none !important; }
+}
+
+/* ===== 37. One logo (components/brand-logo.tsx): Tariq's home logo on every traveler page and in the admin sidebar.
+   Light mode shows the copy with navy lettering, dark mode his original with white lettering. ===== */
+html.dark .tarhal-logo-light, html:not(.dark) .tarhal-logo-dark { display: none !important; }
+.tarhal-logo { display: inline-flex; align-items: center; line-height: 0; }
+.tarhal-logo img { display: block; width: auto; max-width: none; height: var(--logo-h, 36px); }
+:where(.app-shell) .brand .tarhal-logo img { width: auto; height: 40px; border-radius: 0; }
+/* Collapsed sidebar: only the bird (the left part of the same picture). */
+.app-shell.is-collapsed .brand .tarhal-logo img { width: 40px; height: 40px; object-fit: cover; object-position: left center; }
+[dir='rtl'] .app-shell.is-collapsed .brand .tarhal-logo img { object-position: left center; }
+@media (max-width: 480px) { .passenger-app :is(.site-header, .bookings-header, .city-guide-header) .tarhal-logo img { height: 30px; } }
+
+/* ===== 38. Smooth page changes. The rail and controls are drawn in the same place on every page (the admin Layout is
+   mounted once in App.tsx), page code is prefetched, and only the content fades in. No animation package. ===== */
+.route-fallback { min-height: 100dvh; background: hsl(var(--background)); }
+html.dark .route-fallback { background: linear-gradient(158deg, #142c43 0%, #1c4265 44%, #326d9f 100%); }
+@keyframes page-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.page-enter,
+.passenger-app :is(.tarhal-shell, .bookings-shell, .city-guide-main, .travel-main, .Stage) { animation: page-enter 200ms ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .page-enter, .passenger-app :is(.tarhal-shell, .bookings-shell, .city-guide-main, .travel-main, .Stage) { animation: none; }
 }
