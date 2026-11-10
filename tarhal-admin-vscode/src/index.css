@@ -1322,3 +1322,8 @@ html.dark .route-fallback { background: linear-gradient(158deg, #142c43 0%, #1c4
   :root[data-admin-sidebar] .page-wrap { padding-bottom: 72px; }
 }
 @media (prefers-reduced-motion: reduce) { :root body .chat-launcher.chat-launcher.chat-launcher:hover { animation: none; } }
+
+/* ===== 40. Arrows in text point the reading way (components/dir-arrow.tsx); Tariq's plane symbols fly that way too. ===== */
+.dir-arrow { display: inline-block; }
+[dir='rtl'] .dir-arrow { transform: scaleX(-1); }
+[dir='rtl'] .passenger-app :is(.Route-Plane, .booking-flight-line svg) { transform: scaleX(-1); }
