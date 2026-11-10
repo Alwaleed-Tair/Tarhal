@@ -29,6 +29,9 @@ export default function TravelHome() {
 
   const now = new Date();
   const greeting = now.getHours() >= 18 ? t('tpGoodEvening') : t('tpGoodDay');
+  const greetingText = user ? t('tpGreetingName', { greeting, name: user.name }) : t('tpGreeting', { greeting });
+  // The parts around the name ('Good evening, ' and '!'), so only the name shortens, in its own direction (bidi isolated).
+  const [beforeName, afterName = ''] = t('tpGreetingName', { greeting, name: '\u0000' }).replace(/[\u2068\u2069]/g, '').split('\u0000');
   // Friday and Saturday are the weekend in Saudi Arabia.
   const wish = now.getDay() === 5 || now.getDay() === 6
     ? t('tpNiceWeekend')
@@ -73,7 +76,8 @@ export default function TravelHome() {
           <section className="First-Container">
             <div className="Panelfirst">
               <div className="PanelTop" />
-              <h2>{user ? t('tpGreetingName', { greeting, name: user.name }) : t('tpGreeting', { greeting })}</h2>
+              {/* One line; a long name ends in an ellipsis before his airplane, and the tooltip shows it in full. */}
+              <h2 className="greeting-line" title={greetingText}>{user ? <><span>{beforeName}</span><bdi className="greeting-name">{user.name}</bdi><span>{afterName}</span></> : greetingText}</h2>
               <p>{wish}</p>
             </div>
             <img className="Dashboard-Airplane" src={Airplane1} alt="" />

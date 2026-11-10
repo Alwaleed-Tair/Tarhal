@@ -213,6 +213,26 @@ img { max-width: none; }
 .hold-chip.hold-chip { display: inline-flex; align-items: center; gap: 7px; width: fit-content; margin: 0 0 12px; font-variant-numeric: tabular-nums; }
 .hold-chip.hold-chip-ending { border-color: #e9d6aa; }
 
+/*
+ * His home greeting: one line that stops before his airplane, ending in "…" for a long name (the full text stays in the page
+ * for screen readers and in the tooltip). His plane keeps its 237px, and only shrinks on narrow cards (at most 42% of the card)
+ * so a phone still has room for the greeting. 0.82 of the plane box is its drawn part; 14px is his offset from the edge.
+ */
+.First-Container.First-Container { --plane: 237px; --reserve: calc(var(--plane) * 0.82 + 14px); }
+.Dashboard-Airplane.Dashboard-Airplane { width: var(--plane); height: auto; aspect-ratio: 1; }
+.Panelfirst.Panelfirst h2 { max-width: calc(100% - 22px - var(--reserve)); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; line-height: 1.25; }
+/* With a name: the greeting words and "!" stay whole and only the name shortens, inside its own isolated box. */
+.Panelfirst.Panelfirst h2.greeting-line { display: flex; }
+.greeting-line > span { flex: none; white-space: pre; }
+.greeting-line .greeting-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Narrow cards: his top band a little shorter, so the greeting and the wish line both fit in the card. */
+/*
+ * Narrow layouts (his own 1100px and 760px steps): the plane is sized so its drawn part ends above the greeting line, inside his
+ * top band, and the greeting gets the whole width of the card. On phones his top band is a little shorter so the wish line fits.
+ */
+@media (max-width: 1100px) { .First-Container.First-Container { --plane: 150px; --reserve: 22px; } }
+@media (max-width: 760px) { .First-Container.First-Container { --plane: 128px; } .PanelTop.PanelTop { height: 84px; } .Panelfirst.Panelfirst h2 { margin-top: 12px; } }
+
 .Panel-Note { color: inherit; font-size: 14px; opacity: .85; }
 a.Panel-Note { text-decoration: underline; }
 
