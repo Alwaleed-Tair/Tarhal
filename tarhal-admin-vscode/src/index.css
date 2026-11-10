@@ -130,12 +130,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ==========================================================================
    6. Sidebar / Brand / Navigation
    ========================================================================== */
-.sidebar { width: 232px; flex: 0 0 232px; background: hsl(var(--sidebar)); color: hsl(var(--sidebar-foreground)); padding: 22px 13px 16px; display: flex; flex-direction: column; }
-.brand { height: 84px; display: flex; align-items: center; gap: 10px; padding: 0 11px; color: inherit; text-decoration: none; }
-.brand img { width: 46px; height: 42px; flex: 0 0 auto; border-radius: 10px; background: transparent; object-fit: contain; }
-.brand-name { color: #eef4ff; font-size: calc(15px * var(--text-scale)); font-weight: 700; letter-spacing: .12em; }
-.brand-mark { width: 40px; height: 40px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 11px; background: #eef4ff; color: hsl(var(--sidebar)); font-size: calc(17px * var(--text-scale)); font-weight: 800; }
-.brand-logo-img { height: 40px; width: auto; }
+:where(.app-shell) .sidebar { width: 232px; flex: 0 0 232px; background: hsl(var(--sidebar)); color: hsl(var(--sidebar-foreground)); padding: 22px 13px 16px; display: flex; flex-direction: column; }
+:where(.app-shell) .brand { height: 84px; display: flex; align-items: center; gap: 10px; padding: 0 11px; color: inherit; text-decoration: none; }
+:where(.app-shell) .brand img { width: 46px; height: 42px; flex: 0 0 auto; border-radius: 10px; background: transparent; object-fit: contain; }
+:where(.app-shell) .brand-name { color: #eef4ff; font-size: calc(15px * var(--text-scale)); font-weight: 700; letter-spacing: .12em; }
+:where(.app-shell) .brand-mark { width: 40px; height: 40px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 11px; background: #eef4ff; color: hsl(var(--sidebar)); font-size: calc(17px * var(--text-scale)); font-weight: 800; }
+:where(.app-shell) .brand-logo-img { height: 40px; width: auto; }
 
 .nav-list { display: grid; gap: 5px; }
 .nav-link { display: flex; align-items: center; gap: 11px; min-height: 42px; padding: 8px 11px; border-radius: 7px; color: inherit; text-decoration: none; font-weight: 600; font-size: calc(15px * var(--text-scale)); transition: background .18s ease, transform .18s ease; }
@@ -143,7 +143,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 [dir='rtl'] .nav-link:hover { transform: translateX(-2px); }
 .nav-link.active { background: hsl(var(--sidebar-primary)); color: white; }
 .nav-icon { width: 17px; display: inline-grid; place-items: center; opacity: .9; }
-.sidebar-foot { margin-top: auto; padding: 14px 5px 0; }
+:where(.app-shell) .sidebar-foot { margin-top: auto; padding: 14px 5px 0; }
 
 /* ==========================================================================
    7. Theme Toggle Pill
@@ -410,7 +410,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* --- Large text: every font-size above is `calc(Npx * var(--text-scale))` ---------- */
 :root { --text-scale: 1; }
 .accessibility-large { --text-scale: 1.25; }
-.accessibility-large .sidebar { width: 290px; flex-basis: 290px; }
+.accessibility-large :where(.app-shell) .sidebar { width: 290px; flex-basis: 290px; }
 .accessibility-large .chat-launcher { width: 250px; }
 .accessibility-large .chat-panel { inset-inline-start: 306px; }
 .accessibility-large .nav-link,
@@ -531,7 +531,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
    20. Responsive — Tablet (≤1120px)
    ========================================================================== */
 @media (max-width: 1120px) {
-  .sidebar { width: 200px; flex-basis: 200px; }
+  :where(.app-shell) .sidebar { width: 200px; flex-basis: 200px; }
   .metric-grid { margin-inline: 0; }
   .action-row { gap: 15px; margin-inline: 0; }
   .page-wrap { padding-inline: 15px; }
@@ -540,7 +540,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .content-grid { grid-template-columns: 1fr; }
   .chat-launcher { width: 172px; }
   .chat-panel { inset-inline-start: 216px; }
-  .accessibility-large .sidebar { width: 250px; flex-basis: 250px; }
+  .accessibility-large :where(.app-shell) .sidebar { width: 250px; flex-basis: 250px; }
   .accessibility-large .chat-panel { inset-inline-start: 266px; }
 }
 
@@ -549,7 +549,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
    ========================================================================== */
 @media (max-width: 680px) {
   .app-shell { display: block; }
-  .sidebar { display: none; }
+  :where(.app-shell) .sidebar { display: none; }
   .main-shell { min-height: 100dvh; }
   /* Narrow gap/padding and a shrinkable search box so the top bar (menu, search, currency, toggles, avatar) fits 360-390px phones. */
   .topbar { height: 62px; justify-content: space-between; gap: 6px; padding: 0 10px; }
@@ -743,7 +743,7 @@ html.accessibility-large[data-admin-sidebar='collapsed'] { --adm-sidebar: 92px; 
 .accessibility-contrast .app-shell { background: hsl(var(--background)); }
 
 /* Sidebar */
-html[data-admin-sidebar] .sidebar { width: var(--adm-sidebar); flex-basis: var(--adm-sidebar); }
+html[data-admin-sidebar] :where(.app-shell) .sidebar { width: var(--adm-sidebar); flex-basis: var(--adm-sidebar); }
 :where(.app-shell) .sidebar { position: sticky; top: 0; z-index: 25; height: 100dvh; padding: 14px 12px 84px; overflow-y: auto; border-inline-end: 1px solid hsl(var(--sidebar-border)); transition: width .2s ease, flex-basis .2s ease; }
 :where(.app-shell) .brand { height: 52px; margin-bottom: 14px; padding: 0 8px; }
 :where(.app-shell) .brand img { width: 36px; height: 34px; }
@@ -1115,3 +1115,27 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 :where(.app-shell) :is(.metric-grid-six, .metric-grid-four) .metric-main .sparkline { flex: 0 1 auto; min-width: 0; }
 :where(.app-shell) :is(.metric-grid-six, .metric-grid-four) .metric-foot { min-height: calc(24px * var(--text-scale)); line-height: 1.5; }
 :where(.app-shell) :is(.metric-grid-six, .metric-grid-four):has(.metric-change) .metric-foot { min-height: calc(58px * var(--text-scale)); }
+
+/* ===== 35. Traveler site (Tariq's design): the chat button is his round camel badge (his #10263d circle) ===== */
+/* Desktop: over the spot at the bottom of his rail (fixed at left 62px, 67px wide, 16px from the bottom). */
+html:has(.passenger-app .sidebar) .chat-launcher:not(.chat-launcher-mobile) {
+  bottom: 30px; inset-inline-start: 73.5px; width: 44px; min-height: 0; height: 44px; justify-content: center; gap: 0; padding: 0;
+  border: 0; border-radius: 50%; background: #10263d; box-shadow: 0 6px 14px rgba(0, 0, 0, .3);
+}
+html:has(.passenger-app .sidebar) .chat-launcher:not(.chat-launcher-mobile) span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+html:has(.passenger-app .sidebar) .chat-panel { inset-inline-start: 150px; }
+/* Login and register (no rail): a round button in the corner, like his badge. */
+html:has(.passenger-app .login-page) .chat-launcher:not(.chat-launcher-mobile) {
+  bottom: 20px; inset-inline-start: 20px; width: 52px; min-height: 0; height: 52px; justify-content: center; gap: 0; padding: 0; border-radius: 50%;
+}
+html:has(.passenger-app .login-page) .chat-launcher:not(.chat-launcher-mobile) span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+html:has(.passenger-app .login-page) .chat-panel { inset-inline-start: 20px; bottom: 84px; }
+/* Up to 1100px his rail is a bottom bar: the chat button takes its end, the chat opens above the bar. */
+@media (max-width: 1100px) {
+  html:has(.passenger-app .sidebar) .chat-launcher:not(.chat-launcher-mobile) { display: none; }
+  html:has(.passenger-app .sidebar) .chat-launcher-mobile {
+    display: grid; place-items: center; z-index: 31; width: 44px; height: 44px; min-height: 0; bottom: 10px; inset-inline-start: auto; inset-inline-end: 12px;
+    padding: 0; border: 0; border-radius: 50%; background: #10263d; box-shadow: 0 6px 14px rgba(0, 0, 0, .3);
+  }
+  html:has(.passenger-app .sidebar) .chat-panel { inset-inline: 12px; bottom: 76px; width: auto; max-height: min(70dvh, 540px); }
+}

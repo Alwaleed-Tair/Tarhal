@@ -9,7 +9,7 @@
   gap: 10px;
   margin: 18px 0;
   padding: 22px 16px;
-  border: 1px dashed #c9d5e3;
+  border: 1px dashed #dfe8ee;
   border-radius: 16px;
   color: #203b55;
   background: #f7f8fc;
@@ -24,7 +24,7 @@
   border-left: 3px solid #e9d6aa;
   border-radius: 10px;
   color: #203b55;
-  background: #fbf6ea;
+  background: #eef3f8;
   font-size: 13px;
   line-height: 1.45;
 }
@@ -43,9 +43,9 @@
 }
 .traveler-card legend { padding: 0 6px; }
 .traveler-card .rental-fields { margin: 0; }
-.traveler-error { display: block; margin-top: 6px; color: #a61b1b; font-size: 12px; }
+.traveler-error { display: block; margin-top: 6px; color: #2b66a3; font-size: 12px; font-weight: 700; }
 
-.booking-status.booking-status-cancelled { color: #ffd6d3; background: rgba(166, 27, 27, .45); }
+.booking-status.booking-status-cancelled { opacity: .75; }
 .bookings-loading { margin: 24px 0; color: #f8f9fc; font-size: 14px; }
 .booking-cancel-row {
   display: flex;
@@ -72,33 +72,107 @@
   font-weight: 600;
   cursor: pointer;
 }
-.booking-cancel-button.danger { border-color: #ff9a94; background: #a61b1b; color: #ffffff; }
+.booking-cancel-button.danger { border-color: transparent; background: linear-gradient(90deg, #10263d 0%, #6a93c9 100%); color: #ffffff; }
 .booking-cancel-button:disabled { opacity: .6; cursor: progress; }
-.booking-cancel-error { flex-basis: 100%; margin: 0; color: #ffd6d3; }
+.booking-cancel-error { flex-basis: 100%; margin: 0; color: #f4e4bc; }
 
 .summary-entry-plan { opacity: .92; }
-.summary-not-booked { color: #8a5a00; font-weight: 600; }
+.summary-not-booked { color: #486983; font-weight: 700; }
 .summary-plan-note { margin: 8px 0 0; color: #61758a; font-size: 12px; }
-.summary-error { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; color: #a61b1b; background: #fdecea; font-size: 13px; }
+.summary-error { margin: 12px 0 0; padding: 10px 12px; border-left: 3px solid #e9d6aa; border-radius: 10px; color: #203b55; background: #eef3f8; font-size: 13px; font-weight: 600; }
 .complete-reference { margin: 6px 0 0; color: #61758a; font-size: 13px; }
 .complete-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .complete-actions .restart-button { text-decoration: none; }
 
 /*
- * Tariq's icon rail inside the shared app. It ends above the site's assistant button (bottom left).
- * The traveler home already leaves room for it at every width, so it moves into that room; the booking pages
- * leave none, so below 1100px the rail is hidden there (the same links are in the navbar menu and the account menu).
+ * Tariq's rail is the navigation of the whole traveler site. Desktop: his rail as he made it, with Hotels and Car Rentals
+ * added, his settings gear (site controls) and the chat button over his camel spot (see index.css section 35).
  */
-.sidebar { bottom: 96px; }
+/* His styles were written without this app's base reset, which caps every image at its box (max-width: 100%):
+   his login airplane is meant to be larger than its panel. */
+img { max-width: none; }
+.Flight-Row > .Panel-Note { grid-column: 1 / -1; }
+.sidebar-lucide { color: #f3f7ff; }
+.sidebar-chat-slot { display: block; width: 44px; height: 44px; }
+.tc-trigger { border: 0; background: transparent; cursor: pointer; padding: 0; }
+.tc { position: relative; }
+.tc-panel {
+  position: absolute; z-index: 50; bottom: 0; inset-inline-start: calc(100% + 16px); width: 272px;
+  display: grid; gap: 12px; padding: 16px; color: #203b55; text-align: start;
+  border: 1px solid #e2e7ef; border-radius: 17px; background: #f7f8fc; box-shadow: 0 21px 54px rgba(8, 27, 44, .35);
+  font-family: 'DM Sans', sans-serif;
+}
+.tc-row { display: grid; gap: 6px; }
+.tc-switch { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 3px; border-radius: 11px; background: #eef3f8; }
+.tc-switch button { min-height: 34px; border: 0; border-radius: 9px; color: #486983; background: transparent; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.tc-switch button.chosen { color: #ffffff; background: #2b66a3; }
+.tc-account { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid #e2e7ef; }
+.tc-user { display: grid; margin: 0; font-size: 12px; }
+.tc-user strong { font-family: 'Manrope', sans-serif; font-size: 14px; }
+.tc-user span { color: #486983; overflow-wrap: anywhere; }
+.tc-auth { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.tc-link { display: grid; place-items: center; min-height: 36px; padding: 0 12px; border: 1px solid #dfe8ee; border-radius: 11px; color: #203b55; background: #ffffff; font: inherit; font-size: 13px; font-weight: 700; text-decoration: none; cursor: pointer; }
+.tc-link.tc-primary { color: #ffffff; border-color: transparent; background: linear-gradient(90deg, #10263d 0%, #2b66a3 100%); }
+.tc-link.tc-logout { color: #314c69; }
+
+/* Up to 1100px the rail becomes a bar at the bottom of the screen (the chat button takes its end), and pages drop the room they kept for it. */
 @media (max-width: 1100px) {
-  .Whole-Container > .sidebar { left: 24px; }
-  .tarhal-page > .sidebar, .bookings-page > .sidebar { display: none; }
+  .sidebar.sidebar.sidebar {
+    top: auto; bottom: 0; left: 0; right: 0; width: auto; height: 64px; z-index: 30;
+    flex-direction: row; align-items: center; justify-content: space-between; gap: 4px;
+    padding: 0 68px 0 10px; border-radius: 22px 22px 0 0; box-shadow: 0 -8px 24px rgba(8, 27, 44, .3);
+  }
+  .sidebar.sidebar.sidebar .sidebar-links { flex: 1; flex-direction: row; justify-content: space-around; gap: 2px; }
+  .sidebar.sidebar.sidebar .sidebar-bottom { flex-direction: row; gap: 2px; }
+  .sidebar.sidebar.sidebar .sidebar-chat-slot { display: none; }
+  .tc-panel.tc-panel { position: fixed; bottom: 76px; left: 12px; right: 12px; width: auto; max-height: calc(100dvh - 100px); overflow: auto; }
+  .tarhal-page.tarhal-page, .bookings-page.bookings-page, .Whole-Container.Whole-Container, .city-guide-page.city-guide-page { padding-bottom: 84px; }
+  .travel-layout.travel-layout, .city-guide-layout.city-guide-layout { grid-template-columns: minmax(0, 1fr); }
+  .travel-main.travel-main, .city-guide-main.city-guide-main { grid-column: 1; }
+  .Stage.Stage { padding-left: 32px; }
 }
 @media (max-width: 760px) {
-  .Whole-Container > .sidebar { left: 16px; width: 60px; padding-top: 90px; }
+  .Stage.Stage { padding-left: 20px; }
+  .tarhallogo.tarhallogo { left: 4px; width: 150px; height: 150px; top: -20px; }
 }
 @media (max-width: 480px) {
-  .Whole-Container > .sidebar { top: 140px; left: 12px; width: 52px; padding-top: 70px; }
+  .Stage.Stage { padding-left: 14px; }
+}
+@media (max-width: 380px) {
+  .sidebar.sidebar.sidebar { padding-right: 60px; padding-left: 4px; }
+  .sidebar.sidebar.sidebar .sidebar-link { width: 34px; }
+}
+
+/* Login and register in his card. */
+.login-page.login-page { position: relative; }
+.auth-corner { position: absolute; z-index: 5; top: 12px; left: 24px; right: 24px; display: flex; align-items: center; justify-content: space-between; }
+.auth-logo img { display: block; width: 116px; height: auto; }
+.auth-controls .tc-panel { top: calc(100% + 8px); bottom: auto; right: 0; left: auto; }
+.auth-field { display: grid; gap: 4px; text-align: start; }
+.auth-error { color: #2b66a3; font-size: 12px; font-weight: 700; }
+.auth-form-error { margin: 0; padding: 10px 12px; border-left: 3px solid #e9d6aa; border-radius: 14px; color: #203b55; background: #eef3f8; font-size: 13px; font-weight: 600; text-align: start; }
+.auth-terms { display: flex; align-items: flex-start; gap: 8px; color: #314c69; font-size: 13px; font-weight: 600; text-align: start; }
+.login-form .auth-terms input { flex: none; width: 18px; height: 18px; margin-top: 1px; padding: 0; accent-color: #2b66a3; }
+.login-form button:disabled { opacity: .7; cursor: progress; }
+/* Readable text (WCAG AA): his light grey #9FB0C4 is too pale on his card; his own #486983 is used instead, and links in a
+   sentence are underlined (his own hover style) so they stand out in dark mode too. */
+.login-subtitle.login-subtitle, .login-signup.login-signup { color: #486983; }
+.login-signup.login-signup a { text-decoration: underline; }
+
+/* Hotels and car rentals search, in his panel and card styles. */
+.catalog-grid, .catalog-grid-cars { margin: 0; padding: 0; list-style: none; }
+.catalog-card.catalog-card { cursor: default; }
+.catalog-card.catalog-card:hover, .catalog-car.catalog-car:hover { transform: none; }
+.catalog-card small { display: inline-flex; align-items: center; gap: 4px; }
+.catalog-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 6px; }
+.catalog-soon { padding: 3px 8px; border: 1px solid #dfe8ee; border-radius: 999px; color: #486983; background: #eef3f8; font-size: 10px; font-weight: 700; }
+.catalog-plan { color: #2b66a3; font-size: 11px; font-weight: 700; }
+.catalog-car.catalog-car { cursor: default; }
+.catalog-pager { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 16px; color: #486983; font-size: 12px; font-weight: 700; }
+.catalog-pager .back-button:disabled { opacity: .45; cursor: not-allowed; }
+@media (max-width: 680px) {
+  .catalog-filters.catalog-filters { grid-template-columns: minmax(0, 1fr); }
+  .catalog-grid.catalog-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
 /*
@@ -121,7 +195,7 @@
  * Readable contrast (WCAG AA, 4.5:1) for his muted greys on light panels. Same blue-grey hue, a little darker.
  * The doubled class only outranks his light colour; his dark-mode colours still apply in dark mode.
  */
-.tarhal-page.tarhal-page { --ink-soft: #5a6d82; }
+.tarhal-page.tarhal-page { --ink-soft: #486983; }
 .Route-Endpoint.Route-Endpoint small, .Flight-Place.Flight-Place small,
 .dialog-eyebrow.dialog-eyebrow, .flight-results-route.flight-results-route span:last-child,
 .flight-results-summary.flight-results-summary span,
@@ -129,12 +203,12 @@
 .flight-result-fare.flight-result-fare span, .step-kicker.step-kicker, .seat-map-topline.seat-map-topline span, .seat-legend.seat-legend span,
 .seat-selection-summary.seat-selection-summary > strong span, .seat-selection-summary.seat-selection-summary > p, .passenger-seat-total.passenger-seat-total,
 .back-button.back-button, .sample-price-note.sample-price-note, .hotel-price.hotel-price, .hotel-body.hotel-body small,
-.hotel-total.hotel-total small, .rental-total.rental-total small, .car-copy.car-copy span, .car-copy.car-copy small, .car-price.car-price span { color: #5a6d82; }
+.hotel-total.hotel-total small, .rental-total.rental-total small, .car-copy.car-copy span, .car-copy.car-copy small, .car-price.car-price span { color: #486983; }
 .car-option.car-option .car-price span, .confirmation-dialog.confirmation-dialog .dialog-intro,
-.summary-entry.summary-entry > div > small { color: #5a6d82; }
-.summary-entry.summary-entry > .summary-icon { color: #2f5d86; }
-.form-message.form-message.visible { color: #3a6f9f; }
-.hotel-rating.hotel-rating { color: #43694f; }
+.summary-entry.summary-entry > div > small { color: #486983; }
+.summary-entry.summary-entry > .summary-icon { color: #2b66a3; }
+.form-message.form-message.visible { color: #2b66a3; }
+.hotel-rating.hotel-rating { color: #486983; }
 
 /*
  * His decorative orbit art is wider than a phone screen and is cut off by overflow: hidden. A hidden box can still be
@@ -144,7 +218,7 @@
 
 /* Seat hold countdown above the steps, in his flight-chip style (light text on the blue page). */
 .hold-chip.hold-chip { display: inline-flex; align-items: center; gap: 7px; width: fit-content; margin: 0 0 12px; font-variant-numeric: tabular-nums; }
-.hold-chip.hold-chip-ending { border-color: #e9d6aa; color: #8a5a00; background: #fbf6ea; }
+.hold-chip.hold-chip-ending { border-color: #e9d6aa; }
 
 .Panel-Note { color: inherit; font-size: 14px; opacity: .85; }
 a.Panel-Note { text-decoration: underline; }
