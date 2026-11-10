@@ -46,13 +46,6 @@ export async function createFlightWithSeats(data: {
   });
 }
 
-export async function updateFlight(id: string, data: { basePrice?: number; departureTime?: Date }) {
-  return await prisma.flight.update({
-    where: { id },
-    data,
-  });
-}
-
 // --- Airline Queries ---
 export async function getAirlines() {
   return await prisma.airline.findMany();
