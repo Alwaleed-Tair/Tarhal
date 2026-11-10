@@ -59,17 +59,28 @@ export async function getAirlines() {
 }
 
 // --- Booking Queries ---
+// Never return the password hash.
+const bookingUser = { select: { id: true, name: true, email: true, phoneNumber: true, role: true } } as const;
+
+/**
+ * Every booking for the admin: flights (Booking), hotels (HotelBooking) and cars (CarRental), newest first.
+ * Each row has `type`: "flight", "hotel" or "car", plus the related flight, hotel or car.
+ */
 export async function getBookings() {
-  return await prisma.booking.findMany({
-    include: {
-      // Never return the password hash.
-      user: { select: { id: true, name: true, email: true, phoneNumber: true, role: true } },
-      flight: {
-        include: { airline: true }
+  const [flights, hotels, cars] = await Promise.all([
+    prisma.booking.findMany({
+      include: {
+        user: bookingUser,
+        flight: { include: { airline: true } },
+        travelers: { include: { seat: { select: { id: true, seatCode: true, ticketClass: true, priceMultiplier: true } } } },
       },
-      travelers: {
-        include: { seat: true }
-      },
-    },
-  });
+    }),
+    prisma.hotelBooking.findMany({ include: { user: bookingUser, hotel: true } }),
+    prisma.carRental.findMany({ include: { user: bookingUser, car: true } }),
+  ]);
+  return [
+    ...flights.map((b) => ({ ...b, type: 'flight' as const })),
+    ...hotels.map((b) => ({ ...b, type: 'hotel' as const })),
+    ...cars.map((b) => ({ ...b, type: 'car' as const })),
+  ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }

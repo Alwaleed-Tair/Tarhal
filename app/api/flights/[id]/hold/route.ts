@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '../../../../../lib/auth';
 import { prisma } from '../../../../../lib/prisma';
+import { HOLD_MINUTES, releaseExpiredHolds } from '../../../../../lib/seats.ts';
 
 export async function POST(
   request: Request,
@@ -16,10 +17,10 @@ export async function POST(
 
   try {
     const flightId = (await params).id;
-    const body = await request.json();
-    const { seatIds } = body;
+    const body = await request.json().catch(() => null);
+    const seatIds = body?.seatIds;
 
-    if (!Array.isArray(seatIds) || seatIds.length === 0) {
+    if (!Array.isArray(seatIds) || seatIds.length === 0 || seatIds.length > 9 || !seatIds.every((id) => typeof id === 'string' && id.length <= 64) || new Set(seatIds).size !== seatIds.length) {
       return NextResponse.json(
         { success: false, error: 'Invalid seat selection', code: 'INVALID_INPUT' },
         { status: 400 }
@@ -27,6 +28,9 @@ export async function POST(
     }
 
     const result = await prisma.$transaction(async (tx) => {
+      // 0. Holds that have run out are free again for everyone.
+      await releaseExpiredHolds(tx, [flightId]);
+
       // 1. Fetch the requested seats
       const seats = await tx.seat.findMany({
         where: { id: { in: seatIds }, flightId },
@@ -64,16 +68,21 @@ export async function POST(
         },
       });
 
-      // 4. Atomically hold the newly requested seats for 10 minutes
-      const heldUntil = new Date(now.getTime() + 10 * 60 * 1000);
-      await tx.seat.updateMany({
-        where: { id: { in: seatIds } },
+      // 4. Hold the newly requested seats for 10 minutes
+      const heldUntil = new Date(now.getTime() + HOLD_MINUTES * 60 * 1000);
+      // Only seats that are still free (or already this traveler's) are taken, so two travelers racing for a seat cannot both win.
+      const held = await tx.seat.updateMany({
+        where: {
+          id: { in: seatIds }, flightId,
+          OR: [{ status: 'AVAILABLE' }, { status: 'HELD', heldByUserId: user.id }, { status: 'HELD', heldUntil: { lt: now } }],
+        },
         data: {
           status: 'HELD',
           heldUntil,
           heldByUserId: user.id,
         },
       });
+      if (held.count !== seatIds.length) throw new Error('SEAT_UNAVAILABLE');
 
       return { heldUntil };
     });

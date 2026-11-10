@@ -23,4 +23,4 @@ export async function proxy(request: NextRequest) {
     return NextResponse.json({ success: false, error: 'Authentication unavailable' }, { status: 503 });
   }
 }
-export const config = { matcher: ['/bookings/:path*', '/api/bookings/:path*', '/admin/:path*', '/api/admin/:path*'] };
+export const config = { matcher: ['/bookings/:path*', '/api/bookings/:path*', '/api/hotel-bookings/:path*', '/api/car-rentals/:path*', '/api/payments/:path*', '/admin/:path*', '/api/admin/:path*'] };
