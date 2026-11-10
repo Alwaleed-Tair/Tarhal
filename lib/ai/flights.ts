@@ -6,14 +6,18 @@ export type FlightCard = {
   airline: string; departureTime: string; arrivalTime: string; lowestPrice: number; availableSeats: number;
 };
 
-// Same day window the existing /api/flights/search uses (UTC day).
+// Same Riyadh day (UTC+3) and free-seat rule as /api/flights/search: holds that ran out count as free.
+// (It used the UTC day, so a 01:00 Riyadh flight showed under the day before.)
 export async function findFlights(from: string, to: string, date: string): Promise<FlightCard[]> {
   // Loaded lazily so the chat still works when the database client is unavailable.
   const { prisma } = await import('../prisma.ts');
+  const { releaseExpiredHolds } = await import('../seats.ts');
+  await releaseExpiredHolds(prisma);
+  const start = new Date(`${date}T00:00:00.000+03:00`);
   const flights = await prisma.flight.findMany({
     where: {
       from: from.toUpperCase(), to: to.toUpperCase(),
-      departureTime: { gte: new Date(`${date}T00:00:00.000Z`), lt: new Date(`${date}T23:59:59.999Z`) },
+      departureTime: { gte: start, lt: new Date(start.getTime() + 24 * 60 * 60 * 1000) },
     },
     include: { airline: true, seats: { where: { status: 'AVAILABLE' } } },
     orderBy: { departureTime: 'asc' },
@@ -25,7 +29,8 @@ export async function findFlights(from: string, to: string, date: string): Promi
     return {
       id: f.id, flightNumber: f.flightNumber, from: f.from, to: f.to, airline: f.airline?.name ?? '',
       departureTime: f.departureTime.toISOString(), arrivalTime: f.arrivalTime.toISOString(),
-      lowestPrice: Math.round(prices.length ? Math.min(...prices) : base), availableSeats: f.seats.length,
+      // Exact SAR, like the booking pages (it was rounded to whole riyals).
+      lowestPrice: Math.round((prices.length ? Math.min(...prices) : base) * 100) / 100, availableSeats: f.seats.length,
     };
   });
 }
