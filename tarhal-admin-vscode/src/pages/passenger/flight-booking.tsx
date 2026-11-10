@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FocusEvent, type FormEvent, type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FocusEvent, type FormEvent, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { ArrowLeftRight, ArrowRight, Armchair, BedDouble, CalendarDays, CarFront, Check, ChevronDown, Minus, Plane, Plus, RotateCcw, UsersRound, X } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { Money } from '@/components/money';
@@ -12,6 +12,7 @@ import { logout, useAuth } from '@/store/authStore';
 import { useDemoState } from '@/store/demoStore';
 import CarRentalStep, { type CarPlan } from './components/car-rental-step';
 import ConfirmationPopup from './components/confirmation-popup';
+import { HoldTimer } from './components/hold-timer';
 import HotelStayStep, { type HotelPlan } from './components/hotel-stay-step';
 import { PassengerShell } from './components/passenger-shell';
 import SeatSelectionStep, { type ChosenSeat } from './components/seat-selection-step';
@@ -85,7 +86,22 @@ export default function FlightBooking() {
   const [car, setCar] = useState<CarPlan | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [booking, setBooking] = useState<{ id: string; totalPrice: number } | null>(null);
+  /** End of the seat hold from the API, and the message the seat map shows when the traveler has to pick again. */
+  const [heldUntil, setHeldUntil] = useState<string | null>(null);
+  const [seatNotice, setSeatNotice] = useState<TranslationKey | null>(null);
   const today = riyadhToday();
+
+  // The hold runs out after the steps that follow the seat map: back to the seats, with the same seats chosen, to hold them again.
+  useEffect(() => {
+    if (!heldUntil || !['travelers', 'hotel', 'car'].includes(stage)) return undefined;
+    const id = window.setTimeout(() => {
+      setShowConfirmation(false);
+      setHeldUntil(null);
+      setSeatNotice('tpHoldExpired');
+      setStage('seat');
+    }, Math.max(0, Date.parse(heldUntil) - Date.now()));
+    return () => window.clearTimeout(id);
+  }, [heldUntil, stage]);
 
   // Back from the login page: pick up the flight and seats where the traveler left them.
   useEffect(() => {
@@ -135,6 +151,16 @@ export default function FlightBooking() {
     void runSearch(details);
   };
 
+  // Keyboard and screen readers: the results dialog takes focus when it opens, and each new step's heading when the step changes.
+  const resultsClose = useRef<HTMLButtonElement>(null);
+  useEffect(() => { if (showResults) resultsClose.current?.focus(); }, [showResults]);
+  const firstStage = useRef(true);
+  useEffect(() => {
+    if (firstStage.current) { firstStage.current = false; return; }
+    const heading = document.querySelector<HTMLElement>('.passenger-app .step-panel h2, .passenger-app .complete-panel h2, .passenger-app #welcome-title');
+    if (heading) { heading.setAttribute('tabindex', '-1'); heading.focus({ preventScroll: false }); }
+  }, [stage]);
+
   useEffect(() => {
     if (!showResults) return undefined;
     const onKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') setShowResults(false); };
@@ -153,7 +179,9 @@ export default function FlightBooking() {
       return null;
     }
     try {
-      await flightService.hold(flight.id, chosen.map((seat) => seat.id));
+      const hold = await flightService.hold(flight.id, chosen.map((seat) => seat.id));
+      setHeldUntil(hold.heldUntil || null);
+      setSeatNotice(null);
       setSeats(chosen);
       setSeatIds(chosen.map((seat) => seat.id));
       setStage('travelers');
@@ -185,8 +213,10 @@ export default function FlightBooking() {
         return null;
       }
       if (httpStatus(error) === 409) {
-        // A seat was taken since it was held: back to the seat map, which reloads.
+        // A seat was taken since it was held: back to the seat map, which reloads and says why.
         setShowConfirmation(false);
+        setHeldUntil(null);
+        setSeatNotice('tpErrSeatTaken');
         setStage('seat');
       }
       return errorKey(error, 'tpErrSeatTaken');
@@ -196,6 +226,7 @@ export default function FlightBooking() {
   const startOver = () => {
     setStage('flight'); setSearch(null); setResults(null); setShowResults(false); setFlight(null);
     setSeatIds([]); setSeats([]); setTravelers([]); setCar(null); setHotel(null); setShowConfirmation(false); setBooking(null); setMessage(null);
+    setHeldUntil(null); setSeatNotice(null);
   };
 
   const progressSteps: { id: Stage; label: TranslationKey }[] = [
@@ -378,9 +409,10 @@ export default function FlightBooking() {
           )}
 
           {stage === 'seat' && flight && search && (
-            <SeatSelectionStep flight={flight} passengers={search.passengers} cabinClass={search.cabinClass} initialSeatIds={seatIds}
+            <SeatSelectionStep flight={flight} passengers={search.passengers} cabinClass={search.cabinClass} initialSeatIds={seatIds} notice={seatNotice}
               onBack={() => { setStage('flight'); setShowResults(true); }} onComplete={completeSeats} />
           )}
+          {(stage === 'travelers' || stage === 'hotel' || stage === 'car') && <HoldTimer until={heldUntil} />}
           {stage === 'travelers' && (
             <TravelerDetailsStep seats={seats} initial={travelers} onBack={() => setStage('seat')} onComplete={(list) => { setTravelers(list); setStage('hotel'); }} />
           )}
@@ -436,7 +468,7 @@ export default function FlightBooking() {
         {showResults && search && (
           <div className="flight-results-scrim" onMouseDown={(event) => { if (event.target === event.currentTarget) setShowResults(false); }} data-testid="overlay-flight-results">
             <section className="flight-results-dialog" role="dialog" aria-modal="true" aria-labelledby="flight-results-title">
-              <button className="dialog-close" type="button" aria-label={t('tpCloseResults')} onClick={() => setShowResults(false)}><X size={18} /></button>
+              <button ref={resultsClose} className="dialog-close" type="button" aria-label={t('tpCloseResults')} onClick={() => setShowResults(false)}><X size={18} /></button>
               <div className="flight-results-heading">
                 <div>
                   <p className="dialog-eyebrow">{t('tpResultsEyebrow')}</p>

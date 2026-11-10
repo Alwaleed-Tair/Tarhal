@@ -81,6 +81,8 @@ export const passengerEn = {
   tpSeatLimit: 'Choose {count} seats for your travelers. Deselect a seat before choosing another.', tpSeatLimit1: 'Choose 1 seat. Deselect it before choosing another.',
   tpSeatNeed: 'Please choose one seat for each of your {count} travelers.', tpSeatNeed1: 'Please choose a seat.',
   tpBackToFlights: 'Back to flights', tpContinueTravelers: 'Continue to travelers',
+  tpHeldFor: 'Your seats are held for {time}', tpHeldTenMinutes: 'Your seats are held for 10 minutes.',
+  tpHoldExpired: 'Your seat hold ran out. Your seats are still chosen: continue to hold them again, or pick others.',
   // Traveler step
   tpTravelersKicker: 'WHO IS FLYING', tpTravelersTitle: 'Traveler details.', tpTravelersIntro: 'Enter the details as they appear on each traveler’s passport.',
   tpTravelerOnSeat: 'Traveler {n} · seat {seat}', tpFullName: 'Full name',
@@ -184,6 +186,8 @@ export const passengerAr: Record<keyof typeof passengerEn, string> = {
   tpSeatLimit: 'اختر {count} مقاعد لمسافريك. ألغِ اختيار مقعد قبل اختيار غيره.', tpSeatLimit1: 'اختر مقعداً واحداً. ألغِ اختياره قبل اختيار غيره.',
   tpSeatNeed: 'اختر مقعداً لكل واحد من مسافريك الـ{count}.', tpSeatNeed1: 'اختر مقعداً.',
   tpBackToFlights: 'العودة إلى الرحلات', tpContinueTravelers: 'المتابعة إلى المسافرين',
+  tpHeldFor: 'مقاعدك محجوزة مؤقتاً لمدة {time}', tpHeldTenMinutes: 'مقاعدك محجوزة مؤقتاً لمدة 10 دقائق.',
+  tpHoldExpired: 'انتهت مدة الحجز المؤقت لمقاعدك. ما زالت مقاعدك مختارة: تابع لحجزها مرة أخرى، أو اختر غيرها.',
   tpTravelersKicker: 'من المسافر', tpTravelersTitle: 'بيانات المسافرين.', tpTravelersIntro: 'أدخل البيانات كما تظهر في جواز سفر كل مسافر.',
   tpTravelerOnSeat: 'المسافر {n} · المقعد {seat}', tpFullName: 'الاسم الكامل',
   tpErrFullName: 'أدخل الاسم الأول والأخير.', tpErrPassport: 'استخدم من 5 إلى 20 حرفاً ورقماً.', tpErrBirthDate: 'أدخل تاريخ ميلاد في الماضي.',

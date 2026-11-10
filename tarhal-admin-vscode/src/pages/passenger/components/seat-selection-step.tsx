@@ -26,20 +26,27 @@ type Props = {
   passengers: number;
   cabinClass: TicketClass;
   initialSeatIds: string[];
+  /** Why the traveler is back on the seat map (the hold ran out, or a seat was taken). */
+  notice?: TranslationKey | null;
   onBack: () => void;
   /** Called with the seats the traveler picked. The parent holds them (POST /api/flights/:id/hold) or sends them to log in first. */
   onComplete: (seats: ChosenSeat[]) => Promise<TranslationKey | null>;
 };
 
 /** Tariq's seat step, on the real seat map of GET /api/flights/:id. Only free seats of the chosen class can be picked. */
-export default function SeatSelectionStep({ flight, passengers, cabinClass, initialSeatIds, onBack, onComplete }: Props) {
+export default function SeatSelectionStep({ flight, passengers, cabinClass, initialSeatIds, notice = null, onBack, onComplete }: Props) {
   const t = useT();
   const format = useFormat();
   const [details, setDetails] = useState<FlightDetails | null>(null);
   const [loadError, setLoadError] = useState<TranslationKey | null>(null);
   const [selected, setSelected] = useState<string[]>(initialSeatIds);
-  const [message, setMessage] = useState<TranslationKey | null>(null);
+  const [message, setMessage] = useState<TranslationKey | null>(notice);
   const [busy, setBusy] = useState(false);
+
+  // Seats this page held a moment ago show as HELD in the seat map. Only whether a seat is free or held is read,
+  // never who holds it: the seats in `initialSeatIds` that are still HELD are the ones this traveler just held.
+  const ownHeld = useMemo(() => new Set(initialSeatIds), [initialSeatIds]);
+  const canPick = useCallback((seat: Seat) => seat.free || (seat.status === 'HELD' && ownHeld.has(seat.id)), [ownHeld]);
 
   const load = useCallback(async () => {
     setLoadError(null);
@@ -47,11 +54,11 @@ export default function SeatSelectionStep({ flight, passengers, cabinClass, init
       const next = await flightService.getById(flight.id);
       setDetails(next);
       // Seats that were taken meanwhile drop out of the selection.
-      setSelected((current) => current.filter((id) => next.seats.some((seat) => seat.id === id && seat.free)));
+      setSelected((current) => current.filter((id) => next.seats.some((seat) => seat.id === id && canPick(seat))));
     } catch (error) {
       setLoadError(errorKey(error));
     }
-  }, [flight.id]);
+  }, [flight.id, canPick]);
   useEffect(() => { void load(); }, [load]);
 
   const rows = useMemo(() => seatRows(details?.seats ?? []), [details]);
@@ -59,7 +66,7 @@ export default function SeatSelectionStep({ flight, passengers, cabinClass, init
   const chosen: ChosenSeat[] = selected.map((id) => seatById.get(id)).filter((seat): seat is Seat => Boolean(seat))
     .map((seat) => ({ id: seat.id, code: seat.code, ticketClass: seat.ticketClass, price: flight.basePrice * seat.priceMultiplier }));
   const total = chosen.reduce((sum, seat) => sum + seat.price, 0);
-  const freeInClass = (details?.seats ?? []).filter((seat) => seat.free && seat.ticketClass === cabinClass).length;
+  const freeInClass = (details?.seats ?? []).filter((seat) => canPick(seat) && seat.ticketClass === cabinClass).length;
 
   const toggleSeat = (seat: Seat) => {
     setMessage(null);
@@ -79,11 +86,12 @@ export default function SeatSelectionStep({ flight, passengers, cabinClass, init
   const seatButton = (seat: Seat) => {
     const isSelected = selected.includes(seat.id);
     const otherClass = seat.ticketClass !== cabinClass;
-    const usable = seat.free && !otherClass;
-    const state = isSelected ? t('tpSeatSelected') : !seat.free ? t('tpSeatTaken') : otherClass ? t(CLASS_KEY[seat.ticketClass]) : t('tpSeatAvailable');
+    const pickable = canPick(seat);
+    const usable = pickable && !otherClass;
+    const state = isSelected ? t('tpSeatSelected') : !pickable ? t('tpSeatTaken') : otherClass ? t(CLASS_KEY[seat.ticketClass]) : t('tpSeatAvailable');
     return (
       <button
-        className={`seat-button${usable ? ' available' : ' occupied'}${isSelected ? ' selected' : ''}${otherClass && seat.free ? ' other-class' : ''}`}
+        className={`seat-button${usable ? ' available' : ' occupied'}${isSelected ? ' selected' : ''}${otherClass && pickable ? ' other-class' : ''}`}
         key={seat.id}
         type="button"
         disabled={!usable && !isSelected}
