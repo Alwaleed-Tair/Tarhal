@@ -4,8 +4,22 @@
  */
 export const passengerEn = {
   // Navigation
-  tpNavHome: 'My trips', tpNavBookings: 'My bookings', tpNavFlights: 'Book a flight', tpNavGuide: 'Travel guide', tpNavLabel: 'Trip navigation',
-  tpHomeSearchNote: 'Search real flights, pick your seats and book in a few steps.',
+  tpNavHome: 'Home', tpNavBookings: 'My bookings', tpNavFlights: 'Book a flight', tpNavGuide: 'Travel guide', tpNavLabel: 'Trip navigation',
+  // Rail settings, login and register (his wording), not found
+  tpGuideAlKhobar: 'Al Khobar', tpGuideAlBahah: 'Al-Bahah', tpGuideAlTaif: 'Al-Taif', tpGuideAlDammam: 'Al-Dammam', tpCityTitle: '{city} City', tpTravelGuideTab: 'Travel Guide',
+  tpSettings: 'Settings', tpAccount: 'Account', tpOn: 'On', tpOff: 'Off',
+  tpWelcomeHome: 'Welcome Home', tpEnterDetails: 'Please enter your details', tpSignUpHere: 'Sign up here.',
+  tpCreateAccount: 'Create Account', tpSignUp: 'Sign Up', tpLogInHere: 'Click here to log in.',
+  tpGuestBookingsNote: 'Your bookings show here once you are signed in.',
+  tpPageNotFound: 'Page not found', tpPageNotOnMap: 'That page isn’t on the map.', tpBackHome: 'Back to home',
+  // Hotels and car rentals search
+  tpHotelsPageNote: 'Real hotels across Saudi Arabia. Filter by city, price and rating.',
+  tpCarsPageNote: 'Available cars across Saudi Arabia. Filter by city, transmission and seats.',
+  tpHotelBookingSoon: 'Hotel booking is not available yet. You can browse hotels and plan a trip with a flight.',
+  tpCarBookingSoon: 'Car rental booking is not available yet. You can browse cars and plan a trip with a flight.',
+  tpCityLabel: 'CITY', tpMaxPricePerNight: 'MAX PRICE PER NIGHT (SAR)', tpMinRating: 'RATING', tpTransmission: 'TRANSMISSION', tpMinSeats: 'SEATS',
+  tpAny: 'Any', tpRatingAtLeast: '{rating}+', tpResults: 'RESULTS', tpResultsCount: '{count} found', tpNoMatches: 'Nothing matches these filters. Try fewer filters.',
+  tpBookingSoon: 'Booking not available yet', tpPlanTripTo: 'Plan a trip to {city}', tpPageOf: 'Page {page} of {total}',
   // Cities and regions
   tpCityAlUla: 'AlUla', tpCityKhobar: 'Khobar', tpCityAbha: 'Abha', tpCityAlBaha: 'Al Baha', tpCityRiyadh: 'Riyadh', tpCityDammam: 'Dammam',
   tpCityUmluj: 'Umluj', tpCityTaif: 'Taif', tpCityJeddah: 'Jeddah', tpCityMadinah: 'Madinah',
@@ -42,7 +56,7 @@ export const passengerEn = {
   tpBookingsHeaderNote: 'Your journeys, in one place', tpBookingsEyebrow: 'YOUR TRAVEL PLANS', tpBookingsIntro: 'Your flights and seats, straight from your account.',
   tpBookingCount: '{count} BOOKINGS', tpBookingCount1: '{count} BOOKING', tpBookingNumber: 'BOOKING {n}',
   tpNoBookingsTitle: 'No bookings yet', tpNoBookingsNote: 'Book a flight and it will appear here.', tpPlanJourney: 'Plan a journey',
-  tpPlanningAnother: 'Planning another journey?', tpStartNew: 'Book another flight',
+  tpPlanningAnother: 'Planning another journey?', tpStartNew: 'Start a new itinerary',
   tpFlight: 'Flight', tpSeats: 'Seats', tpHotel: 'Hotel', tpCar: 'Car', tpNoSeat: 'No seat', tpAirlineUnknown: 'Airline',
   tpTravelerCount: '{count} travelers', tpTravelerCount1: '{count} traveler', tpTotalPrice: 'Total price',
   tpBookedOn: 'Booked {date}', tpReference: 'Reference', tpDeparted: 'Departed', tpPaid: 'Paid', tpBookedUnpaid: 'Booked · payment pending',
@@ -116,8 +130,20 @@ export const passengerEn = {
 } as const;
 
 export const passengerAr: Record<keyof typeof passengerEn, string> = {
-  tpNavHome: 'رحلاتي', tpNavBookings: 'حجوزاتي', tpNavFlights: 'احجز رحلة', tpNavGuide: 'دليل السفر', tpNavLabel: 'تنقل الرحلة',
-  tpHomeSearchNote: 'ابحث عن رحلات حقيقية واختر مقاعدك واحجز في خطوات قليلة.',
+  tpNavHome: 'الرئيسية', tpNavBookings: 'حجوزاتي', tpNavFlights: 'احجز رحلة', tpNavGuide: 'دليل السفر', tpNavLabel: 'تنقل الرحلة',
+  tpGuideAlKhobar: 'الخبر', tpGuideAlBahah: 'الباحة', tpGuideAlTaif: 'الطائف', tpGuideAlDammam: 'الدمام', tpCityTitle: 'مدينة {city}', tpTravelGuideTab: 'دليل السفر',
+  tpSettings: 'الإعدادات', tpAccount: 'الحساب', tpOn: 'تشغيل', tpOff: 'إيقاف',
+  tpWelcomeHome: 'أهلاً بعودتك', tpEnterDetails: 'أدخل بياناتك من فضلك', tpSignUpHere: 'أنشئ حساباً هنا.',
+  tpCreateAccount: 'إنشاء حساب', tpSignUp: 'إنشاء الحساب', tpLogInHere: 'سجّل الدخول من هنا.',
+  tpGuestBookingsNote: 'تظهر حجوزاتك هنا بعد تسجيل الدخول.',
+  tpPageNotFound: 'الصفحة غير موجودة', tpPageNotOnMap: 'هذه الصفحة ليست على الخريطة.', tpBackHome: 'العودة إلى الرئيسية',
+  tpHotelsPageNote: 'فنادق حقيقية في أنحاء المملكة. صفِّ حسب المدينة والسعر والتقييم.',
+  tpCarsPageNote: 'سيارات متاحة في أنحاء المملكة. صفِّ حسب المدينة وناقل الحركة وعدد المقاعد.',
+  tpHotelBookingSoon: 'حجز الفنادق غير متاح بعد. يمكنك تصفح الفنادق والتخطيط لرحلة مع رحلة طيران.',
+  tpCarBookingSoon: 'حجز السيارات غير متاح بعد. يمكنك تصفح السيارات والتخطيط لرحلة مع رحلة طيران.',
+  tpCityLabel: 'المدينة', tpMaxPricePerNight: 'أعلى سعر لليلة (ر.س)', tpMinRating: 'التقييم', tpTransmission: 'ناقل الحركة', tpMinSeats: 'المقاعد',
+  tpAny: 'الكل', tpRatingAtLeast: '{rating}+', tpResults: 'النتائج', tpResultsCount: 'عدد النتائج: {count}', tpNoMatches: 'لا توجد نتائج مطابقة. جرّب فلاتر أقل.',
+  tpBookingSoon: 'الحجز غير متاح بعد', tpPlanTripTo: 'خطط لرحلة إلى {city}', tpPageOf: 'الصفحة {page} من {total}',
   tpCityAlUla: 'العُلا', tpCityKhobar: 'الخبر', tpCityAbha: 'أبها', tpCityAlBaha: 'الباحة', tpCityRiyadh: 'الرياض', tpCityDammam: 'الدمام',
   tpCityUmluj: 'أملج', tpCityTaif: 'الطائف', tpCityJeddah: 'جدة', tpCityMadinah: 'المدينة المنورة',
   tpRegionRedSea: 'ساحل البحر الأحمر', tpRegionAsir: 'مرتفعات عسير', tpRegionEastern: 'المنطقة الشرقية', tpRegionHighlands: 'المرتفعات',
@@ -149,7 +175,7 @@ export const passengerAr: Record<keyof typeof passengerEn, string> = {
   tpBookingsHeaderNote: 'رحلاتك في مكان واحد', tpBookingsEyebrow: 'خطط سفرك', tpBookingsIntro: 'رحلاتك ومقاعدك مباشرة من حسابك.',
   tpBookingCount: '{count} حجوزات', tpBookingCount1: 'حجز واحد', tpBookingNumber: 'الحجز {n}',
   tpNoBookingsTitle: 'لا توجد حجوزات بعد', tpNoBookingsNote: 'احجز رحلة وستظهر هنا.', tpPlanJourney: 'خطط لرحلة',
-  tpPlanningAnother: 'تخطط لرحلة أخرى؟', tpStartNew: 'احجز رحلة أخرى',
+  tpPlanningAnother: 'تخطط لرحلة أخرى؟', tpStartNew: 'ابدأ خطة رحلة جديدة',
   tpFlight: 'الرحلة', tpSeats: 'المقاعد', tpHotel: 'الفندق', tpCar: 'السيارة', tpNoSeat: 'لا يوجد مقعد', tpAirlineUnknown: 'شركة الطيران',
   tpTravelerCount: '{count} مسافرين', tpTravelerCount1: 'مسافر واحد', tpTotalPrice: 'السعر الإجمالي',
   tpBookedOn: 'حُجز في {date}', tpReference: 'المرجع', tpDeparted: 'أقلعت', tpPaid: 'مدفوع', tpBookedUnpaid: 'محجوز · الدفع معلّق',

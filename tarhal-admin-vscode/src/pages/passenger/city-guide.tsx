@@ -9,7 +9,6 @@ import { cities } from './data/cities';
 import { useDemoState } from '@/store/demoStore';
 import { cityDescriptionAr, isPlaceholderDescription, isPlaceholderTitle, placeTitleAr } from './data/cities-ar';
 import { cityLabel, regionLabel } from './trip';
-import './styles/CityGuide.css';
 
 function CityGuideLayout({ children }: { children: ReactNode }) {
   const t = useT();
@@ -75,7 +74,7 @@ export default function CityGuide() {
         )}
         <div className="city-guide-hero-copy">
           <p className="city-guide-eyebrow">{t('tpDiscoverSaudi')}</p>
-          <h1>{name}</h1>
+          <h1>{t('tpCityTitle', { city: name })}</h1>
           {description && <p>{description}</p>}
         </div>
       </section>

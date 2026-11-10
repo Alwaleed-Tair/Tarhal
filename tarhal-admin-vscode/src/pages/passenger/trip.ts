@@ -10,6 +10,8 @@ import { httpStatus, isServerUnreachable } from '@/services/api';
 /** Tariq's city list, in his order. */
 export const TRIP_CITIES = ['AlUla', 'Khobar', 'Abha', 'Al Baha', 'Riyadh', 'Dammam', 'Umluj', 'Taif', 'Jeddah'] as const;
 export type TripCity = (typeof TRIP_CITIES)[number];
+/** Cities for the hotel and car filters: his list plus Madinah, which the hotels API has. Sent as the `city` filter. */
+export const CATALOG_CITIES: string[] = [...TRIP_CITIES, 'Madinah'];
 
 /**
  * Airport code of each city, as used by GET /api/flights/search. Khobar and Dammam share King Fahd airport (DMM),
@@ -23,7 +25,8 @@ const CITY_KEY: Record<string, TranslationKey> = {
   AlUla: 'tpCityAlUla', Khobar: 'tpCityKhobar', Abha: 'tpCityAbha', 'Al Baha': 'tpCityAlBaha', Riyadh: 'tpCityRiyadh',
   Dammam: 'tpCityDammam', Umluj: 'tpCityUmluj', Taif: 'tpCityTaif', Jeddah: 'tpCityJeddah', Madinah: 'tpCityMadinah',
   // Spellings used in the travel guide (data/cities.ts).
-  'Al Khobar': 'tpCityKhobar', 'Al-Bahah': 'tpCityAlBaha', 'Al-Taif': 'tpCityTaif', 'Al-Dammam': 'tpCityDammam',
+  // His travel-guide spellings keep his English; Arabic is the same city name.
+  'Al Khobar': 'tpGuideAlKhobar', 'Al-Bahah': 'tpGuideAlBahah', 'Al-Taif': 'tpGuideAlTaif', 'Al-Dammam': 'tpGuideAlDammam',
 };
 
 const REGION_KEY: Record<string, TranslationKey> = {

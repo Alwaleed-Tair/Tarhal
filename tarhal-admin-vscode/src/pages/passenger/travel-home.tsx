@@ -7,14 +7,18 @@ import { useDemoState } from '@/store/demoStore';
 import Airplane1 from './assets/Airplane1.webp';
 import Alula from './assets/Alula.webp';
 import Riyadh from './assets/Riyadh.webp';
+import Tarhallogo from './assets/Tarhallogo.webp';
 import saudi from './assets/saudi.webp';
 import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
+import { withNext } from '@/lib/next-path';
 import { cityLabel } from './trip';
 import { upcoming, useMyBookings } from './use-my-bookings';
-import './styles/Dashboard.css';
 
-/** Tariq's traveler home. The greeting uses the signed-in name; both booking panels come from GET /api/bookings. */
+/**
+ * Tariq's traveler home, the start page of the site (/). The greeting uses the signed-in name; both booking panels come from
+ * GET /api/bookings. Guests see the same page with a plain greeting and links to log in or register, never sample bookings.
+ */
 export default function TravelHome() {
   const t = useT();
   const { user } = useAuth();
@@ -34,7 +38,13 @@ export default function TravelHome() {
 
   /** What a booking panel says when it has no booking to show. */
   const panelNote = (empty: string) => {
-    if (state.status === 'signedOut') return <Link href={`${routes.login}?next=${encodeURIComponent(routes.passenger.home)}`} className="Panel-Note">{t('tpSignInToSee')}</Link>;
+    if (state.status === 'signedOut') return (
+      <span className="Panel-Note" data-testid="guest-note">
+        {t('tpGuestBookingsNote')}{' '}
+        <Link href={withNext(routes.login, routes.passenger.home)}>{t('login')}</Link>{' · '}
+        <Link href={withNext(routes.register, routes.passenger.home)}>{t('register')}</Link>
+      </span>
+    );
     if (state.status === 'loading') return <span className="Panel-Note" role="status">{t('loading')}</span>;
     if (state.status === 'error') return <span className="Panel-Note" role="alert">{t(state.message)}</span>;
     return <span className="Panel-Note">{empty}</span>;
@@ -53,6 +63,8 @@ export default function TravelHome() {
   return (
     <PassengerShell>
       <div className="Whole-Container">
+        {/* His logo (his Navbar.jsx): the only brand mark on this page. */}
+        <Link href={routes.passenger.home} aria-label="Tarhal"><img className="tarhallogo" src={Tarhallogo} alt="Tarhal" /></Link>
         <Sidebar />
         <div className="Stage">
           <section className="First-Container">
@@ -65,7 +77,7 @@ export default function TravelHome() {
           </section>
 
           <Link href={routes.passenger.guide} className="Travel-Card">
-            <div className="Travel-Card-Tab"><span>{t('tpNavGuide')}</span></div>
+            <div className="Travel-Card-Tab"><span>{t('tpTravelGuideTab')}</span></div>
             <img className="Travel-Card-Image" src={saudi} alt="" />
             <h3 className="Travel-Card-Title">{t('tpDiscoverMore')}</h3>
           </Link>

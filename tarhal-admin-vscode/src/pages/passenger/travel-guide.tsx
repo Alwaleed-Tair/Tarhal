@@ -6,7 +6,6 @@ import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
 import { cities } from './data/cities';
 import { cityLabel } from './trip';
-import './styles/TravelGuide.css';
 
 function OrbitArtwork() {
   return (

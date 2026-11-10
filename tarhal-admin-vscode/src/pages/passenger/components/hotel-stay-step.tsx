@@ -6,7 +6,6 @@ import { useFormat, useT } from '@/i18n/use-i18n';
 import type { TranslationKey } from '@/i18n/translations';
 import { hotelService } from '@/services/hotelService';
 import { addDays, cityLabel, errorKey } from '../trip';
-import '../styles/HotelStay.css';
 
 const MAX_NIGHTS = 90;
 

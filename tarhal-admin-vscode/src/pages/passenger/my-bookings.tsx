@@ -14,7 +14,6 @@ import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
 import { cityLabel, errorKey, riyadhDay, riyadhTime } from './trip';
 import { useMyBookings } from './use-my-bookings';
-import './styles/Bookings.css';
 
 const Arrow = ({ size }: { size: number }) => <ArrowRight className="rtl:-scale-x-100" size={size} aria-hidden="true" />;
 const CLASS_KEY: Record<string, TranslationKey> = { ECONOMY: 'ticketECONOMY', BUSINESS: 'ticketBUSINESS', FIRST: 'ticketFIRST' };
