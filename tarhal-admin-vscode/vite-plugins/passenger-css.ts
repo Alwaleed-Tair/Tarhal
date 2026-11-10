@@ -9,8 +9,9 @@ import type { Plugin } from 'vite';
  *  3. Right-to-left: left/right margins, paddings, borders, positions and text-align become their logical versions,
  *     so Arabic pages mirror the layout.
  *  4. Senior Mode: font sizes follow --text-scale (1, or 1.25 with larger text).
- *  5. Dark mode: a `.dark` copy of each colour is added. Light surfaces and borders turn dark, dark text turns light;
- *     the hues stay his.
+ *  5. Light mode: his design is dark blue, and dark mode shows it exactly as he made it. For light mode a
+ *     `html:not(.dark)` copy of each colour is added: his dark surfaces turn light and his light text turns dark,
+ *     in the same hues. Left as they are: his rail (the navy accent) and text that sits on photos.
  */
 const SCOPE = '.passenger-app';
 const FILES = /[\\/]src[\\/]pages[\\/]passenger[\\/]styles[\\/][^\\/]+\.css(\?.*)?$/;
@@ -49,9 +50,12 @@ function scopeSelector(selector: string): string {
   return `${SCOPE} ${rest}`;
 }
 
-function darkSelector(scoped: string): string {
-  return scoped.startsWith('html:has(') ? scoped.replace(/^html/, 'html.dark') : `.dark ${scoped}`;
+function lightSelector(scoped: string): string {
+  return scoped.startsWith('html:has(') ? scoped.replace(/^html/, 'html:not(.dark)') : `html:not(.dark) ${scoped}`;
 }
+
+/** Rules that keep his colours in light mode too: his rail, and text and panels laid over photos. */
+const KEEP_IN_LIGHT = /\.(sidebar|Travel-Card|Destination|card-copy|card-arrow|card-visual|card-photo|city-guide-hero|login-image-panel|login-airplane|Dashboard-Airplane)\b/;
 
 // ---------- colours ----------
 type Rgba = { r: number; g: number; b: number; a: number };
@@ -88,17 +92,18 @@ function toHsl({ r, g, b }: Rgba) {
 const fmt = (n: number) => Math.round(n * 10) / 10;
 const hsla = (h: number, s: number, l: number, a: number) => `hsl(${fmt(h)} ${fmt(s * 100)}% ${fmt(l * 100)}%${a < 1 ? ` / ${fmt(a * 100) / 100}` : ''})`;
 
-/** Mirrors the lightness: white becomes almost black, deep navy text becomes a light tint of the same hue. */
-const invert = (l: number) => 0.07 + (1 - l) * 0.86;
+/** Dark surfaces become light tints of the same hue (navy page -> pale blue); light text becomes deep ink. */
+const lightSurface = (l: number) => 0.8 + (1 - l) * 0.18;
+const darkText = (l: number) => 0.12 + (1 - l) * 0.5;
 
 type Role = 'surface' | 'text';
-function darkColor(token: string, role: Role): string | null {
+function lightColor(token: string, role: Role): string | null {
   const c = parseColor(token);
   if (!c) return null;
   const { h, s, l } = toHsl(c);
-  if (role === 'surface' && l <= 0.5) return null; // Already dark: keep it.
-  if (role === 'text' && l >= 0.5) return null; // Already light: keep it.
-  return hsla(h, s * 0.9, invert(l), c.a);
+  if (role === 'surface' && l >= 0.5) return null; // Already light: keep it.
+  if (role === 'text' && l <= 0.5) return null; // Already dark: keep it.
+  return hsla(h, s, role === 'surface' ? lightSurface(l) : darkText(l), c.a);
 }
 
 const COLOR_TOKEN = /#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)|\b(?:white|black)\b/g;
@@ -112,10 +117,10 @@ function roleOf(prop: string): Role | null {
 }
 
 /** Replaces colours outside url(...) only. Returns null when nothing changes. */
-function darkValue(value: string, role: Role): string | null {
+function lightValue(value: string, role: Role): string | null {
   let changed = false;
   const out = value.split(/(url\([^)]*\))/).map((part) => (part.startsWith('url(') ? part : part.replace(COLOR_TOKEN, (token) => {
-    const next = darkColor(token, role);
+    const next = lightColor(token, role);
     if (next) { changed = true; return next; }
     return token;
   }))).join('');
@@ -174,12 +179,12 @@ export function transformPassengerCss(css: string, from?: string): string {
       }
       const role = roleOf(prop);
       if (role && !(masked && prop === 'background-color')) {
-        const dark = darkValue(decl.value, role);
-        if (dark) darkDecls.push(postcss.decl({ prop: decl.prop, value: dark, important: decl.important }));
+        const light = KEEP_IN_LIGHT.test(rule.selector) ? null : lightValue(decl.value, role);
+        if (light) darkDecls.push(postcss.decl({ prop: decl.prop, value: light, important: decl.important }));
       }
     });
     if (darkDecls.length) {
-      const darkRule = postcss.rule({ selector: splitSelectors(rule.selector).map(darkSelector).join(',\n') });
+      const darkRule = postcss.rule({ selector: splitSelectors(rule.selector).map(lightSelector).join(',\n') });
       darkDecls.forEach((decl) => darkRule.append(decl));
       added.push({ after: rule, rule: darkRule });
     }
