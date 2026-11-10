@@ -12,12 +12,13 @@ const RATIO = 411 / 120;
  */
 export function BrandLogo({ height = 36, tone = 'auto', className = '' }: { height?: number; tone?: 'auto' | 'onDark'; className?: string }) {
   const size = { height, width: Math.round(height * RATIO) };
-  const box = { className: `tarhal-logo ${className}`, style: { ["--logo-h" as string]: `${height}px` } };
-  if (tone === 'onDark') return <span {...box}><img src={logoOnDark} alt="Tarhal" {...size} /></span>;
+  // One name for screen readers on the box (role=img); the two pictures themselves are decorative, only one is shown.
+  const box = { className: `tarhal-logo ${className}`, role: "img", "aria-label": "Tarhal", style: { ["--logo-h" as string]: `${height}px` } };
+  if (tone === 'onDark') return <span {...box}><img src={logoOnDark} alt="" {...size} /></span>;
   return (
     <span {...box}>
-      <img className="tarhal-logo-light" src={logoOnLight} alt="Tarhal" {...size} />
-      <img className="tarhal-logo-dark" src={logoOnDark} alt="" aria-hidden="true" {...size} />
+      <img className="tarhal-logo-light" src={logoOnLight} alt="" {...size} />
+      <img className="tarhal-logo-dark" src={logoOnDark} alt="" {...size} />
     </span>
   );
 }

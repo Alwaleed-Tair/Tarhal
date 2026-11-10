@@ -1192,7 +1192,13 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
   border: 1px solid rgba(255, 255, 255, .28); border-radius: 17px 25px 25px 25px; box-shadow: var(--adm-shadow);
 }
 :where(.app-shell) .metric-label { text-transform: uppercase; letter-spacing: .06em; font-size: calc(11.5px * var(--text-scale)); }
-:root:not(.accessibility-contrast) :where(.app-shell) .metric-label { color: hsl(var(--muted-foreground)); opacity: 1; }
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .metric-label { color: hsl(var(--muted-foreground)); opacity: 1; }
+/* Readable on light panels in both modes (WCAG AA): green status pills, red ghost buttons, page selects in dark mode. */
+:root:not(.accessibility-contrast) :where(.app-shell) :is(.status-confirmed, .status-active, .status-scheduled, .status-available) { color: #17734a; }
+:root:not(.accessibility-contrast) :where(.app-shell) .button-ghost-danger { color: #b4231f; }
+/* The shell sets its own text colour: otherwise it inherits the page's light dark-mode text, unreadable on his light panels. */
+:root.dark:not(.accessibility-contrast) .app-shell { color: hsl(var(--foreground)); }
+:root.dark:not(.accessibility-contrast) .app-shell .page-wrap .select-control { color: hsl(var(--foreground)); background-color: hsl(var(--card)); }
 [dir='rtl'] :where(.app-shell) .metric-label { text-transform: none; letter-spacing: normal; font-size: calc(13px * var(--text-scale)); }
 :where(.app-shell) .metric-value { font-weight: 800; }
 :root.dark:not(.accessibility-contrast) :where(.app-shell) .section-title { background: linear-gradient(90deg, #10263d 0%, #2b66a3 100%); color: #ffffff; font-family: 'Manrope', var(--app-font-sans); font-weight: 700; border-radius: 16px 24px 0 0; }
