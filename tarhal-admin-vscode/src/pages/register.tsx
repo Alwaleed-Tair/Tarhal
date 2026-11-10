@@ -1,15 +1,12 @@
 import { useState } from 'react';
 import { Link, Redirect, useLocation, useSearch } from 'wouter';
-import { AuthShell } from '@/components/auth-shell';
-import { Button } from '@/components/ui/button';
-import { FormField, PasswordInput } from '@/components/ui/form-field';
-import { Input } from '@/components/ui/input';
 import { routes } from '@/config/routes';
 import type { TranslationKey } from '@/i18n/translations';
 import { useForm } from '@/hooks/use-form';
 import { useT } from '@/i18n/use-i18n';
 import { nextPath, withNext } from '@/lib/next-path';
 import { validateRegister } from '@/lib/validation';
+import { AuthCard, AuthField } from '@/pages/passenger/components/auth-card';
 import { authService } from '@/services/authService';
 import { AuthError, useAuth } from '@/store/authStore';
 import { notify } from '@/store/notificationStore';
@@ -49,46 +46,30 @@ export default function Register() {
   });
 
   return (
-    <AuthShell title={t('registerTitle')} subtitle={t('registerSubtitle')}
-      footer={<>{t('haveAccount')} <Link href={withNext(routes.login, next)} className="font-semibold text-primary hover:underline">{t('login')}</Link></>}>
-      <form onSubmit={submit} noValidate className="grid gap-4" data-testid="form-register">
-        {formError && <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">{formError}</p>}
-        <FormField id="register-name" label={t('fullName')} error={form.errors.name && t(form.errors.name)}>
-          {(field) => <Input {...field} autoComplete="name" value={form.values.name}
-            onChange={(event) => form.setValue('name', event.target.value)} onBlur={() => form.touch('name')} />}
-        </FormField>
-        <FormField id="register-email" label={t('email')} error={form.errors.email && t(form.errors.email)}>
-          {(field) => <Input {...field} type="email" dir="ltr" autoComplete="email" value={form.values.email}
-            onChange={(event) => form.setValue('email', event.target.value)} onBlur={() => form.touch('email')} />}
-        </FormField>
-        <FormField id="register-phone" label={t('phone')} error={form.errors.phone && t(form.errors.phone)}>
-          {(field) => <Input {...field} type="tel" dir="ltr" autoComplete="tel" value={form.values.phone}
-            onChange={(event) => form.setValue('phone', event.target.value)} onBlur={() => form.touch('phone')} />}
-        </FormField>
-        <FormField id="register-dob" label={t('dateOfBirth')} error={form.errors.dateOfBirth && t(form.errors.dateOfBirth)}>
-          {(field) => <Input {...field} type="date" dir="ltr" autoComplete="bday" max={new Date().toISOString().slice(0, 10)} value={form.values.dateOfBirth}
-            onChange={(event) => form.setValue('dateOfBirth', event.target.value)} onBlur={() => form.touch('dateOfBirth')} />}
-        </FormField>
-        <FormField id="register-password" label={t('password')} hint={t('passwordHint')} error={form.errors.password && t(form.errors.password)}>
-          {(field) => <PasswordInput {...field} autoComplete="new-password" value={form.values.password}
-            onChange={(value) => form.setValue('password', value)} onBlur={() => form.touch('password')} />}
-        </FormField>
-        <FormField id="register-confirm" label={t('confirmPassword')} error={form.errors.confirmPassword && t(form.errors.confirmPassword)}>
-          {(field) => <PasswordInput {...field} autoComplete="new-password" value={form.values.confirmPassword}
-            onChange={(value) => form.setValue('confirmPassword', value)} onBlur={() => form.touch('confirmPassword')} />}
-        </FormField>
-        <div className="grid gap-1.5">
-          <label className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground">
-            <input type="checkbox" className="mt-0.5 size-4 accent-[hsl(var(--primary))]" checked={form.values.terms}
-              aria-invalid={Boolean(form.errors.terms) || undefined} aria-describedby={form.errors.terms ? 'register-terms-error' : undefined}
-              onChange={(event) => { form.setValue('terms', event.target.checked); form.touch('terms'); }} />
-            <span>{t('acceptTerms')}</span>
-          </label>
-          {form.errors.terms && <p id="register-terms-error" role="alert" className="text-xs font-medium text-destructive">{t(form.errors.terms)}</p>}
-        </div>
-        <Button type="submit" loading={submitting} className="w-full">{submitting ? t('pleaseWait') : t('register')}</Button>
-        <p className="text-center text-xs text-muted-foreground">{t('demoRegisterHint')}</p>
+    <AuthCard title={t('tpCreateAccount')} subtitle={t('tpEnterDetails')}
+      footer={<>{t('haveAccount')} <Link href={withNext(routes.login, next)}>{t('tpLogInHere')}</Link></>}>
+      <form onSubmit={submit} noValidate className="login-form" data-testid="form-register">
+        {formError && <p role="alert" className="auth-form-error">{formError}</p>}
+        <AuthField id="register-name" label={t('fullName')} autoComplete="name" value={form.values.name} error={form.errors.name && t(form.errors.name)}
+          onChange={(event) => form.setValue('name', event.target.value)} onBlur={() => form.touch('name')} />
+        <AuthField id="register-email" label={t('email')} type="email" dir="ltr" autoComplete="email" value={form.values.email} error={form.errors.email && t(form.errors.email)}
+          onChange={(event) => form.setValue('email', event.target.value)} onBlur={() => form.touch('email')} />
+        <AuthField id="register-phone" label={t('phone')} type="tel" dir="ltr" autoComplete="tel" value={form.values.phone} error={form.errors.phone && t(form.errors.phone)}
+          onChange={(event) => form.setValue('phone', event.target.value)} onBlur={() => form.touch('phone')} />
+        <AuthField id="register-dob" label={t('dateOfBirth')} type="date" dir="ltr" autoComplete="bday" max={new Date().toISOString().slice(0, 10)} value={form.values.dateOfBirth}
+          error={form.errors.dateOfBirth && t(form.errors.dateOfBirth)} onChange={(event) => form.setValue('dateOfBirth', event.target.value)} onBlur={() => form.touch('dateOfBirth')} />
+        <AuthField id="register-password" label={t('password')} type="password" dir="ltr" autoComplete="new-password" value={form.values.password}
+          error={form.errors.password ? t(form.errors.password) : undefined} onChange={(event) => form.setValue('password', event.target.value)} onBlur={() => form.touch('password')} />
+        <AuthField id="register-confirm" label={t('confirmPassword')} type="password" dir="ltr" autoComplete="new-password" value={form.values.confirmPassword}
+          error={form.errors.confirmPassword && t(form.errors.confirmPassword)} onChange={(event) => form.setValue('confirmPassword', event.target.value)} onBlur={() => form.touch('confirmPassword')} />
+        <label className="auth-terms">
+          <input type="checkbox" checked={form.values.terms} aria-invalid={Boolean(form.errors.terms) || undefined} aria-describedby={form.errors.terms ? 'register-terms-error' : undefined}
+            onChange={(event) => { form.setValue('terms', event.target.checked); form.touch('terms'); }} />
+          <span>{t('acceptTerms')}</span>
+        </label>
+        {form.errors.terms && <small id="register-terms-error" role="alert" className="auth-error">{t(form.errors.terms)}</small>}
+        <button type="submit" disabled={submitting} aria-busy={submitting}>{submitting ? t('pleaseWait') : t('tpSignUp')}</button>
       </form>
-    </AuthShell>
+    </AuthCard>
   );
 }
