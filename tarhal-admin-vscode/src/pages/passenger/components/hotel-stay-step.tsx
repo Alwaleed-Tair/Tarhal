@@ -1,3 +1,4 @@
+import { DirArrow } from '@/components/dir-arrow';
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, BedDouble, Check, Minus, Plus, Star } from 'lucide-react';
 import { Money } from '@/components/money';
@@ -82,7 +83,7 @@ export default function HotelStayStep({ city, checkIn, defaultNights = 1, guests
         </div>
         <div className="hotel-dates">
           <span className="field-label">{t('tpYourStay')}</span>
-          <strong>{format.dayMonth(checkIn)} → {format.dayMonth(checkOut)}</strong>
+          <strong>{format.dayMonth(checkIn)} <DirArrow /> {format.dayMonth(checkOut)}</strong>
         </div>
       </div>
 

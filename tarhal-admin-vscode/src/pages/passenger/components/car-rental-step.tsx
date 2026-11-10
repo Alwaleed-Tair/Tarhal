@@ -5,6 +5,8 @@ import type { ResourceRow } from '@/data/demoData';
 import { useFormat, useT } from '@/i18n/use-i18n';
 import type { TranslationKey } from '@/i18n/translations';
 import { carService } from '@/services/carService';
+import { translateCarCategory } from '@/i18n/labels';
+import { useDemoState } from '@/store/demoStore';
 import { addDays, cityLabel, errorKey, riyadhToday, TRIP_CITIES } from '../trip';
 
 export type CarPlan = { carId: string; location: string; pickup: string; returnDate: string; car: string; dailyRate: number };
@@ -18,6 +20,7 @@ type Props = { city: string; departure: string; returnDay?: string | null; initi
 export default function CarRentalStep({ city, departure, returnDay = null, initial = null, onBack, onSkip, onComplete }: Props) {
   const t = useT();
   const format = useFormat();
+  const { language } = useDemoState().settings;
   const [location, setLocation] = useState<string>(initial?.location ?? ((TRIP_CITIES as readonly string[]).includes(city) ? city : 'Riyadh'));
   const [pickup, setPickup] = useState(initial?.pickup ?? departure);
   // Round trip: the car goes back on the day of the flight home.
@@ -112,7 +115,7 @@ export default function CarRentalStep({ city, departure, returnDay = null, initi
                   <span className="car-art" aria-hidden="true"><CarFront size={28} strokeWidth={1.5} /><span>{(car.make ?? car.id).slice(0, 1)}</span></span>
                   <span className="car-copy">
                     <strong>{car.make} {car.model}</strong>
-                    <span>{car.year ? format.year(car.year) : ''}{car.category ? ` · ${car.category}` : ''}</span>
+                    <span>{car.year ? format.year(car.year) : ''}{car.category ? ` · ${translateCarCategory(car.category, language)}` : ''}</span>
                     <small><UsersRound size={13} />{t('tpSeatsCount', { count: format.number(car.seats ?? 0) })}<i />{car.transmission === 'MANUAL' ? t('tpManual') : t('tpAutomatic')}</small>
                   </span>
                   <span className="car-price">

@@ -1,3 +1,4 @@
+import { DirArrow } from '@/components/dir-arrow';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Armchair, ArrowLeft, ArrowRight, Check, Plane } from 'lucide-react';
 import { Money } from '@/components/money';
@@ -119,7 +120,7 @@ export default function SeatSelectionStep({ flight, passengers, cabinClass, init
         <div className="flight-chip">
           <span><bdi dir="ltr">{flight.flightNumber}</bdi></span>
           <ArrowRight className="rtl:-scale-x-100" size={14} />
-          <span>{cityLabel(t, flight.from)} → {cityLabel(t, flight.to)}</span>
+          <span>{cityLabel(t, flight.from)} <DirArrow /> {cityLabel(t, flight.to)}</span>
         </div>
       </div>
 

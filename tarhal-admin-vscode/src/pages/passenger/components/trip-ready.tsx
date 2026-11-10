@@ -1,3 +1,4 @@
+import { DirArrow } from '@/components/dir-arrow';
 import { useState } from 'react';
 import { ArrowRight, Armchair, BedDouble, CarFront, Check, CreditCard, Plane, RotateCcw } from 'lucide-react';
 import { Link } from 'wouter';
@@ -75,7 +76,7 @@ export default function TripReady({ items, onPay, onStartOver }: Props) {
               <div>
                 <small>{t('tpHotel')}{reference(item)}</small>
                 <strong>{item.hotel.name}</strong>
-                <span>{cityLabel(t, item.hotel.city)} · {format.dayMonth(item.hotel.checkIn)} → {format.dayMonth(item.hotel.checkOut)} · {t(item.hotel.nights === 1 ? 'tpNight1' : 'tpNights', { count: format.number(item.hotel.nights) })}</span>
+                <span>{cityLabel(t, item.hotel.city)} · {format.dayMonth(item.hotel.checkIn)} <DirArrow /> {format.dayMonth(item.hotel.checkOut)} · {t(item.hotel.nights === 1 ? 'tpNight1' : 'tpNights', { count: format.number(item.hotel.nights) })}</span>
                 {item.problem && <span className="trip-problem" role="alert">{t(item.problem)}</span>}
               </div>
             )}
@@ -83,7 +84,7 @@ export default function TripReady({ items, onPay, onStartOver }: Props) {
               <div>
                 <small>{t('tpCar')}{reference(item)}</small>
                 <strong>{item.car.car}</strong>
-                <span>{cityLabel(t, item.car.location)} · {format.dayMonth(item.car.pickup)} → {format.dayMonth(item.car.returnDate)} · {t(carDays(item.car) === 1 ? 'tpDay1' : 'tpDays', { count: format.number(carDays(item.car)) })}</span>
+                <span>{cityLabel(t, item.car.location)} · {format.dayMonth(item.car.pickup)} <DirArrow /> {format.dayMonth(item.car.returnDate)} · {t(carDays(item.car) === 1 ? 'tpDay1' : 'tpDays', { count: format.number(carDays(item.car)) })}</span>
                 {item.problem && <span className="trip-problem" role="alert">{t(item.problem)}</span>}
               </div>
             )}

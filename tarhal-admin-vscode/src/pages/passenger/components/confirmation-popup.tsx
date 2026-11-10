@@ -1,3 +1,4 @@
+import { DirArrow } from '@/components/dir-arrow';
 import { useEffect, useRef, useState } from 'react';
 import { Check, X } from 'lucide-react';
 import { Money } from '@/components/money';
@@ -70,7 +71,7 @@ export default function ConfirmationPopup({ legs, hotel, car, onBook, onClose }:
               <span className="summary-icon">{number()}</span>
               <div>
                 <strong>{t(legs.length > 1 ? (index === 0 ? 'tpOutboundFlight' : 'tpReturnFlight') : 'tpFlight')} · <bdi dir="ltr">{leg.flight.flightNumber}</bdi></strong>
-                <span>{cityLabel(t, leg.flight.from)} → {cityLabel(t, leg.flight.to)} · <bdi dir="ltr">{leg.seats.map((seat) => seat.code).join(', ')}</bdi></span>
+                <span>{cityLabel(t, leg.flight.from)} <DirArrow /> {cityLabel(t, leg.flight.to)} · <bdi dir="ltr">{leg.seats.map((seat) => seat.code).join(', ')}</bdi></span>
                 <small>{format.date(riyadhDay(leg.flight.departureTime))} · <bdi dir="ltr">{riyadhTime(leg.flight.departureTime)}</bdi> · {t(travelers === 1 ? 'tpTravelerCount1' : 'tpTravelerCount', { count: format.number(travelers) })}</small>
               </div>
               <b data-testid={`text-flight-total-${index}`}><Money sar={legTotal(leg)} /></b>
@@ -81,7 +82,7 @@ export default function ConfirmationPopup({ legs, hotel, car, onBook, onClose }:
               <span className="summary-icon">{number()}</span>
               <div>
                 <strong>{t('tpHotel')} · {hotel.name}</strong>
-                <span>{cityLabel(t, hotel.city)} · {format.dayMonth(hotel.checkIn)} → {format.dayMonth(hotel.checkOut)}</span>
+                <span>{cityLabel(t, hotel.city)} · {format.dayMonth(hotel.checkIn)} <DirArrow /> {format.dayMonth(hotel.checkOut)}</span>
                 <small>{t(hotel.nights === 1 ? 'tpNight1' : 'tpNights', { count: format.number(hotel.nights) })}</small>
               </div>
               <b data-testid="text-hotel-estimate"><Money sar={hotelTotal} /></b>
@@ -92,7 +93,7 @@ export default function ConfirmationPopup({ legs, hotel, car, onBook, onClose }:
               <span className="summary-icon">{number()}</span>
               <div>
                 <strong>{t('tpCar')} · {car.car}</strong>
-                <span>{cityLabel(t, car.location)} · {format.dayMonth(car.pickup)} → {format.dayMonth(car.returnDate)}</span>
+                <span>{cityLabel(t, car.location)} · {format.dayMonth(car.pickup)} <DirArrow /> {format.dayMonth(car.returnDate)}</span>
                 <small>{t(carDays(car) === 1 ? 'tpDay1' : 'tpDays', { count: format.number(carDays(car)) })}</small>
               </div>
               <b data-testid="text-car-estimate-summary"><Money sar={carTotal} /></b>
