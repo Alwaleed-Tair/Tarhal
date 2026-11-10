@@ -19,8 +19,6 @@ const FlightBooking = lazy(() => import('@/pages/passenger/flight-booking'));
 const MyBookings = lazy(() => import('@/pages/passenger/my-bookings'));
 const TravelGuide = lazy(() => import('@/pages/passenger/travel-guide'));
 const CityGuide = lazy(() => import('@/pages/passenger/city-guide'));
-const HotelStays = lazy(() => import('@/pages/passenger/hotel-stays'));
-const CarRentals = lazy(() => import('@/pages/passenger/car-rentals'));
 const NotFound = lazy(() => import('@/pages/passenger/not-found'));
 const Login = lazy(() => import('@/pages/login'));
 const Register = lazy(() => import('@/pages/register'));
@@ -55,8 +53,6 @@ function Routes() {
         <Route path={routes.passenger.home}><Passenger><TravelHome /></Passenger></Route>
         <Route path={routes.passenger.flights}><Passenger><FlightBooking /></Passenger></Route>
         <Route path={routes.passenger.bookings}><Passenger><MyBookings /></Passenger></Route>
-        <Route path={routes.passenger.hotels}><Passenger><HotelStays /></Passenger></Route>
-        <Route path={routes.passenger.cars}><Passenger><CarRentals /></Passenger></Route>
         <Route path={routes.passenger.guide}><Passenger><TravelGuide /></Passenger></Route>
         <Route path="/travel-guide/:slug"><Passenger><CityGuide /></Passenger></Route>
         <Route path={routes.login}><Passenger><Login /></Passenger></Route>
@@ -67,8 +63,11 @@ function Routes() {
         <Route path="/travel/bookings"><Redirect to={routes.passenger.bookings} replace /></Route>
         <Route path="/travel/guide"><Redirect to={routes.passenger.guide} replace /></Route>
         <Route path="/travel/guide/:slug">{(params) => <Redirect to={routes.passenger.city(params.slug)} replace />}</Route>
-        <Route path="/stays"><Redirect to={routes.passenger.hotels} replace /></Route>
-        <Route path="/rentals"><Redirect to={routes.passenger.cars} replace /></Route>
+        {/* Hotels and cars are chosen inside the flight booking (his Hotel and Car steps), not on pages of their own. */}
+        <Route path="/stays"><Redirect to={routes.passenger.flights} replace /></Route>
+        <Route path="/rentals"><Redirect to={routes.passenger.flights} replace /></Route>
+        <Route path="/hotel-stays"><Redirect to={routes.passenger.flights} replace /></Route>
+        <Route path="/car-rentals"><Redirect to={routes.passenger.flights} replace /></Route>
         <Route path="/flightbooking"><Redirect to={routes.passenger.flights} replace /></Route>
         <Route path="/travelguide"><Redirect to={routes.passenger.guide} replace /></Route>
         <Route path="/city/:slug">{(params) => <Redirect to={routes.passenger.city(params.slug)} replace />}</Route>

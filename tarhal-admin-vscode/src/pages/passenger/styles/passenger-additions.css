@@ -92,62 +92,70 @@
    his login airplane is meant to be larger than its panel. */
 img { max-width: none; }
 .Flight-Row > .Panel-Note { grid-column: 1 / -1; }
-.sidebar-lucide { color: #f3f7ff; }
-.sidebar-chat-slot { display: block; width: 44px; height: 44px; }
-.tc-trigger { border: 0; background: transparent; cursor: pointer; padding: 0; }
-.tc { position: relative; }
-.tc-panel {
-  position: absolute; z-index: 50; bottom: 0; inset-inline-start: calc(100% + 16px); width: 272px;
-  display: grid; gap: 12px; padding: 16px; color: #203b55; text-align: start;
-  border: 1px solid #e2e7ef; border-radius: 17px; background: #f7f8fc; box-shadow: 0 21px 54px rgba(8, 27, 44, .35);
-  font-family: 'DM Sans', sans-serif;
-}
-.tc-row { display: grid; gap: 6px; }
-.tc-switch { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 3px; border-radius: 11px; background: #eef3f8; }
-.tc-switch button { min-height: 34px; border: 0; border-radius: 9px; color: #486983; background: transparent; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
-.tc-switch button.chosen { color: #ffffff; background: #2b66a3; }
-.tc-account { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid #e2e7ef; }
-.tc-user { display: grid; margin: 0; font-size: 12px; }
-.tc-user strong { font-family: 'Manrope', sans-serif; font-size: 14px; }
-.tc-user span { color: #486983; overflow-wrap: anywhere; }
-.tc-auth { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.tc-link { display: grid; place-items: center; min-height: 36px; padding: 0 12px; border: 1px solid #dfe8ee; border-radius: 11px; color: #203b55; background: #ffffff; font: inherit; font-size: 13px; font-weight: 700; text-decoration: none; cursor: pointer; }
-.tc-link.tc-primary { color: #ffffff; border-color: transparent; background: linear-gradient(90deg, #10263d 0%, #2b66a3 100%); }
-.tc-link.tc-logout { color: #314c69; }
+/*
+ * His rail, as in his app. On desktop it stops 86px above the bottom so the site's chat button (bottom corner) never
+ * covers it; pages keep room at the bottom so their last lines can scroll clear of that button.
+ */
+.sidebar.sidebar { bottom: 86px; }
+.tarhal-page.tarhal-page, .bookings-page.bookings-page, .Whole-Container.Whole-Container, .city-guide-page.city-guide-page { padding-bottom: 90px; }
 
-/* Up to 1100px the rail becomes a bar at the bottom of the screen (the chat button takes its end), and pages drop the room they kept for it. */
+/* The site controls in his header (HeaderControls): small pills in the style of his header note. */
+.header-end { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px 14px; }
+.hc { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; }
+.hc-pill {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 11px;
+  border: 1px solid rgba(231, 241, 249, .32); border-radius: 999px; color: #f8f9fc; background: rgba(255, 255, 255, .08);
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; text-decoration: none; cursor: pointer;
+}
+.hc-pill:hover { background: rgba(255, 255, 255, .16); }
+.hc-icon { width: 32px; padding: 0; justify-content: center; }
+.hc-on.hc-on { color: #ffffff; border-color: transparent; background: #2b66a3; }
+.hc-aa { font-family: 'Manrope', sans-serif; font-weight: 800; }
+.hc-currency select { appearance: none; padding: 0 2px; border: 0; color: inherit; background: transparent; font: inherit; cursor: pointer; }
+.hc-currency option { color: #203b55; background: #f7f8fc; }
+.hc-label { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hc-account { position: relative; }
+.hc-menu {
+  position: absolute; z-index: 60; top: calc(100% + 8px); right: 0; min-width: 220px; display: grid; gap: 2px; padding: 8px;
+  border: 1px solid #e2e7ef; border-radius: 15px; color: #203b55; background: #f7f8fc; box-shadow: 0 21px 54px rgba(8, 27, 44, .35);
+}
+.hc-item { display: block; padding: 9px 12px; border: 0; border-radius: 10px; color: #203b55; background: transparent; font: inherit; font-size: 13px; font-weight: 700; text-align: start; text-decoration: none; cursor: pointer; }
+.hc-item:hover { background: #eef3f8; }
+.hc-user { display: grid; margin: 0 0 4px; padding: 6px 12px 8px; border-bottom: 1px solid #e2e7ef; font-size: 12px; }
+.hc-user span { color: #486983; overflow-wrap: anywhere; }
+.home-controls { position: absolute; z-index: 3; top: 44px; right: 90px; }
+@media (max-width: 600px) {
+  .hc .hc-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+}
+
+/* Up to 1100px the rail becomes a bar at the bottom of the screen, and pages drop the room they kept for it. */
 @media (max-width: 1100px) {
   .sidebar.sidebar.sidebar {
     top: auto; bottom: 0; left: 0; right: 0; width: auto; height: 64px; z-index: 30;
-    flex-direction: row; align-items: center; justify-content: space-between; gap: 4px;
-    padding: 0 68px 0 10px; border-radius: 22px 22px 0 0; box-shadow: 0 -8px 24px rgba(8, 27, 44, .3);
+    flex-direction: row; align-items: center; justify-content: center;
+    padding: 0 10px; border-radius: 22px 22px 0 0; box-shadow: 0 -8px 24px rgba(8, 27, 44, .3);
   }
-  .sidebar.sidebar.sidebar .sidebar-links { flex: 1; flex-direction: row; justify-content: space-around; gap: 2px; }
-  .sidebar.sidebar.sidebar .sidebar-bottom { flex-direction: row; gap: 2px; }
-  .sidebar.sidebar.sidebar .sidebar-chat-slot { display: none; }
-  .tc-panel.tc-panel { position: fixed; bottom: 76px; left: 12px; right: 12px; width: auto; max-height: calc(100dvh - 100px); overflow: auto; }
-  .tarhal-page.tarhal-page, .bookings-page.bookings-page, .Whole-Container.Whole-Container, .city-guide-page.city-guide-page { padding-bottom: 84px; }
+  .sidebar.sidebar.sidebar .sidebar-links { flex: 1; max-width: 420px; flex-direction: row; justify-content: space-around; gap: 2px; }
+  .sidebar.sidebar.sidebar .sidebar-bottom { display: none; }
+  .tarhal-page.tarhal-page, .bookings-page.bookings-page, .Whole-Container.Whole-Container, .city-guide-page.city-guide-page { padding-bottom: 150px; }
   .travel-layout.travel-layout, .city-guide-layout.city-guide-layout { grid-template-columns: minmax(0, 1fr); }
   .travel-main.travel-main, .city-guide-main.city-guide-main { grid-column: 1; }
   .Stage.Stage { padding-left: 32px; }
+  .home-controls { top: 24px; right: 32px; }
 }
 @media (max-width: 760px) {
   .Stage.Stage { padding-left: 20px; }
   .tarhallogo.tarhallogo { left: 4px; width: 150px; height: 150px; top: -20px; }
+  .home-controls { top: 14px; right: 16px; max-width: calc(100% - 170px); }
 }
 @media (max-width: 480px) {
   .Stage.Stage { padding-left: 14px; }
-}
-@media (max-width: 380px) {
-  .sidebar.sidebar.sidebar { padding-right: 60px; padding-left: 4px; }
-  .sidebar.sidebar.sidebar .sidebar-link { width: 34px; }
 }
 
 /* Login and register in his card. */
 .login-page.login-page { position: relative; }
 .auth-corner { position: absolute; z-index: 5; top: 12px; left: 24px; right: 24px; display: flex; align-items: center; justify-content: space-between; }
 .auth-logo img { display: block; width: 116px; height: auto; }
-.auth-controls .tc-panel { top: calc(100% + 8px); bottom: auto; right: 0; left: auto; }
 .auth-field { display: grid; gap: 4px; text-align: start; }
 .auth-error { color: #2b66a3; font-size: 12px; font-weight: 700; }
 .auth-form-error { margin: 0; padding: 10px 12px; border-left: 3px solid #e9d6aa; border-radius: 14px; color: #203b55; background: #eef3f8; font-size: 13px; font-weight: 600; text-align: start; }
@@ -158,22 +166,6 @@ img { max-width: none; }
    sentence are underlined (his own hover style) so they stand out in dark mode too. */
 .login-subtitle.login-subtitle, .login-signup.login-signup { color: #486983; }
 .login-signup.login-signup a { text-decoration: underline; }
-
-/* Hotels and car rentals search, in his panel and card styles. */
-.catalog-grid, .catalog-grid-cars { margin: 0; padding: 0; list-style: none; }
-.catalog-card.catalog-card { cursor: default; }
-.catalog-card.catalog-card:hover, .catalog-car.catalog-car:hover { transform: none; }
-.catalog-card small { display: inline-flex; align-items: center; gap: 4px; }
-.catalog-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 6px; }
-.catalog-soon { padding: 3px 8px; border: 1px solid #dfe8ee; border-radius: 999px; color: #486983; background: #eef3f8; font-size: 10px; font-weight: 700; }
-.catalog-plan { color: #2b66a3; font-size: 11px; font-weight: 700; }
-.catalog-car.catalog-car { cursor: default; }
-.catalog-pager { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 16px; color: #486983; font-size: 12px; font-weight: 700; }
-.catalog-pager .back-button:disabled { opacity: .45; cursor: not-allowed; }
-@media (max-width: 680px) {
-  .catalog-filters.catalog-filters { grid-template-columns: minmax(0, 1fr); }
-  .catalog-grid.catalog-grid { grid-template-columns: minmax(0, 1fr); }
-}
 
 /*
  * Six steps now (Travelers was added), which no longer fit his 790px column below 900px: there only the current step keeps

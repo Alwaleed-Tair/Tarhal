@@ -5,6 +5,7 @@ import { routes } from '@/config/routes';
 import { useFormat, useT } from '@/i18n/use-i18n';
 import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
+import { HeaderControls } from './components/traveler-controls';
 import { cities } from './data/cities';
 import { useDemoState } from '@/store/demoStore';
 import { cityDescriptionAr, isPlaceholderDescription, isPlaceholderTitle, placeTitleAr } from './data/cities-ar';
@@ -23,9 +24,12 @@ function CityGuideLayout({ children }: { children: ReactNode }) {
                 <span className="city-guide-brand-mark" aria-hidden="true" />
                 <span>TARHAL</span>
               </Link>
-              <div className="city-guide-header-note">
-                <span className="city-guide-header-dot" />
-                {t('tpGuideHeaderNote')}
+              <div className="header-end">
+                <div className="city-guide-header-note">
+                  <span className="city-guide-header-dot" />
+                  {t('tpGuideHeaderNote')}
+                </div>
+                <HeaderControls />
               </div>
             </header>
             {children}

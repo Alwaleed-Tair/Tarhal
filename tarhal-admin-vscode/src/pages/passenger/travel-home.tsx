@@ -11,6 +11,7 @@ import Tarhallogo from './assets/Tarhallogo.webp';
 import saudi from './assets/saudi.webp';
 import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
+import { HeaderControls } from './components/traveler-controls';
 import { withNext } from '@/lib/next-path';
 import { cityLabel } from './trip';
 import { upcoming, useMyBookings } from './use-my-bookings';
@@ -66,6 +67,7 @@ export default function TravelHome() {
         {/* His logo (his Navbar.jsx): the only brand mark on this page. */}
         <Link href={routes.passenger.home} aria-label="Tarhal"><img className="tarhallogo" src={Tarhallogo} alt="Tarhal" /></Link>
         <Sidebar />
+        <div className="home-controls"><HeaderControls /></div>
         <div className="Stage">
           <section className="First-Container">
             <div className="Panelfirst">

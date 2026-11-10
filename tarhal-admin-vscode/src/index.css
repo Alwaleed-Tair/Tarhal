@@ -1116,28 +1116,11 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 :where(.app-shell) :is(.metric-grid-six, .metric-grid-four) .metric-foot { min-height: calc(24px * var(--text-scale)); line-height: 1.5; }
 :where(.app-shell) :is(.metric-grid-six, .metric-grid-four):has(.metric-change) .metric-foot { min-height: calc(58px * var(--text-scale)); }
 
-/* ===== 35. Traveler site (Tariq's design): the chat button is his round camel badge (his #10263d circle) ===== */
-/* Desktop: over the spot at the bottom of his rail (fixed at left 62px, 67px wide, 16px from the bottom). */
-html:has(.passenger-app .sidebar) .chat-launcher:not(.chat-launcher-mobile) {
-  bottom: 30px; inset-inline-start: 73.5px; width: 44px; min-height: 0; height: 44px; justify-content: center; gap: 0; padding: 0;
-  border: 0; border-radius: 50%; background: #10263d; box-shadow: 0 6px 14px rgba(0, 0, 0, .3);
-}
-html:has(.passenger-app .sidebar) .chat-launcher:not(.chat-launcher-mobile) span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-html:has(.passenger-app .sidebar) .chat-panel { inset-inline-start: 150px; }
-/* Login and register (no rail): a round button in the corner, like his badge. */
-html:has(.passenger-app .login-page) .chat-launcher:not(.chat-launcher-mobile) {
-  bottom: 20px; inset-inline-start: 20px; width: 52px; min-height: 0; height: 52px; justify-content: center; gap: 0; padding: 0; border-radius: 50%;
-}
-html:has(.passenger-app .login-page) .chat-launcher:not(.chat-launcher-mobile) span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-html:has(.passenger-app .login-page) .chat-panel { inset-inline-start: 20px; bottom: 84px; }
-/* Up to 1100px his rail is a bottom bar: the chat button takes its end, the chat opens above the bar. */
+/* ===== 35. Traveler site: the site's chat button keeps its own look; up to 1100px, where Tariq's rail is a bottom bar,
+   it sits just above that bar so it never covers it. (Position only; components/chat-assistant.tsx is unchanged.) ===== */
 @media (max-width: 1100px) {
-  html:has(.passenger-app .sidebar) .chat-launcher:not(.chat-launcher-mobile) { display: none; }
-  html:has(.passenger-app .sidebar) .chat-launcher-mobile {
-    display: grid; place-items: center; z-index: 31; width: 44px; height: 44px; min-height: 0; bottom: 10px; inset-inline-start: auto; inset-inline-end: 12px;
-    padding: 0; border: 0; border-radius: 50%; background: #10263d; box-shadow: 0 6px 14px rgba(0, 0, 0, .3);
-  }
-  html:has(.passenger-app .sidebar) .chat-panel { inset-inline: 12px; bottom: 76px; width: auto; max-height: min(70dvh, 540px); }
+  html:has(.passenger-app .sidebar) :is(.chat-launcher, .chat-launcher-mobile) { bottom: 76px; }
+  html:has(.passenger-app .sidebar) .chat-panel { bottom: 132px; }
 }
 
 /* ==========================================================================

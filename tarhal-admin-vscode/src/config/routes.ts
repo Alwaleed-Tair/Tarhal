@@ -11,8 +11,6 @@ export const routes = {
     home: '/',
     flights: '/book-flight',
     bookings: '/my-bookings',
-    hotels: '/hotel-stays',
-    cars: '/car-rentals',
     guide: '/travel-guide',
     city: (slug: string) => `/travel-guide/${slug}`,
   },

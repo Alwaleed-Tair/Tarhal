@@ -10,8 +10,6 @@ import { httpStatus, isServerUnreachable } from '@/services/api';
 /** Tariq's city list, in his order. */
 export const TRIP_CITIES = ['AlUla', 'Khobar', 'Abha', 'Al Baha', 'Riyadh', 'Dammam', 'Umluj', 'Taif', 'Jeddah'] as const;
 export type TripCity = (typeof TRIP_CITIES)[number];
-/** Cities for the hotel and car filters: his list plus Madinah, which the hotels API has. Sent as the `city` filter. */
-export const CATALOG_CITIES: string[] = [...TRIP_CITIES, 'Madinah'];
 
 /**
  * Airport code of each city, as used by GET /api/flights/search. Khobar and Dammam share King Fahd airport (DMM),

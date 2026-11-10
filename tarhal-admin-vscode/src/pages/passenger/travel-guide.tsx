@@ -4,6 +4,7 @@ import { routes } from '@/config/routes';
 import { useFormat, useT } from '@/i18n/use-i18n';
 import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
+import { HeaderControls } from './components/traveler-controls';
 import { cities } from './data/cities';
 import { cityLabel } from './trip';
 
@@ -34,9 +35,12 @@ export default function TravelGuide() {
                 <span className="brand-mark" aria-hidden="true" />
                 <span className="brand-name">TARHAL</span>
               </div>
-              <div className="header-note">
-                <span className="header-dot" />
-                {t('tpGuideHeaderNote')}
+              <div className="header-end">
+                <div className="header-note">
+                  <span className="header-dot" />
+                  {t('tpGuideHeaderNote')}
+                </div>
+                <HeaderControls />
               </div>
             </header>
 

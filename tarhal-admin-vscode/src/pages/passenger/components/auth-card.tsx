@@ -4,7 +4,7 @@ import { routes } from '@/config/routes';
 import Airplane1 from '../assets/Airplane1.webp';
 import Tarhallogo from '../assets/Tarhallogo.webp';
 import { PassengerShell } from './passenger-shell';
-import { TravelerControls } from './traveler-controls';
+import { HeaderControls } from './traveler-controls';
 
 /**
  * Tariq's login card (his Login.jsx / SignUp.jsx look): form on the left, his airplane panel on the right.
@@ -16,7 +16,7 @@ export function AuthCard({ title, subtitle, footer, children }: { title: string;
       <div className="login-page">
         <div className="auth-corner">
           <Link href={routes.passenger.home} className="auth-logo" aria-label="Tarhal"><img src={Tarhallogo} alt="Tarhal" /></Link>
-          <div className="auth-controls"><TravelerControls /></div>
+          <div className="auth-controls"><HeaderControls /></div>
         </div>
         <div className="login-container">
           <div className="login-form-panel">

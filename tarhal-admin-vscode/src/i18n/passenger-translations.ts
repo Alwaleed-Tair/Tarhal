@@ -7,19 +7,19 @@ export const passengerEn = {
   tpNavHome: 'Home', tpNavBookings: 'My bookings', tpNavFlights: 'Book a flight', tpNavGuide: 'Travel guide', tpNavLabel: 'Trip navigation',
   // Rail settings, login and register (his wording), not found
   tpGuideAlKhobar: 'Al Khobar', tpGuideAlBahah: 'Al-Bahah', tpGuideAlTaif: 'Al-Taif', tpGuideAlDammam: 'Al-Dammam', tpCityTitle: '{city} City', tpTravelGuideTab: 'Travel Guide',
-  tpSettings: 'Settings', tpAccount: 'Account', tpOn: 'On', tpOff: 'Off',
+  tpSettings: 'Settings',
   tpWelcomeHome: 'Welcome Home', tpEnterDetails: 'Please enter your details', tpSignUpHere: 'Sign up here.',
   tpCreateAccount: 'Create Account', tpSignUp: 'Sign Up', tpLogInHere: 'Click here to log in.',
   tpGuestBookingsNote: 'Your bookings show here once you are signed in.',
   tpPageNotFound: 'Page not found', tpPageNotOnMap: 'That page isn’t on the map.', tpBackHome: 'Back to home',
   // Hotels and car rentals search
-  tpHotelsPageNote: 'Real hotels across Saudi Arabia. Filter by city, price and rating.',
-  tpCarsPageNote: 'Available cars across Saudi Arabia. Filter by city, transmission and seats.',
-  tpHotelBookingSoon: 'Hotel booking is not available yet. You can browse hotels and plan a trip with a flight.',
-  tpCarBookingSoon: 'Car rental booking is not available yet. You can browse cars and plan a trip with a flight.',
-  tpCityLabel: 'CITY', tpMaxPricePerNight: 'MAX PRICE PER NIGHT (SAR)', tpMinRating: 'RATING', tpTransmission: 'TRANSMISSION', tpMinSeats: 'SEATS',
-  tpAny: 'Any', tpRatingAtLeast: '{rating}+', tpResults: 'RESULTS', tpResultsCount: '{count} found', tpNoMatches: 'Nothing matches these filters. Try fewer filters.',
-  tpBookingSoon: 'Booking not available yet', tpPlanTripTo: 'Plan a trip to {city}', tpPageOf: 'Page {page} of {total}',
+ 
+ 
+ 
+ 
+ 
+ 
+ 
   // Cities and regions
   tpCityAlUla: 'AlUla', tpCityKhobar: 'Khobar', tpCityAbha: 'Abha', tpCityAlBaha: 'Al Baha', tpCityRiyadh: 'Riyadh', tpCityDammam: 'Dammam',
   tpCityUmluj: 'Umluj', tpCityTaif: 'Taif', tpCityJeddah: 'Jeddah', tpCityMadinah: 'Madinah',
@@ -41,7 +41,7 @@ export const passengerEn = {
   tpNiceWeekend: 'Have a nice weekend', tpNiceDay: 'Have a nice {day}',
   tpDiscoverMore: 'Discover more about Saudi Arabia', tpDiscoverCity: 'Discover {city}',
   tpLastBooking: 'Your last booking', tpNoBookingsYet: 'No bookings yet', tpNoUpcoming: 'No upcoming flights',
-  tpSignInToSee: 'Log in to see your bookings', tpFrom: 'From', tpTo: 'To',
+  tpFrom: 'From', tpTo: 'To',
   // Travel guide and city guide
   tpGuideHeaderNote: 'Find your next Saudi story', tpGuideEyebrow: 'A country of many directions',
   tpGuideTitle1: 'Where will you', tpGuideTitle2: 'wander next?',
@@ -132,18 +132,18 @@ export const passengerEn = {
 export const passengerAr: Record<keyof typeof passengerEn, string> = {
   tpNavHome: 'الرئيسية', tpNavBookings: 'حجوزاتي', tpNavFlights: 'احجز رحلة', tpNavGuide: 'دليل السفر', tpNavLabel: 'تنقل الرحلة',
   tpGuideAlKhobar: 'الخبر', tpGuideAlBahah: 'الباحة', tpGuideAlTaif: 'الطائف', tpGuideAlDammam: 'الدمام', tpCityTitle: 'مدينة {city}', tpTravelGuideTab: 'دليل السفر',
-  tpSettings: 'الإعدادات', tpAccount: 'الحساب', tpOn: 'تشغيل', tpOff: 'إيقاف',
+  tpSettings: 'الإعدادات',
   tpWelcomeHome: 'أهلاً بعودتك', tpEnterDetails: 'أدخل بياناتك من فضلك', tpSignUpHere: 'أنشئ حساباً هنا.',
   tpCreateAccount: 'إنشاء حساب', tpSignUp: 'إنشاء الحساب', tpLogInHere: 'سجّل الدخول من هنا.',
   tpGuestBookingsNote: 'تظهر حجوزاتك هنا بعد تسجيل الدخول.',
   tpPageNotFound: 'الصفحة غير موجودة', tpPageNotOnMap: 'هذه الصفحة ليست على الخريطة.', tpBackHome: 'العودة إلى الرئيسية',
-  tpHotelsPageNote: 'فنادق حقيقية في أنحاء المملكة. صفِّ حسب المدينة والسعر والتقييم.',
-  tpCarsPageNote: 'سيارات متاحة في أنحاء المملكة. صفِّ حسب المدينة وناقل الحركة وعدد المقاعد.',
-  tpHotelBookingSoon: 'حجز الفنادق غير متاح بعد. يمكنك تصفح الفنادق والتخطيط لرحلة مع رحلة طيران.',
-  tpCarBookingSoon: 'حجز السيارات غير متاح بعد. يمكنك تصفح السيارات والتخطيط لرحلة مع رحلة طيران.',
-  tpCityLabel: 'المدينة', tpMaxPricePerNight: 'أعلى سعر لليلة (ر.س)', tpMinRating: 'التقييم', tpTransmission: 'ناقل الحركة', tpMinSeats: 'المقاعد',
-  tpAny: 'الكل', tpRatingAtLeast: '{rating}+', tpResults: 'النتائج', tpResultsCount: 'عدد النتائج: {count}', tpNoMatches: 'لا توجد نتائج مطابقة. جرّب فلاتر أقل.',
-  tpBookingSoon: 'الحجز غير متاح بعد', tpPlanTripTo: 'خطط لرحلة إلى {city}', tpPageOf: 'الصفحة {page} من {total}',
+ 
+ 
+ 
+ 
+ 
+ 
+ 
   tpCityAlUla: 'العُلا', tpCityKhobar: 'الخبر', tpCityAbha: 'أبها', tpCityAlBaha: 'الباحة', tpCityRiyadh: 'الرياض', tpCityDammam: 'الدمام',
   tpCityUmluj: 'أملج', tpCityTaif: 'الطائف', tpCityJeddah: 'جدة', tpCityMadinah: 'المدينة المنورة',
   tpRegionRedSea: 'ساحل البحر الأحمر', tpRegionAsir: 'مرتفعات عسير', tpRegionEastern: 'المنطقة الشرقية', tpRegionHighlands: 'المرتفعات',
@@ -162,7 +162,7 @@ export const passengerAr: Record<keyof typeof passengerEn, string> = {
   tpNiceWeekend: 'نهاية أسبوع سعيدة', tpNiceDay: 'أتمنى لك {day} سعيداً',
   tpDiscoverMore: 'اكتشف المزيد عن المملكة العربية السعودية', tpDiscoverCity: 'اكتشف {city}',
   tpLastBooking: 'آخر حجز لك', tpNoBookingsYet: 'لا توجد حجوزات بعد', tpNoUpcoming: 'لا توجد رحلات قادمة',
-  tpSignInToSee: 'سجّل الدخول لعرض حجوزاتك', tpFrom: 'من', tpTo: 'إلى',
+  tpFrom: 'من', tpTo: 'إلى',
   tpGuideHeaderNote: 'اكتشف قصتك السعودية القادمة', tpGuideEyebrow: 'بلد بوجهات كثيرة',
   tpGuideTitle1: 'إلى أين', tpGuideTitle2: 'ستتجه بعد ذلك؟',
   tpGuideNote: 'اختر مدينة. اعثر على إحساس. ابدأ من مكان جديد في أنحاء المملكة.',

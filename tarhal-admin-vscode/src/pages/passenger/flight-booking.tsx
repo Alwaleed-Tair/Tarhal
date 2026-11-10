@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FocusEvent, type FormEvent, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { ArrowLeftRight, ArrowRight, Armchair, BedDouble, CalendarDays, CarFront, Check, ChevronDown, Minus, Plane, Plus, RotateCcw, UsersRound, X } from 'lucide-react';
-import { Link, useLocation, useSearch } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { Money } from '@/components/money';
 import { routes } from '@/config/routes';
 import { useFormat, useT } from '@/i18n/use-i18n';
@@ -17,6 +17,7 @@ import HotelStayStep, { type HotelPlan } from './components/hotel-stay-step';
 import { PassengerShell } from './components/passenger-shell';
 import SeatSelectionStep, { type ChosenSeat } from './components/seat-selection-step';
 import Sidebar from './components/passenger-sidebar';
+import { HeaderControls } from './components/traveler-controls';
 import TravelerDetailsStep from './components/traveler-details-step';
 import { addDays, AIRPORT, cityLabel, DRAFT_KEY, durationMinutes, errorKey, riyadhDay, riyadhTime, riyadhToday, TRIP_CITIES, type TripCity } from './trip';
 
@@ -67,11 +68,9 @@ export default function FlightBooking() {
   const [tripType, setTripType] = useState<TripType>('oneWay');
   const [passengers, setPassengers] = useState(1);
   const [cabinClass, setCabinClass] = useState<TicketClass>('ECONOMY');
-  // "Plan a trip to …" on the hotels and cars pages opens this page with ?to=<city> as the destination.
-  const toParam = new URLSearchParams(useSearch()).get('to');
-  const linkedTo = (TRIP_CITIES as readonly string[]).includes(toParam ?? '') ? (toParam as TripCity) : null;
-  const [from, setFrom] = useState<TripCity>(linkedTo === 'Riyadh' ? 'Jeddah' : 'Riyadh');
-  const [to, setTo] = useState<TripCity>(linkedTo ?? 'Jeddah');
+  // His defaults: Riyadh to Dammam, a week from today.
+  const [from, setFrom] = useState<TripCity>('Riyadh');
+  const [to, setTo] = useState<TripCity>('Dammam');
   const [openCityPicker, setOpenCityPicker] = useState<'' | 'from' | 'to'>('');
   const [departure, setDeparture] = useState(() => addDays(riyadhToday(), 7));
   const [openPopover, setOpenPopover] = useState<'' | 'trip' | 'passengers' | 'class'>('');
@@ -257,7 +256,7 @@ export default function FlightBooking() {
         <div className="tarhal-shell">
           <header className="site-header">
             <div className="brand-slot" aria-label="Tarhal"><span className="brand-fallback">TARHAL</span></div>
-            <span className="header-note"><span className="header-dot" />{t('tpHeaderNote')}</span>
+            <div className="header-end"><span className="header-note"><span className="header-dot" />{t('tpHeaderNote')}</span><HeaderControls /></div>
           </header>
 
           <section className="welcome" aria-labelledby="welcome-title">

@@ -12,6 +12,7 @@ import { useDemoState } from '@/store/demoStore';
 import { notify } from '@/store/notificationStore';
 import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
+import { HeaderControls } from './components/traveler-controls';
 import { cityLabel, errorKey, riyadhDay, riyadhTime } from './trip';
 import { useMyBookings } from './use-my-bookings';
 
@@ -127,7 +128,7 @@ export default function MyBookings() {
         <main className="bookings-shell">
           <header className="bookings-header">
             <div className="bookings-brand" aria-label="Tarhal"><span className="bookings-brand-mark" aria-hidden="true" /><span>TARHAL</span></div>
-            <span className="bookings-header-note"><span className="bookings-header-dot" />{t('tpBookingsHeaderNote')}</span>
+            <div className="header-end"><span className="bookings-header-note"><span className="bookings-header-dot" />{t('tpBookingsHeaderNote')}</span><HeaderControls /></div>
           </header>
 
           <section className="bookings-intro">
