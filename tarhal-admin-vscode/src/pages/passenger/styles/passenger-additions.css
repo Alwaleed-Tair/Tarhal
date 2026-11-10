@@ -168,6 +168,8 @@ img { max-width: none; }
 @media (max-width: 480px) { .login-page.login-page { padding: 14px 14px 80px; gap: 14px; } }
 .auth-field { display: grid; gap: 4px; text-align: start; }
 .auth-error { color: #2b66a3; font-size: 12px; font-weight: 700; }
+.auth-label { padding-inline-start: 14px; color: #314c69; font-size: 12px; font-weight: 700; }
+.auth-hint { padding-inline-start: 14px; color: #486983; font-size: 12px; }
 .auth-form-error { margin: 0; padding: 10px 12px; border-left: 3px solid #e9d6aa; border-radius: 14px; color: #203b55; background: #eef3f8; font-size: 13px; font-weight: 600; text-align: start; }
 .auth-terms { display: flex; align-items: flex-start; gap: 8px; color: #314c69; font-size: 13px; font-weight: 600; text-align: start; }
 .login-form .auth-terms input { flex: none; width: 18px; height: 18px; margin-top: 1px; padding: 0; accent-color: #2b66a3; }

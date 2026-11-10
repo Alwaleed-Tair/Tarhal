@@ -23,7 +23,7 @@ export default function Register() {
   if (isLoggedIn && !submitting) return <Redirect to={next ?? routes.home} />;
 
   // Which message to show for an API rejection: duplicate account, or the field the API said is invalid.
-  const FIELD_MESSAGE: Record<string, TranslationKey> = { name: 'errNameRequired', email: 'errEmailInvalid', phone: 'errPhoneInvalid', password: 'errPasswordShort', dateOfBirth: 'errDobInvalid' };
+  const FIELD_MESSAGE: Record<string, TranslationKey> = { name: 'errNameRequired', email: 'errEmailInvalid', phone: 'errPhoneInvalid', password: 'errPasswordShort', dateOfBirth: 'errDobInvalid', underage: 'errUnder21' };
   const registerErrorMessage = (error: unknown) => {
     if (error instanceof AuthError && error.code === 'emailTaken') return t('errEmailTaken');
     if (error instanceof AuthError && error.code === 'invalidField' && error.field && FIELD_MESSAGE[error.field]) return t(FIELD_MESSAGE[error.field]);
@@ -56,7 +56,7 @@ export default function Register() {
           onChange={(event) => form.setValue('email', event.target.value)} onBlur={() => form.touch('email')} />
         <AuthField id="register-phone" label={t('phone')} type="tel" dir="ltr" autoComplete="tel" value={form.values.phone} error={form.errors.phone && t(form.errors.phone)}
           onChange={(event) => form.setValue('phone', event.target.value)} onBlur={() => form.touch('phone')} />
-        <AuthField id="register-dob" label={t('dateOfBirth')} type="date" dir="ltr" autoComplete="bday" max={new Date().toISOString().slice(0, 10)} value={form.values.dateOfBirth}
+        <AuthField id="register-dob" label={t('dateOfBirth')} hint={t('registerAgeHint')} type="date" dir="ltr" autoComplete="bday" max={new Date().toISOString().slice(0, 10)} value={form.values.dateOfBirth}
           error={form.errors.dateOfBirth && t(form.errors.dateOfBirth)} onChange={(event) => form.setValue('dateOfBirth', event.target.value)} onBlur={() => form.touch('dateOfBirth')} />
         <AuthField id="register-password" label={t('password')} type="password" dir="ltr" autoComplete="new-password" value={form.values.password}
           error={form.errors.password ? t(form.errors.password) : undefined} onChange={(event) => form.setValue('password', event.target.value)} onBlur={() => form.touch('password')} />

@@ -8,6 +8,7 @@ export async function POST(request: Request) {
   const body = await jsonObject(request);
   if (!body) return authError('INVALID_BODY', 'Send a valid JSON object.', 400);
   const field = registrationError(body);
+  if (field === 'underage') return authError('UNDER_21', 'You must be at least 21 years old to create an account.', 400, 'dateOfBirth');
   if (field) return authError('INVALID_FIELD', field === 'password' ? 'Use a password between 12 and 128 characters.' : `Enter a valid ${field}.`, 400, field);
   try {
     const user = await prisma.user.create({ data: {

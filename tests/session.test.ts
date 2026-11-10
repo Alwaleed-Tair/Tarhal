@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { issueSession, readSession, sessionMatchesPassword, SESSION_SECONDS } from '../lib/session-token.ts';
-import { registrationError } from '../lib/registration.ts';
+import { ageOn, registrationError } from '../lib/registration.ts';
 const secret = 'test-only-secret'.repeat(4);
 test('signed sessions expire and reject tampering, wrong keys and password changes', () => {
   const now = 1800000000000;
@@ -22,4 +22,10 @@ test('registration validates names, email, phone, password and real calendar dat
     assert.equal(registrationError({ ...body, [field]: value }), field);
   }
   assert.equal(registrationError({ ...body, dateOfBirth: '2999-01-01' }), 'dateOfBirth');
+  // Account holders must be 21 or older (Riyadh calendar day); 21 on the birthday itself counts.
+  const now = new Date('2026-11-10T12:00:00Z');
+  assert.equal(registrationError({ ...body, dateOfBirth: '2005-11-10' }, now), null);
+  assert.equal(registrationError({ ...body, dateOfBirth: '2005-11-11' }, now), 'underage');
+  assert.equal(registrationError({ ...body, dateOfBirth: '2015-01-01' }, now), 'underage');
+  assert.equal(ageOn('2005-11-11', new Date('2026-11-10T21:30:00Z')), 21); // already the 11th in Riyadh
 });

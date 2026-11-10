@@ -57,7 +57,7 @@ Creates a traveler account. Does **not** log in; call login afterwards.
 | `email` | valid email (stored lower-case, unique) |
 | `phone` | `+` optional, 8–15 digits (unique) |
 | `password` | 12–128 characters |
-| `dateOfBirth` | `YYYY-MM-DD`, not in the future |
+| `dateOfBirth` | `YYYY-MM-DD`, not in the future; the person must be **21 or older** (Riyadh calendar day) → otherwise `400 UNDER_21` (`field: "dateOfBirth"`). Travelers inside a booking can be any age. |
 
 ```json
 // 201
@@ -107,7 +107,7 @@ No body. Clears the cookie. `200 { "success": true }`
 
 ### `PATCH /api/profile`
 Body: any of `{ "name", "phone", "dateOfBirth" }` (same rules as register). Returns the profile as above.
-`400` for any other field (email, role and password cannot be changed here) or a bad value · `409 PHONE_IN_USE` · `401` without login.
+`400` for any other field (email, role and password cannot be changed here) or a bad value (`UNDER_21` for a date of birth under 21) · `409 PHONE_IN_USE` · `401` without login.
 
 ---
 

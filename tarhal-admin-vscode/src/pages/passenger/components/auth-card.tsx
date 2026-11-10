@@ -38,14 +38,19 @@ export function AuthCard({ title, subtitle, footer, children }: { title: string;
   );
 }
 
-type FieldProps = InputHTMLAttributes<HTMLInputElement> & { id: string; label: string; error?: string };
+type FieldProps = InputHTMLAttributes<HTMLInputElement> & { id: string; label: string; error?: string; hint?: string };
 
-/** One of his rounded inputs. The placeholder is the visible label (his design); the label is also given to screen readers. */
-export function AuthField({ id, label, error, ...input }: FieldProps) {
+/**
+ * One of his rounded inputs. The placeholder is the visible label (his design); the label is also given to screen readers.
+ * A date input cannot show a placeholder, so its label is shown above it. `hint` is a short note under the field.
+ */
+export function AuthField({ id, label, error, hint, ...input }: FieldProps) {
+  const described = [error && `${id}-error`, hint && `${id}-hint`].filter(Boolean).join(' ') || undefined;
   return (
     <div className="auth-field">
-      <label htmlFor={id} className="sr-only">{label}</label>
-      <input id={id} placeholder={label} aria-invalid={Boolean(error) || undefined} aria-describedby={error ? `${id}-error` : undefined} {...input} />
+      <label htmlFor={id} className={input.type === 'date' ? 'auth-label' : 'sr-only'}>{label}</label>
+      <input id={id} placeholder={label} aria-invalid={Boolean(error) || undefined} aria-describedby={described} {...input} />
+      {hint && !error && <small id={`${id}-hint`} className="auth-hint">{hint}</small>}
       {error && <small id={`${id}-error`} className="auth-error" role="alert">{error}</small>}
     </div>
   );

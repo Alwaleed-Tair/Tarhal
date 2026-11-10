@@ -1,6 +1,7 @@
 import { getCurrentUser } from '../../../lib/auth.ts';
 import { authError, authOptions, authResponse, jsonObject, rejectCrossOrigin } from '../../../lib/auth-http.ts';
 import { prisma } from '../../../lib/prisma.ts';
+import { oldEnoughForAccount } from '../../../lib/registration.ts';
 
 export const OPTIONS = authOptions;
 
@@ -45,6 +46,8 @@ export async function PATCH(request: Request) {
     if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(dob.getTime()) || dob.toISOString().slice(0, 10) !== value || dob > new Date() || dob.getUTCFullYear() < 1900) {
       return authError('INVALID_FIELD', 'Enter a valid dateOfBirth.', 400, 'dateOfBirth');
     }
+    // The account holder must stay 21 or older (the same rule as registration).
+    if (!oldEnoughForAccount(value)) return authError('UNDER_21', 'You must be at least 21 years old to hold an account.', 400, 'dateOfBirth');
     data.dateOfBirth = dob;
   }
   if (!Object.keys(data).length) return authError('INVALID_FIELD', 'Send at least one of name, phone or dateOfBirth.', 400);
