@@ -1249,3 +1249,76 @@ html.dark .route-fallback { background: linear-gradient(158deg, #142c43 0%, #1c4
 @media (prefers-reduced-motion: reduce) {
   .page-enter, .passenger-app :is(.tarhal-shell, .bookings-shell, .city-guide-main, .travel-main, .Stage) { animation: none; }
 }
+
+/* ===== 39. The chat in the look of Tariq's ChatWidget (origin/User-Fixes, components/ChatWidget.css and SideBar.css).
+   Look and position only: components/chat-assistant.tsx keeps all of Alwaleed's logic. His badge: a 44px navy circle with
+   the camel in grey (his filter); his window: a 320 x 420 light card, gradient header, bubbles and pill input. The same
+   in light and dark mode, as in his app. The selectors are long on purpose: they replace the older chat rules above. ===== */
+:root body .chat-launcher.chat-launcher.chat-launcher {
+  position: fixed; z-index: 31; inset-inline-start: 20px; inset-inline-end: auto; bottom: 20px;
+  width: 44px; height: 44px; min-width: 0; min-height: 0; padding: 0; display: grid; place-items: center;
+  border: 0; border-radius: 50%; background: #10263d; color: #ffffff; box-shadow: 0 6px 14px rgba(0, 0, 0, .3);
+  font-size: 23px; line-height: 1; cursor: pointer; filter: none;
+}
+:root body .chat-launcher-mobile.chat-launcher-mobile.chat-launcher-mobile { display: none; }
+.chat-camel { filter: grayscale(1) brightness(2); }
+:root body .chat-launcher.chat-launcher.chat-launcher:hover { animation: chat-badge-glow 1.2s ease-in-out infinite; }
+:root body .chat-launcher.chat-launcher.chat-launcher:focus-visible { outline: 3px solid #6a93c9; outline-offset: 3px; }
+@keyframes chat-badge-glow {
+  0%, 100% { box-shadow: 0 6px 14px rgba(16, 38, 61, .4), 0 0 6px rgba(16, 38, 61, .4); }
+  50% { box-shadow: 0 6px 14px rgba(16, 38, 61, .4), 0 0 22px rgba(16, 38, 61, .95); }
+}
+:root.accessibility-contrast body .chat-launcher.chat-launcher.chat-launcher { background: #000000; border: 2px solid #ffffff; box-shadow: none; }
+
+:root body .chat-panel.chat-panel.chat-panel {
+  position: fixed; z-index: 40; bottom: 76px; inset-inline-start: 20px; inset-inline-end: auto;
+  width: min(320px, calc(100vw - 40px)); height: min(420px, calc(100dvh - 40px)); max-height: none;
+  display: flex; flex-direction: column; overflow: hidden; border: 0; border-radius: 24px;
+  background: #f1f4fa; color: #10263d; box-shadow: 0 20px 40px rgba(0, 0, 0, .35); font-family: 'Inter', var(--app-font-sans);
+}
+:root body .chat-panel .chat-panel-header { padding: 14px 18px; background: linear-gradient(90deg, #10263d 0%, #6a93c9 100%); color: #ffffff; font-weight: 700; }
+[dir='rtl'] body .chat-panel .chat-panel-header { background: linear-gradient(270deg, #10263d 0%, #6a93c9 100%); }
+:root body .chat-panel .chat-panel-logo { display: none; }
+:root body .chat-panel .chat-panel-heading strong { font-size: calc(15px * var(--text-scale)); }
+:root body .chat-panel .chat-panel-heading span { color: #e6edf7; }
+:root body .chat-panel .chat-close { color: #ffffff; }
+:root body .chat-panel .chat-messages { flex: 1; min-height: 0; max-height: none; padding: 16px; gap: 10px; }
+:root body .chat-panel .chat-message { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: calc(14px * var(--text-scale)); font-weight: 600; line-height: 1.4; }
+:root body .chat-panel .chat-message.assistant { background: #e1e5f0; color: #10263d; border-end-start-radius: 4px; }
+:root body .chat-panel .chat-message.user { background: linear-gradient(90deg, #10263d 0%, #6a93c9 100%); color: #ffffff; border-end-end-radius: 4px; }
+:root body .chat-panel .chat-card { border: 2px solid #e1e5f0; border-radius: 16px; background: #ffffff; color: #10263d; }
+:root body .chat-panel .chat-card span:last-child { color: #10263d; }
+:root body .chat-panel .chat-status { color: #486983; }
+:root body .chat-panel .chat-error { color: #b4231f; }
+:root body .chat-panel .chat-quick-prompts button { border: 2px solid #e1e5f0; border-radius: 20px; background: #ffffff; color: #10263d; font-weight: 600; }
+:root body .chat-panel .chat-form { gap: 8px; padding: 10px; border-top: 2px solid #e1e5f0; }
+:root body .chat-panel .chat-input { height: 40px; padding: 10px 14px; border: 2px solid #e1e5f0; border-radius: 20px; background: #ffffff; color: #10263d; font-size: calc(14px * var(--text-scale)); font-weight: 600; }
+:root body .chat-panel .chat-input:focus { border-color: #3d5a80; outline: none; box-shadow: none; }
+:root body .chat-panel .chat-send { width: auto; min-width: 46px; padding: 0 14px; border-radius: 20px; background: linear-gradient(90deg, #10263d 0%, #6a93c9 100%); color: #ffffff; }
+:root.accessibility-contrast body .chat-panel.chat-panel.chat-panel { border: 2px solid #ffffff; }
+
+/* Traveler pages with his rail: the badge sits at the bottom of the rail, as in his app; the window opens beside the rail. */
+@media (min-width: 1101px) {
+  :root:has(.passenger-app .sidebar) body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: 73.5px; bottom: 30px; }
+  :root:has(.passenger-app .sidebar) body .chat-panel.chat-panel.chat-panel { inset-inline-start: 141px; bottom: 30px; }
+}
+/* His rail as a bottom bar (phones and tablets): the badge is the last item of the bar; the window opens above it. */
+@media (max-width: 1100px) {
+  :root:has(.passenger-app .sidebar) body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: auto; inset-inline-end: 12px; bottom: 10px; z-index: 35; }
+  :root:has(.passenger-app .sidebar) body .chat-panel.chat-panel.chat-panel { inset-inline: 12px; width: auto; max-width: 420px; bottom: 76px; height: min(420px, calc(100dvh - 96px)); }
+}
+/* Admin: the badge sits in the empty bottom of the admin sidebar (its footer keeps room for it); the window opens beside it. */
+:where(.app-shell) .sidebar-foot { min-height: 64px; }
+@media (min-width: 681px) {
+  :root[data-admin-sidebar] body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: calc(16px + var(--adm-sidebar) / 2 - 22px); bottom: 32px; }
+  :root[data-admin-sidebar] body .chat-panel.chat-panel.chat-panel { inset-inline-start: calc(var(--adm-sidebar) + 32px); bottom: 24px; }
+}
+@media (min-width: 681px) and (max-width: 1120px) { :root[data-admin-sidebar] body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: calc(8px + var(--adm-sidebar) / 2 - 22px); bottom: 24px; } }
+@media (min-width: 681px) and (max-width: 900px) { :root[data-admin-sidebar] body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: calc(var(--adm-sidebar) / 2 - 22px); bottom: 16px; } }
+/* Admin on phones (the sidebar is a menu): the badge in the bottom corner, the window above it. */
+@media (max-width: 680px) {
+  :root[data-admin-sidebar] body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: auto; inset-inline-end: 16px; bottom: 16px; }
+  :root[data-admin-sidebar] body .chat-panel.chat-panel.chat-panel { inset-inline: 12px; width: auto; bottom: 72px; height: min(420px, calc(100dvh - 92px)); }
+  :root[data-admin-sidebar] .page-wrap { padding-bottom: 72px; }
+}
+@media (prefers-reduced-motion: reduce) { :root body .chat-launcher.chat-launcher.chat-launcher:hover { animation: none; } }

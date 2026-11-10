@@ -94,10 +94,10 @@
 img { max-width: none; }
 .Flight-Row > .Panel-Note { grid-column: 1 / -1; }
 /*
- * His rail, as in his app. On desktop it stops 86px above the bottom so the site's chat button (bottom corner) never
- * covers it; pages keep room at the bottom so their last lines can scroll clear of that button.
+ * His rail, as in his app (bottom 16px); the chat badge sits at its bottom like his camel (index.css section 39).
+ * Pages keep a little room at the bottom.
  */
-.sidebar.sidebar { bottom: 86px; }
+.sidebar.sidebar { bottom: 16px; }
 .tarhal-page.tarhal-page, .bookings-page.bookings-page, .Whole-Container.Whole-Container, .city-guide-page.city-guide-page { padding-bottom: 90px; }
 
 /* The site controls in his header (HeaderControls): small pills in the style of his header note. */
@@ -138,6 +138,8 @@ img { max-width: none; }
   }
   .sidebar.sidebar.sidebar .sidebar-links { flex: 1; max-width: 420px; flex-direction: row; justify-content: space-around; gap: 2px; }
   .sidebar.sidebar.sidebar .sidebar-bottom { display: none; }
+  /* Room at the end of the bar for the chat badge (index.css section 39), so it never sits on a link. */
+  .sidebar.sidebar.sidebar.sidebar { padding-inline-end: 66px; }
   .tarhal-page.tarhal-page, .bookings-page.bookings-page, .Whole-Container.Whole-Container, .city-guide-page.city-guide-page { padding-bottom: 150px; }
   .travel-layout.travel-layout, .city-guide-layout.city-guide-layout { grid-template-columns: minmax(0, 1fr); }
   .travel-main.travel-main, .city-guide-main.city-guide-main { grid-column: 1; }

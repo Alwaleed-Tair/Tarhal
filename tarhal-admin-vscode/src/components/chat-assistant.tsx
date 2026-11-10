@@ -92,8 +92,8 @@ export default function ChatAssistant() {
         aria-expanded={open}
         aria-controls="tarhal-chat-panel"
       >
-        <img className="chat-launcher-logo" src={brand.chatbotLogoSrc} alt="" />
-        <span>{t('chatbot')}</span>
+        {/* Look of Tariq's chat badge (his ChatWidget): the camel in a navy circle. The name is the aria-label. */}
+        <span className="chat-camel" aria-hidden="true">🐫</span>
       </button>
 
       <button
@@ -104,7 +104,7 @@ export default function ChatAssistant() {
         aria-expanded={open}
         aria-controls="tarhal-chat-panel"
       >
-        <img className="chat-launcher-logo" src={brand.chatbotLogoSrc} alt="" />
+        <span className="chat-camel" aria-hidden="true">🐫</span>
       </button>
 
       {open && (
