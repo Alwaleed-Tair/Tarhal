@@ -20,12 +20,13 @@ const toMyBooking = (r: Raw): MyBooking => {
   };
 };
 
-export type BookingRow = { id: string; type: string; customer: string; date: string; price: number; status: string; userId?: string; email?: string; phone?: string; paymentStatus?: string };
+export type BookingRow = { id: string; type: string; customer: string; date: string; price: number; status: string; userId?: string; email?: string; phone?: string; paymentStatus?: string; guests?: number; detail?: string };
 
 const asRaw = (v: unknown): Raw => (v && typeof v === 'object' ? (v as Raw) : {});
 
-// Real shape from GET /api/admin/bookings: { id, isActive, paymentStatus: PENDING|PAID|FAILED|REFUNDED, totalPrice,
-// createdAt, user: { name, email }, flight: { flightNumber, airline: { name } } }. Flat demo-style fields still work.
+// Real shape from GET /api/admin/bookings: { id, type: flight|hotel|car, isActive, paymentStatus: PENDING|PAID|FAILED|REFUNDED, totalPrice,
+// createdAt, user: { name, email }, and flight { flightNumber, from, to } or hotel { name, city } (with guests) or car { make, model, city }.
+// Flat demo-style fields still work.
 function bookingStatus(r: Raw): string {
   const explicit = pick(r, 'status');
   if (explicit !== undefined) return str(explicit);
@@ -44,7 +45,18 @@ const toBookingRow = (r: Raw): BookingRow => ({
   email: str(asRaw(r.user).email) || undefined,
   phone: str(asRaw(r.user).phoneNumber) || undefined,
   paymentStatus: str(r.paymentStatus) || undefined,
+  guests: r.guests === undefined ? undefined : num(r.guests),
+  detail: bookingDetail(r),
 });
+
+/** "SV1020 RUH → JED", "Hotel name · Jeddah" or "Toyota Camry · Riyadh": what was booked. */
+function bookingDetail(r: Raw): string | undefined {
+  const f = asRaw(r.flight), h = asRaw(r.hotel), c = asRaw(r.car);
+  if (f.flightNumber) return `${str(f.flightNumber)} ${str(f.from)} → ${str(f.to)}`;
+  if (h.name) return `${str(h.name)} · ${str(h.city)}`;
+  if (c.make) return `${str(c.make)} ${str(c.model)} · ${str(c.city)}`;
+  return undefined;
+}
 
 export const bookingService = {
   /**
@@ -54,6 +66,14 @@ export const bookingService = {
     const { data } = await api.get<Envelope<Raw[]>>('/admin/bookings');
     assertSuccess(data);
     return toList(data).map(toBookingRow);
+  },
+
+  /**
+   * PATCH /api/admin/bookings/:id { type, action }: cancel (seats are released, a paid booking becomes REFUNDED) or markPaid.
+   * 409 when it is already cancelled or already paid.
+   */
+  async setStatus(id: string, type: string, action: 'cancel' | 'markPaid'): Promise<void> {
+    assertWrite((await api.patch<Envelope<Raw>>(`/admin/bookings/${encodeURIComponent(id)}`, { type, action })).data);
   },
 
   /** POST /api/bookings. 401 without a login, 400 for missing traveler details, 404 unknown flight, 409 when a seat was taken. */

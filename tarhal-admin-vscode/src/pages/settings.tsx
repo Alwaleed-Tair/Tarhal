@@ -1,5 +1,4 @@
 import { type ReactNode } from 'react';
-import { Layout } from '@/components/layout';
 import { PageHeader } from '@/components/page-header';
 import { useT } from '@/i18n/use-i18n';
 import { setSeniorMode, updateSettings, useDemoState } from '@/store/demoStore';
@@ -10,7 +9,7 @@ export default function Settings() {
   const seniorMode = settings.largerText && settings.highContrast;
 
   return (
-    <Layout>
+    <>
       <section className="page-panel settings-page">
         <PageHeader section={t('settings')} title={t('settingsTitle')} subtitle={t('preferencesSaved')} />
         <div className="settings-grid">
@@ -39,7 +38,7 @@ export default function Settings() {
           </Setting>
         </div>
       </section>
-    </Layout>
+    </>
   );
 }
 

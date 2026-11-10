@@ -68,6 +68,10 @@ export type Booking = {
   email?: string;
   phone?: string;
   paymentStatus?: string;
+  /** Hotel bookings: number of guests. */
+  guests?: number;
+  /** What was booked: flight number and route, hotel and city, or car and city. */
+  detail?: string;
 };
 
 export const bookings: Booking[] = [
@@ -85,8 +89,10 @@ export type User = {
   date: string;
   bookings: number;
   status: UserStatus;
-  /** Only on rows built from GET /api/admin/bookings. */
+  /** Only on live rows (GET /api/admin/users). */
   phone?: string;
+  /** "ADMIN" or "TRAVELER", on live rows. */
+  role?: string;
 };
 
 // Users belong to the auth service.

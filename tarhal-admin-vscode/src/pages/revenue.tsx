@@ -1,7 +1,6 @@
 import { lazy, Suspense, useState } from 'react';
 import type { ServiceFilter } from '@/data/demoData';
 import { ErrorState } from '@/components/error-state';
-import { Layout } from '@/components/layout';
 import { ContextBadge, PageHeader } from '@/components/page-header';
 import { ChartSkeleton } from '@/components/skeleton';
 import { useAdminBookings } from '@/hooks/use-admin-bookings';
@@ -15,7 +14,7 @@ export default function Revenue() {
   const { bookings, status, offline, reload, error } = useAdminBookings();
 
   return (
-    <Layout>
+    <>
       <section className="page-panel">
         <PageHeader
           section={t('revenue')}
@@ -38,6 +37,6 @@ export default function Revenue() {
           {status === 'error' ? <ErrorState onRetry={reload} error={error} /> : <Suspense fallback={<ChartSkeleton />}><RevenueChart service={service} bookings={bookings} loading={status === 'loading'} offline={offline} showTotal allowCustomRange /></Suspense>}
         </section>
       </section>
-    </Layout>
+    </>
   );
 }

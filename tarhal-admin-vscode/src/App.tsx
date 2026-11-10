@@ -1,9 +1,11 @@
-import { lazy, Suspense, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, type ComponentType, type ReactNode } from 'react';
 import { Redirect, Route, Switch, useLocation, useSearch, Router as WouterRouter } from 'wouter';
 import { ErrorBoundary } from '@/components/error-boundary';
 import ChatAssistant from '@/components/chat-assistant';
+import { Layout } from '@/components/layout';
 import ToastViewport from '@/components/toast-viewport';
 import { useDocumentSettings } from '@/hooks/use-document-settings';
+import { useSessionCheck } from '@/hooks/use-session-check';
 import Dashboard from '@/pages/dashboard';
 import AdminResource from '@/pages/admin-resource';
 import Bookings from '@/pages/bookings';
@@ -14,16 +16,54 @@ import { routes } from '@/config/routes';
 import { canUseAdmin, useAuth } from '@/store/authStore';
 
 // Tariq's passenger pages (src/pages/passenger). Loaded on demand: their photos and styles stay out of the admin bundle.
-const TravelHome = lazy(() => import('@/pages/passenger/travel-home'));
-const FlightBooking = lazy(() => import('@/pages/passenger/flight-booking'));
-const MyBookings = lazy(() => import('@/pages/passenger/my-bookings'));
-const TravelGuide = lazy(() => import('@/pages/passenger/travel-guide'));
-const CityGuide = lazy(() => import('@/pages/passenger/city-guide'));
-const NotFound = lazy(() => import('@/pages/passenger/not-found'));
-const Login = lazy(() => import('@/pages/login'));
-const Register = lazy(() => import('@/pages/register'));
-// While a page loads: his dark blue page colour, so there is no white flash between pages.
-const Passenger = ({ children }: { children: ReactNode }) => <Suspense fallback={<div className="min-h-dvh" style={{ background: '#142c43' }} role="status" aria-busy="true" />}>{children}</Suspense>;
+/**
+ * A lazily loaded page. React.lazy suspends once even when the code is already downloaded, which shows the empty
+ * fallback for a moment; so once the module is here (prefetched or visited), the page renders straight away.
+ */
+function page(load: () => Promise<{ default: ComponentType }>) {
+  let loaded: ComponentType | null = null;
+  let promise: Promise<{ default: ComponentType }> | null = null;
+  const get = () => (promise ??= load().then((m) => { loaded = m.default; return m; }));
+  const Lazy = lazy(get);
+  const Page = () => { const Ready = loaded; return Ready ? <Ready /> : <Lazy />; };
+  return Object.assign(Page, { preload: get });
+}
+
+// Every page loader once: lazy() uses them, and usePrefetchPages() loads them all when the browser is idle,
+// so moving between pages later never waits for code (no empty screen).
+const pages = {
+  TravelHome: () => import('@/pages/passenger/travel-home'),
+  FlightBooking: () => import('@/pages/passenger/flight-booking'),
+  MyBookings: () => import('@/pages/passenger/my-bookings'),
+  Profile: () => import('@/pages/passenger/profile'),
+  TravelGuide: () => import('@/pages/passenger/travel-guide'),
+  CityGuide: () => import('@/pages/passenger/city-guide'),
+  NotFound: () => import('@/pages/passenger/not-found'),
+  Login: () => import('@/pages/login'),
+  Register: () => import('@/pages/register'),
+} as const;
+const TravelHome = page(pages.TravelHome);
+const FlightBooking = page(pages.FlightBooking);
+const MyBookings = page(pages.MyBookings);
+const Profile = page(pages.Profile);
+const TravelGuide = page(pages.TravelGuide);
+const CityGuide = page(pages.CityGuide);
+const NotFound = page(pages.NotFound);
+const Login = page(pages.Login);
+const Register = page(pages.Register);
+// While a page's code loads (normally only the very first visit): a quiet empty page in the current theme's
+// background (.route-fallback in index.css), never a white or navy flash.
+const Passenger = ({ children }: { children: ReactNode }) => <Suspense fallback={<div className="route-fallback" role="status" aria-busy="true" aria-label="Loading" />}>{children}</Suspense>;
+
+/** Loads the code of every traveler page in the background once the first page has settled. */
+function usePrefetchPages() {
+  useEffect(() => {
+    const run = () => { for (const Page of [TravelHome, FlightBooking, MyBookings, Profile, TravelGuide, CityGuide, NotFound, Login, Register]) void Page.preload().catch(() => undefined); };
+    const idle = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+    const id = idle ? idle(run, { timeout: 2500 }) : window.setTimeout(run, 1200);
+    return () => { if (!idle) window.clearTimeout(id); };
+  }, []);
+}
 
 /** A redirect that keeps the query string (?next=, ?to=). */
 function KeepSearch({ to }: { to: string }) {
@@ -36,13 +76,16 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
   return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
 }
 
-/** Signed-out visitors (or a session that just expired) go to the login page and come back; travelers go to the home page. */
+/**
+ * Signed-out visitors (or a session that just expired) go to the login page and come back; travelers go to the home page.
+ * The admin Layout (sidebar, top bar) is rendered here once, so it stays in place while only the page content changes.
+ */
 function AdminOnly({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [location] = useLocation();
   if (!user) return <Redirect to={`${routes.login}?next=${encodeURIComponent(location)}`} replace />;
   if (!canUseAdmin(user)) return <Redirect to={routes.home} replace />;
-  return <>{children}</>;
+  return <Layout>{children}</Layout>;
 }
 
 function Routes() {
@@ -53,6 +96,7 @@ function Routes() {
         <Route path={routes.passenger.home}><Passenger><TravelHome /></Passenger></Route>
         <Route path={routes.passenger.flights}><Passenger><FlightBooking /></Passenger></Route>
         <Route path={routes.passenger.bookings}><Passenger><MyBookings /></Passenger></Route>
+        <Route path={routes.passenger.profile}><Passenger><Profile /></Passenger></Route>
         <Route path={routes.passenger.guide}><Passenger><TravelGuide /></Passenger></Route>
         <Route path="/travel-guide/:slug"><Passenger><CityGuide /></Passenger></Route>
         <Route path={routes.login}><Passenger><Login /></Passenger></Route>
@@ -89,6 +133,8 @@ function Routes() {
 
 export default function App() {
   useDocumentSettings();
+  useSessionCheck();
+  usePrefetchPages();
   return (
     <WouterRouter>
       <Routes />

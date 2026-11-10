@@ -2,9 +2,12 @@ import type { Booking, MonthlyRevenue, ResourceRow, RevenueKey, Service, Service
 import { isoToRiyadhLocal } from '@/i18n/format';
 
 // Every number on the dashboard, revenue and users pages is computed here from the lists the API returns:
-// GET /api/admin/bookings and GET /api/admin/flights (or the demo lists, with the Demo data badge, when the server cannot be reached).
+// GET /api/admin/bookings (flight, hotel and car bookings, each with its type) and GET /api/admin/flights (or the demo lists, with the Demo data badge, when the server cannot be reached).
 
-/** Cancelled bookings and failed or refunded payments bring in no money. Pending payments count: the app has no payment step yet. */
+/**
+ * Booked value: cancelled bookings and failed or refunded payments bring in no money; pending ones count, because they are still owed.
+ * What was really paid (paymentStatus PAID, after the simulated payment or "Mark paid") is shown next to it as "Paid so far".
+ */
 const earnsRevenue = (booking: Booking) => booking.status !== 'Cancelled' && booking.paymentStatus !== 'FAILED' && booking.paymentStatus !== 'REFUNDED';
 
 /**

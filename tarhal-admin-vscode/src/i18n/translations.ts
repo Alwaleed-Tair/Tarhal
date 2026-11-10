@@ -4,6 +4,7 @@ export type Language = 'en' | 'ar';
 export const translations = {
   en: {
     ...passengerEn,
+    markPaid: 'Mark paid', cancelBookingAction: 'Cancel booking', confirmCancelBooking: 'Cancel this booking?', keepBooking: 'Keep', bookingCancelledNotice: 'Booking {id} was cancelled.', bookingPaidNotice: 'Booking {id} is marked as paid.', role: 'Role', roleAdmin: 'Admin', roleTraveler: 'Traveler', availability: 'Availability', unavailableCar: 'Unavailable', availableCar: 'Available', carsInFleet: 'Cars in the fleet', paidHotelRevenue: 'Paid hotel revenue', paidCarRevenue: 'Paid car revenue', hotelGuests: 'Guests (active stays)',
     dashboard: 'Overview Dashboard', flights: 'Flights', hotels: 'Hotels', cars: 'Car Rentals', bookings: 'Bookings', revenue: 'Revenue', users: 'Users', settings: 'Settings',
     search: 'Search', admin: 'Admin User', totalBookings: 'Total bookings', totalRevenue: 'Booked value', activeUsers: 'Customers with active bookings',
     recentTransactions: 'Recent Transactions', revenueByService: 'Booked value by service', actions: 'Actions', add: 'Add', edit: 'Edit', remove: 'Remove', price: 'Price', status: 'Status', save: 'Save', cancel: 'Cancel', close: 'Close',
@@ -62,7 +63,7 @@ export const translations = {
     filtersLabel: 'Filters', filterMinPrice: 'Minimum price', filterMaxPrice: 'Maximum price', filterMinRating: 'Minimum rating', filterMinSeats: 'Minimum seats', anyOption: 'Any', cityHint: 'Full city name in English',
     colRating: 'Rating', colCar: 'Car', colType: 'Type', colSeats: 'Seats', nightlyPrice: 'Price per night', dailyPrice: 'Price per day', dailyInsurance: 'Insurance per day', address: 'Address', ratingField: 'Rating (1 to 5)', imageUrl: 'Image address (optional)',
     make: 'Make', model: 'Model', year: 'Year', seatCount: 'Number of seats', category: 'Category', availableForRent: 'Available for rent', yearInvalid: 'Enter a year from 1900 to {max}.', seatCountInvalid: 'Enter a whole number from 1 to 100.', ratingInvalid: 'Enter a rating from 1 to 5.', insuranceInvalid: 'Enter 0 or more, with at most two decimal places.',
-    noDataYet: 'No data yet', usersLiveSubtitle: 'Customers who have at least one booking. A full user list needs a users API, which does not exist yet.',
+    noDataYet: 'No data yet', usersLiveSubtitle: 'Every account, newest first.',
     fromAirport: 'From (airport code)', toAirport: 'To (airport code)', departureTime: 'Departure', arrivalTime: 'Arrival', riyadhTime: 'Riyadh time', basePrice: 'Base price', saudiRiyal: 'Saudi Riyal',
     flightSeats: 'Seats', seatCode: 'Seat code', ticketClass: 'Ticket class', priceMultiplier: 'Price multiplier', addSeat: 'Add seat', removeSeat: 'Remove seat', ticketECONOMY: 'Economy', ticketBUSINESS: 'Business', ticketFIRST: 'First',
     airportInvalid: 'Enter a 3-letter airport code, such as RUH.', airportsSame: 'Departure and arrival airports must be different.', arrivalAfterDeparture: 'Arrival must be after departure.', seatsRequired: 'Add at least one seat.', seatDuplicate: 'This seat code is used twice.', multiplierInvalid: 'Enter a number above 0 and up to 99.99.', airlinesUnavailable: 'The airline list could not be loaded. Try again later.',
@@ -150,6 +151,7 @@ export const translations = {
   },
   ar: {
     ...passengerAr,
+    markPaid: 'تحديد كمدفوع', cancelBookingAction: 'إلغاء الحجز', confirmCancelBooking: 'إلغاء هذا الحجز؟', keepBooking: 'إبقاء', bookingCancelledNotice: 'تم إلغاء الحجز {id}.', bookingPaidNotice: 'تم تحديد الحجز {id} كمدفوع.', role: 'الدور', roleAdmin: 'مسؤول', roleTraveler: 'مسافر', availability: 'التوفر', unavailableCar: 'غير متاحة', availableCar: 'متاحة', carsInFleet: 'السيارات في الأسطول', paidHotelRevenue: 'إيرادات الفنادق المدفوعة', paidCarRevenue: 'إيرادات السيارات المدفوعة', hotelGuests: 'النزلاء (إقامات قائمة)',
     dashboard: 'لوحة النظرة العامة', flights: 'الرحلات', hotels: 'الفنادق', cars: 'تأجير السيارات', bookings: 'الحجوزات', revenue: 'الإيرادات', users: 'المستخدمون', settings: 'الإعدادات',
     search: 'بحث', admin: 'المستخدم المسؤول', totalBookings: 'إجمالي الحجوزات', totalRevenue: 'قيمة الحجوزات', activeUsers: 'عملاء لديهم حجوزات نشطة',
     recentTransactions: 'أحدث المعاملات', revenueByService: 'قيمة الحجوزات حسب الخدمة', actions: 'الإجراءات', add: 'إضافة', edit: 'تعديل', remove: 'حذف', price: 'السعر', status: 'الحالة', save: 'حفظ', cancel: 'إلغاء', close: 'إغلاق',
@@ -207,7 +209,7 @@ export const translations = {
     filtersLabel: 'عوامل التصفية', filterMinPrice: 'أقل سعر', filterMaxPrice: 'أعلى سعر', filterMinRating: 'أقل تقييم', filterMinSeats: 'أقل عدد مقاعد', anyOption: 'الكل', cityHint: 'اسم المدينة كاملاً بالإنجليزية',
     colRating: 'التقييم', colCar: 'السيارة', colType: 'النوع', colSeats: 'المقاعد', nightlyPrice: 'سعر الليلة', dailyPrice: 'سعر اليوم', dailyInsurance: 'التأمين لليوم', address: 'العنوان', ratingField: 'التقييم (من 1 إلى 5)', imageUrl: 'رابط الصورة (اختياري)',
     make: 'الشركة المصنعة', model: 'الطراز', year: 'السنة', seatCount: 'عدد المقاعد', category: 'الفئة', availableForRent: 'متاحة للتأجير', yearInvalid: 'أدخل سنة من 1900 إلى {max}.', seatCountInvalid: 'أدخل عدداً صحيحاً من 1 إلى 100.', ratingInvalid: 'أدخل تقييماً من 1 إلى 5.', insuranceInvalid: 'أدخل صفراً أو أكثر، بخانتين عشريتين كحد أقصى.',
-    noDataYet: 'لا توجد بيانات بعد', usersLiveSubtitle: 'العملاء الذين لديهم حجز واحد على الأقل. تتطلب القائمة الكاملة واجهة API للمستخدمين غير متوفرة بعد.',
+    noDataYet: 'لا توجد بيانات بعد', usersLiveSubtitle: 'جميع الحسابات، الأحدث أولاً.',
     fromAirport: 'من (رمز المطار)', toAirport: 'إلى (رمز المطار)', departureTime: 'المغادرة', arrivalTime: 'الوصول', riyadhTime: 'بتوقيت الرياض', basePrice: 'السعر الأساسي', saudiRiyal: 'ريال سعودي',
     flightSeats: 'المقاعد', seatCode: 'رمز المقعد', ticketClass: 'درجة التذكرة', priceMultiplier: 'معامل السعر', addSeat: 'إضافة مقعد', removeSeat: 'حذف المقعد', ticketECONOMY: 'السياحية', ticketBUSINESS: 'الأعمال', ticketFIRST: 'الأولى',
     airportInvalid: 'أدخل رمز مطار من 3 أحرف مثل RUH.', airportsSame: 'يجب أن يختلف مطار المغادرة عن مطار الوصول.', arrivalAfterDeparture: 'يجب أن يكون الوصول بعد المغادرة.', seatsRequired: 'أضف مقعداً واحداً على الأقل.', seatDuplicate: 'رمز المقعد هذا مستخدم مرتين.', multiplierInvalid: 'أدخل رقماً أكبر من 0 وحتى 99.99.', airlinesUnavailable: 'تعذر تحميل قائمة شركات الطيران. حاول لاحقاً.',

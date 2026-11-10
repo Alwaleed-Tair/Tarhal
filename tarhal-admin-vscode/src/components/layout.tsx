@@ -1,3 +1,4 @@
+import { BrandLogo } from '@/components/brand-logo';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Accessibility, BriefcaseBusiness, CarFront, ChevronDown, CircleUserRound, FileText, Gauge, Hotel, Languages, LogOut, Menu, Moon, PanelLeftClose, PanelLeftOpen, Plane, Search, Settings2, Sun, Users, X } from 'lucide-react';
@@ -27,16 +28,11 @@ const navItems = [
 export { useT };
 
 function Logo() {
-  const [failed, setFailed] = useState(false);
   const t = useT();
   return (
     <Link className="brand" href="/dashboard" aria-label={`${brand.name} — ${t('dashboard')}`} title={t('dashboard')}>
-      {failed
-        ? <span className="brand-mark" aria-hidden="true">{brand.name[0]}</span>
-        : <img src={brand.logoSrc} alt="" onError={() => setFailed(true)} />}
-      <span className="brand-text">
-        <span className="brand-name">{brand.name.toUpperCase()}</span>
-      </span>
+      {/* The same logo as the traveler pages, in its version for navy (the sidebar is navy in light and dark mode). */}
+      <BrandLogo tone="onDark" height={40} className="brand-logo" />
     </Link>
   );
 }
@@ -300,6 +296,7 @@ function Topbar({ onOpenMobileMenu }: { onOpenMobileMenu: () => void }) {
 }
 
 export function Layout({ children }: { children: ReactNode }) {
+  const [location] = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const collapsed = useSidebarCollapsed();
   // Toasts and the chatbot are rendered outside this shell. This marker lets index.css restyle and reposition
@@ -322,7 +319,8 @@ export function Layout({ children }: { children: ReactNode }) {
       <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
       <main className="main-shell">
         <Topbar onOpenMobileMenu={() => setMenuOpen(true)} />
-        <div className="page-wrap">{children}</div>
+        {/* Keyed by address: only the page content re-enters (short fade, see .page-enter in index.css). */}
+        <div className="page-wrap page-enter" key={location}>{children}</div>
       </main>
     </div>
   );

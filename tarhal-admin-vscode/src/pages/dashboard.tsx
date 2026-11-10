@@ -4,7 +4,6 @@ import type { TranslationKey } from '@/i18n/translations';
 import { DataTable, type Column } from '@/components/data-table';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
-import { Layout } from '@/components/layout';
 import { ContextBadge, PageHeader } from '@/components/page-header';
 import { Ltr } from '@/components/ltr';
 import { ChartSkeleton, TableSkeleton } from '@/components/skeleton';
@@ -74,7 +73,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <Layout>
+    <>
       <section className="page-panel dash">
         <PageHeader
           section={t('dashboard')}
@@ -107,6 +106,6 @@ export default function Dashboard() {
           </div>
         </>}
       </section>
-    </Layout>
+    </>
   );
 }

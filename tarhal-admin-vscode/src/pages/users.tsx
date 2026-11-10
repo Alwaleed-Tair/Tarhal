@@ -1,6 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { DataTable, type Column } from '@/components/data-table';
-import { Layout } from '@/components/layout';
 import { ContextBadge, PageHeader } from '@/components/page-header';
 import { SuggestSearch } from '@/components/suggest-search';
 import { EmptyState } from '@/components/empty-state';
@@ -8,26 +7,26 @@ import { Ltr } from '@/components/ltr';
 import { ErrorState } from '@/components/error-state';
 import { StatusBadge } from '@/components/status-badge';
 import { TableSkeleton } from '@/components/skeleton';
-import { useAdminBookings } from '@/hooks/use-admin-bookings';
+import { useAdminData } from '@/hooks/use-admin-data';
+import { userService } from '@/services/userService';
 import { usePagination } from '@/hooks/use-pagination';
 import { Pagination } from '@/components/pagination';
 import type { User, UserStatus } from '@/data/demoData';
 import { useFormat, useT } from '@/i18n/use-i18n';
-import { customersFromBookings } from '@/lib/booking-stats';
 import { statusLabel, statusParam } from '@/i18n/labels';
 import { notify } from '@/store/notificationStore';
 import { updateUser, useDemoState } from '@/store/demoStore';
 
 const STATUSES: UserStatus[] = ['Active', 'Inactive', 'Deleted'];
+const NO_USERS: User[] = [];
 
 export default function Users() {
   const t = useT();
   const format = useFormat();
-  // There is no users endpoint yet, so live rows are the customers found in GET /api/admin/bookings.
-  // The demo store (with its status filters and status changes) is only used when the server cannot be reached, with the Demo data badge.
+  // Live rows: every account from GET /api/admin/users. The demo store (with its status filters and status changes)
+  // is only used when the server cannot be reached, with the Demo data badge.
   const { users: demoUsers } = useDemoState();
-  const { bookings, status: loadStatus, offline, reload, error } = useAdminBookings();
-  const liveUsers = useMemo(() => customersFromBookings(bookings), [bookings]);
+  const { data: liveUsers, status: loadStatus, offline, reload, error } = useAdminData<User[]>(() => userService.all(), () => demoUsers, NO_USERS, 'users');
   const users = offline ? demoUsers : liveUsers;
   const [filter, setFilter] = useState<'all' | UserStatus>('all');
   const [query, setQuery] = useState('');
@@ -45,10 +44,12 @@ export default function Users() {
   }
 
   const liveColumns: Column<User>[] = [
-    { key: 'name', width: '28%', header: t('fullName'), cell: (row) => row.name },
-    { key: 'email', width: '32%', header: t('email'), muted: true, cell: (row) => <Ltr>{row.email}</Ltr> },
-    { key: 'phone', width: '24%', header: t('phone'), muted: true, cell: (row) => <Ltr>{row.phone ?? '—'}</Ltr> },
-    { key: 'bookings', width: '16%', header: t('totalBookings'), align: 'end', cell: (row) => format.number(row.bookings) },
+    { key: 'name', width: '22%', header: t('fullName'), cell: (row) => row.name },
+    { key: 'email', width: '26%', header: t('email'), muted: true, cell: (row) => <Ltr>{row.email}</Ltr> },
+    { key: 'phone', width: '16%', header: t('phone'), muted: true, cell: (row) => <Ltr>{row.phone ?? '—'}</Ltr> },
+    { key: 'role', width: '11%', header: t('role'), cell: (row) => t(row.role === 'ADMIN' ? 'roleAdmin' : 'roleTraveler') },
+    { key: 'joined', width: '13%', header: t('joinDate'), muted: true, cell: (row) => format.date(row.date) },
+    { key: 'bookings', width: '12%', header: t('totalBookings'), align: 'end', cell: (row) => format.number(row.bookings) },
   ];
   const demoColumns: Column<User>[] = [
     { key: 'id', width: '9%', header: t('userId'), cell: (row) => <Ltr>{row.id}</Ltr> },
@@ -67,7 +68,7 @@ export default function Users() {
   const columns = offline ? demoColumns : liveColumns;
 
   return (
-    <Layout>
+    <>
       <section className="page-panel">
         <PageHeader
           section={t('users')}
@@ -100,6 +101,6 @@ export default function Users() {
           {totalPages > 1 && <div className="table-pager"><Pagination page={page} totalPages={totalPages} onPageChange={setPage} /></div>}
         </div>
       </section>
-    </Layout>
+    </>
   );
 }

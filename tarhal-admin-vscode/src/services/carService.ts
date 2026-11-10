@@ -29,17 +29,20 @@ export type CarInput = { make: string; model: string; year: number; seats: numbe
 export type CarQuery = { page: number; pageSize: number; city?: string; make?: string; category?: string; transmission?: string; minSeats?: string; minYear?: string; minPrice?: string; maxPrice?: string };
 
 export const carService = {
-  /**
-   * POST and PATCH /api/admin/cars do not exist yet (Saud). The buttons stay hidden by WRITE_ACTIONS in pages/admin-resource.tsx.
-   * The page reloads after a save, so nothing depends on the shape of the response.
-   */
+  /** POST /api/admin/cars and PATCH /api/admin/cars/:id (400 with the field name, 404 unknown car). The page reloads after a save. */
   async create(input: CarInput): Promise<void> {
     assertWrite((await api.post<Envelope<Raw>>('/admin/cars', input)).data);
   },
   async update(apiId: string | number, input: Partial<CarInput>): Promise<void> {
     assertWrite((await api.patch<Envelope<Raw>>(`/admin/cars/${encodeURIComponent(String(apiId))}`, input)).data);
   },
-  /** One page from GET /api/cars, filtered by the API: admin Cars page and the traveler car search. Only available cars. */
+  /** One page from GET /api/admin/cars: every car, also the ones switched off, with the same filters as /api/cars. Admin only. */
+  async adminList(params: CarQuery) {
+    const { data } = await api.get<Paginated<Raw>>('/admin/cars', { params });
+    assertSuccess(data);
+    return { rows: toList(data).map(toRow), pagination: data.pagination };
+  },
+  /** One page from GET /api/cars, filtered by the API: the traveler car step. Only available cars. */
   async list(params: CarQuery) {
     const { data } = await api.get<Paginated<Raw>>('/cars', { params });
     assertSuccess(data);

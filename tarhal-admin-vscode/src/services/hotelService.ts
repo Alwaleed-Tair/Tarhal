@@ -19,10 +19,7 @@ export type HotelInput = { name: string; city: string; address?: string; roomTyp
 export type HotelQuery = { page: number; pageSize: number; city?: string; roomType?: string; minPrice?: string; maxPrice?: string; minRating?: string };
 
 export const hotelService = {
-  /**
-   * POST and PATCH /api/admin/hotels do not exist yet (Saud). The buttons stay hidden by WRITE_ACTIONS in pages/admin-resource.tsx.
-   * The page reloads after a save, so nothing depends on the shape of the response.
-   */
+  /** POST /api/admin/hotels and PATCH /api/admin/hotels/:id (400 with the field name, 404 unknown hotel). The page reloads after a save. */
   async create(input: HotelInput): Promise<void> {
     assertWrite((await api.post<Envelope<Raw>>('/admin/hotels', input)).data);
   },
