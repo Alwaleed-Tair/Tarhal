@@ -174,6 +174,7 @@ async function main() {
     const users = await admin.get('/api/admin/users?page=1&pageSize=5');
     check('Admin users list is paged and has no passwords', users.status === 200 && users.json?.data?.length <= 5 && users.json?.pagination?.total > 0 && !JSON.stringify(users.json).includes('password'), `status ${users.status}`);
     check('Unknown admin path is 404', (await admin.get('/api/admin/nothing-here')).status === 404);
+    if (hotel) check('A hotel with bookings cannot be deleted (409)', (await admin.call('DELETE', `/api/admin/hotels/${hotel.id}`)).status === 409);
     check('Admin POST to a path without a handler is 404 (no flight is created)', (await admin.post('/api/admin/airlines', {})).status === 404);
   }
 

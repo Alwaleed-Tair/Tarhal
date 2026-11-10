@@ -18,7 +18,7 @@
 | [Hotel bookings](#6-hotel-bookings) | `POST /api/hotel-bookings` · `GET /api/hotel-bookings` · `GET /api/hotel-bookings/:id` · `POST /api/hotel-bookings/:id/cancel` | Traveler |
 | [Car rentals](#7-car-rentals) | `POST /api/car-rentals` · `GET /api/car-rentals` · `GET /api/car-rentals/:id` · `POST /api/car-rentals/:id/cancel` | Traveler |
 | [Payments](#8-simulated-payment) | `POST /api/payments` | Traveler |
-| [Admin](#9-admin) | `GET` airlines · flights · bookings · users · cars; `POST` flights · hotels · cars; `PATCH` flights · hotels · cars · bookings; `DELETE` flights | Admin |
+| [Admin](#9-admin) | `GET` airlines · flights · bookings · users · cars; `POST` flights · hotels · cars; `PATCH` flights · hotels · cars · bookings; `DELETE` flights · hotels · cars | Admin |
 | [AI](#10-ai) | `POST /api/ai/chat` · `POST /api/ai/guide` · `POST /api/ai/itinerary` | – |
 
 ---
@@ -272,6 +272,7 @@ Admin role only: no session → `401`, a traveler → `403 { "success": false, "
 | `DELETE /api/admin/flights/:id` | `200 { success, data: { id } }`; `409 HAS_BOOKINGS` while the flight has any booking (even cancelled) |
 | `POST /api/admin/hotels` | `{ name, city, pricePerNight, rating, roomType, address?, imageUrl? }` → `201` |
 | `PATCH /api/admin/hotels/:id` | any of the hotel fields → `200` |
+| `DELETE /api/admin/hotels/:id` · `DELETE /api/admin/cars/:id` | `200 { success, data: { id } }`; `409 HAS_BOOKINGS` while it has any booking (even cancelled); `404` unknown |
 | `POST /api/admin/cars` | `{ make, model, year, seats, category, city, pricePerDay, transmission?, insurancePricePerDay?, isAvailable?, imageUrl? }` → `201` |
 | `PATCH /api/admin/cars/:id` | any of the car fields (e.g. `{ "isAvailable": false }`) → `200` |
 | `PATCH /api/admin/bookings/:id` | `{ "type": "flight" \| "hotel" \| "car", "action": "cancel" \| "markPaid" }`. Cancel releases flight seats and refunds a paid booking; `409` if already cancelled or paid |

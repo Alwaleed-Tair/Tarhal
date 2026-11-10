@@ -14,7 +14,7 @@ import { carFilters, FilterError } from '../../../../lib/catalog-filters.ts';
  *   GET    /api/admin/users | cars        (?page&pageSize, { success, data, pagination })
  *   POST   /api/admin/flights | hotels | cars
  *   PATCH  /api/admin/flights/:id | hotels/:id | cars/:id | bookings/:id
- *   DELETE /api/admin/flights/:id            (409 while the flight has bookings)
+ *   DELETE /api/admin/flights/:id | hotels/:id | cars/:id   (409 while it has bookings)
  *
  * Errors are JSON { success: false, error, code?, field? }: 400 bad input, 401 not logged in, 403 not an admin,
  * 404 unknown path or record, 409 conflict. Database messages are never sent to the client.
@@ -93,6 +93,19 @@ const deleteFlight: Handler = async (_req, id) => {
 
 // ─── Hotels and cars ─────────────────────────────────────
 
+/** DELETE for hotels and cars: refused (409) while it has bookings, even cancelled ones (the schema keeps them, onDelete: Restrict). */
+const deleteStay = (what: 'hotel' | 'car'): Handler => async (_req, id) => {
+  try {
+    const row = what === 'hotel'
+      ? await prisma.hotel.findUnique({ where: { id }, select: { _count: { select: { bookings: true } } } }).then((h) => h && h._count.bookings)
+      : await prisma.car.findUnique({ where: { id }, select: { _count: { select: { rentals: true } } } }).then((c) => c && c._count.rentals);
+    if (row === null) return fail(404, `${what === 'hotel' ? 'Hotel' : 'Car'} not found`, { code: 'NOT_FOUND' });
+    if (row > 0) return fail(409, `This ${what} has bookings and cannot be deleted`, { code: 'HAS_BOOKINGS' });
+    if (what === 'hotel') await prisma.hotel.delete({ where: { id } }); else await prisma.car.delete({ where: { id } });
+    return json({ success: true, data: { id } });
+  } catch (error) { return failure(error, what); }
+};
+
 const createHotel = write('hotel', async (body) => json({ success: true, data: await prisma.hotel.create({ data: hotelCreate(body) }) }, 201));
 const updateHotel = write('hotel', async (body, id) => json({ success: true, data: await prisma.hotel.update({ where: { id }, data: hotelUpdate(body) }) }));
 const createCar = write('car', async (body) => json({ success: true, data: await prisma.car.create({ data: carCreate(body) }) }, 201));
@@ -169,7 +182,7 @@ const ROUTES: Record<string, Record<string, Handler>> = {
   },
   POST: { flights: createFlight, hotels: createHotel, cars: createCar },
   PATCH: { 'flights/:id': updateFlight, 'hotels/:id': updateHotel, 'cars/:id': updateCar, 'bookings/:id': updateBooking },
-  DELETE: { 'flights/:id': deleteFlight },
+  DELETE: { 'flights/:id': deleteFlight, 'hotels/:id': deleteStay('hotel'), 'cars/:id': deleteStay('car') },
 };
 
 async function route(req: NextRequest, { params }: Params) {
