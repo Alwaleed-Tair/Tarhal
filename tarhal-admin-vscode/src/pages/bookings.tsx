@@ -18,7 +18,7 @@ import { isoToRiyadhLocal } from '@/i18n/format';
 import type { TranslationKey } from '@/i18n/translations';
 import { useFormat, useT } from '@/i18n/use-i18n';
 import { shortId } from '@/lib/booking-stats';
-import { statusLabel, statusParam } from '@/i18n/labels';
+import { statusLabel, statusParam, translateValue } from '@/i18n/labels';
 import { notify } from '@/store/notificationStore';
 import { updateBooking, useDemoState } from '@/store/demoStore';
 
@@ -67,6 +67,12 @@ function BookingActions({ row, onChanged }: { row: Booking; onChanged: () => voi
   );
 }
 
+/** "Hotel name · City": the city in the page language. A flight's "SV1020 RUH → JED" stays as codes. */
+const bookedDetail = (detail: string, language: 'en' | 'ar') => {
+  const parts = detail.split(' · ');
+  return parts.length === 2 ? `${parts[0]} · ${translateValue(parts[1], language)}` : detail;
+};
+
 export default function Bookings() {
   const t = useT();
   const format = useFormat();
@@ -91,7 +97,7 @@ export default function Bookings() {
   // Live data: Mark paid and Cancel buttons (PATCH /api/admin/bookings/:id). Demo data (server offline): the old status dropdown.
   const widths = ['14%', '10%', '15%', '17%', '11%', '11%'];
   const columns: Column<Booking>[] = [
-    { key: 'type', width: widths[0], header: t('type'), cell: (row) => <span className="flex flex-col"><span>{t(TYPE_LABEL[row.type])}</span>{row.detail && <span className="cell-sub" dir="auto">{row.detail}</span>}</span> },
+    { key: 'type', width: widths[0], header: t('type'), cell: (row) => <span className="flex flex-col"><span>{t(TYPE_LABEL[row.type])}</span>{row.detail && <span className="cell-sub" dir="auto">{bookedDetail(row.detail, language)}</span>}</span> },
     { key: 'id', width: widths[1], header: t('bookingId'), cell: (row) => <span title={row.id}><Ltr>{shortId(row.id)}</Ltr></span> },
     { key: 'customer', width: widths[2], header: t('customer'), cell: (row) => row.customer },
     { key: 'date', width: widths[3], header: t('dateTime'), muted: true, cell: (row) => format.dateTime(isoToRiyadhLocal(row.date) || row.date) },

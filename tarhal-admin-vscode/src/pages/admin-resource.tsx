@@ -18,7 +18,7 @@ import { useAdminData } from '@/hooks/use-admin-data';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { usePagination } from '@/hooks/use-pagination';
 import { isoToRiyadhLocal, type Formatters } from '@/i18n/format';
-import { translateValue } from '@/i18n/labels';
+import { translateCarCategory, translateValue } from '@/i18n/labels';
 import type { Language, TranslationKey } from '@/i18n/translations';
 import { useFormat, useT } from '@/i18n/use-i18n';
 import { flightMetrics } from '@/lib/booking-stats';
@@ -243,7 +243,7 @@ function resourceColumns({ kind, t, lang, format, can, onEdit, onRemove }: Colum
     : [
         { key: 'name', width: share(27), header: t('colCar'), cell: (row) => <span>{text(row.make)} {text(row.model)} <Ltr>{row.year ? String(row.year) : ''}</Ltr></span> },
         { key: 'city', width: share(14), header: t('city'), cell: (row) => text(row.city) },
-        { key: 'type', width: share(24), header: t('colType'), cell: (row) => <span>{text(row.category)} · {t(row.transmission === 'MANUAL' ? 'manual' : 'automatic')}</span> },
+        { key: 'type', width: share(24), header: t('colType'), cell: (row) => <span>{row.category ? translateCarCategory(row.category, lang) : '—'} · {t(row.transmission === 'MANUAL' ? 'manual' : 'automatic')}</span> },
         { key: 'seats', width: share(8), header: t('colSeats'), align: 'center', cell: (row) => format.number(row.seats ?? 0) },
         { key: 'availability', width: share(12), header: t('availability'), align: 'center', cell: (row) => <span className={`status status-pill status-${row.isAvailable === false ? 'limited' : 'available'}`} data-testid={`car-availability-${row.apiId}`}>{t(row.isAvailable === false ? 'unavailableCar' : 'availableCar')}</span> },
         price(share(15), t('dailyPrice')),

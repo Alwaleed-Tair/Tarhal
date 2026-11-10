@@ -177,7 +177,7 @@ export const translations = {
     type: 'النوع', confirmed: 'مؤكد', pending: 'قيد الانتظار', cancelled: 'ملغى', available: 'متاح', limited: 'محدود', scheduled: 'مجدول', boarding: 'يستقبل الركاب', booked: 'محجوز',
     flightSingular: 'رحلة', hotelSingular: 'فندق', carSingular: 'سيارة', select: 'اختر...', 
     filterAny: 'الكل', filterRating: 'التقييم', ratingFrom40: '٤٫٠+ نجوم', ratingFrom45: '٤٫٥+ نجوم', filterTransmission: 'ناقل الحركة', filterSeats: 'المقاعد', seats5Plus: '٥+ مقاعد', seats7Plus: '٧+ مقاعد',
-    phone: 'رقم الجوال', errPhoneInvalid: 'أدخل رقم جوال صحيحاً', errDobInvalid: 'أدخل تاريخ ميلاد صحيحاً', errUnder21: 'لازم يكون عمرك ٢١ سنة أو أكثر لإنشاء الحساب.', registerAgeHint: 'إنشاء الحساب لمن عمره ٢١ سنة أو أكثر.',
+    phone: 'رقم الجوال', errPhoneInvalid: 'أدخل رقم جوال صحيحاً', errDobInvalid: 'أدخل تاريخ ميلاد صحيحاً', errUnder21: 'لازم يكون عمرك 21 سنة أو أكثر لإنشاء الحساب.', registerAgeHint: 'إنشاء الحساب لمن عمره 21 سنة أو أكثر.',
     airline: 'شركة الطيران', newBooking: 'حجز جديد', travelers: 'المسافرون', traveler: 'مسافر', seat: 'المقعد', passportNumber: 'رقم الجواز', dateOfBirth: 'تاريخ الميلاد', addTraveler: 'إضافة مسافر', createBooking: 'إنشاء حجز',
     seatsUnavailable: 'لم يعد مقعد واحد أو أكثر من المقاعد المحددة متاحاً', bookingCreatedTitle: 'تم إنشاء الحجز', bookingCreated: 'تم إنشاء الحجز {id}.', bookingFailed: 'تعذر إنشاء الحجز. حاول مرة أخرى.',
     mainNavigation: 'التنقل الرئيسي', openNavigation: 'فتح القائمة', closeNavigation: 'إغلاق القائمة',
