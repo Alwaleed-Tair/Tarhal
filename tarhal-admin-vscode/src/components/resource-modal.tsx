@@ -120,7 +120,7 @@ export function ResourceModal({ kind, mode, initialKey, rows, airlines, onClose,
   /** Sends the change. Returns false when an edit changed nothing, so there is nothing to announce. */
   async function send(): Promise<boolean> {
     const apiId = selected?.apiId ?? selected?.id ?? '';
-    if (mode === 'remove') { await flightService.remove(apiId); return true; }
+    if (mode === 'remove') { await (kind === 'flight' ? flightService : kind === 'hotel' ? hotelService : carService).remove(apiId); return true; }
     if (kind === 'flight') {
       if (mode === 'add') { await flightService.create(flightBody(draft)); return true; }
       const changes = flightChanges(draft, selected!);

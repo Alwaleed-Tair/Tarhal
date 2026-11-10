@@ -32,13 +32,12 @@ import { useDemoState } from '@/store/demoStore';
 
 /**
  * Which buttons each table offers. Only what the real API has (app/api/admin/[...slug]/route.ts):
- * flights: POST, PATCH and DELETE (409 while a flight has bookings); hotels and cars: POST and PATCH.
- * Hotels and cars have no DELETE route (their bookings keep them), so there is no Remove button for them.
+ * flights, hotels and cars: POST, PATCH and DELETE (DELETE answers 409 while the record has bookings; the page explains it).
  */
 const WRITE_ACTIONS: Record<Service, Record<ModalMode, boolean>> = {
   flight: { add: true, edit: true, remove: true },
-  hotel: { add: true, edit: true, remove: false },
-  car: { add: true, edit: true, remove: false },
+  hotel: { add: true, edit: true, remove: true },
+  car: { add: true, edit: true, remove: true },
 };
 const NO_WRITES: Record<ModalMode, boolean> = { add: false, edit: false, remove: false };
 

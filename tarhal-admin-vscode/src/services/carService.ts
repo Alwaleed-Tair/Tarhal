@@ -36,6 +36,10 @@ export const carService = {
   async update(apiId: string | number, input: Partial<CarInput>): Promise<void> {
     assertWrite((await api.patch<Envelope<Raw>>(`/admin/cars/${encodeURIComponent(String(apiId))}`, input)).data);
   },
+  /** DELETE /api/admin/cars/:id: 409 while the car has rentals. */
+  async remove(apiId: string | number): Promise<void> {
+    assertWrite((await api.delete<Envelope<Raw>>(`/admin/cars/${encodeURIComponent(String(apiId))}`)).data);
+  },
   /** One page from GET /api/admin/cars: every car, also the ones switched off, with the same filters as /api/cars. Admin only. */
   async adminList(params: CarQuery) {
     const { data } = await api.get<Paginated<Raw>>('/admin/cars', { params });

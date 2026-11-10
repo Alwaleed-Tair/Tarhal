@@ -26,6 +26,10 @@ export const hotelService = {
   async update(apiId: string | number, input: Partial<HotelInput>): Promise<void> {
     assertWrite((await api.patch<Envelope<Raw>>(`/admin/hotels/${encodeURIComponent(String(apiId))}`, input)).data);
   },
+  /** DELETE /api/admin/hotels/:id: 409 while the hotel has bookings. */
+  async remove(apiId: string | number): Promise<void> {
+    assertWrite((await api.delete<Envelope<Raw>>(`/admin/hotels/${encodeURIComponent(String(apiId))}`)).data);
+  },
   /** One page from GET /api/hotels, filtered by the API: admin Hotels page and the traveler hotel search. */
   async list(params: HotelQuery) {
     const { data } = await api.get<Paginated<Raw>>('/hotels', { params });
