@@ -1,3 +1,5 @@
+import { cityPhotoOverrides } from './data/city-additions';
+import { photoProps } from './data/photo-sizes';
 import { ArrowRight, Image as ImageIcon } from 'lucide-react';
 import { Link } from 'wouter';
 import { routes } from '@/config/routes';
@@ -65,7 +67,7 @@ export default function TravelGuide() {
                   <Link key={city.slug} href={routes.passenger.city(city.slug)} className="city-card" aria-label={t('tpDiscoverCity', { city: cityLabel(t, city.name) })} data-testid={`card-city-${city.slug}`}>
                     <span className="card-visual" aria-hidden="true">
                       {city.selectionPhoto ? (
-                        <img className="card-photo" src={city.selectionPhoto} alt="" loading="lazy" />
+                        <img className="card-photo" {...photoProps(cityPhotoOverrides[city.slug]?.card ?? city.selectionPhoto, '(max-width: 700px) 92vw, 360px')} alt="" />
                       ) : (
                         <span className="card-photo-prompt"><ImageIcon size={15} strokeWidth={1.5} /><span>{t('tpAddCityPhoto')}</span></span>
                       )}

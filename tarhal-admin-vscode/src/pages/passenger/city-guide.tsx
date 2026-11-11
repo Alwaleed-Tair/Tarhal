@@ -13,6 +13,8 @@ import { useDemoState } from '@/store/demoStore';
 import { cityDescriptionAr, isPlaceholderDescription } from './data/cities-ar';
 import { cityLabel, regionLabel } from './trip';
 import { PlaceGrid } from './components/place-grid';
+import { cityDescriptions, cityPhotoOverrides } from './data/city-additions';
+import { photoProps } from './data/photo-sizes';
 
 function CityGuideLayout({ children }: { children: ReactNode }) {
   const t = useT();
@@ -62,8 +64,12 @@ export default function CityGuide() {
   }
   const places = city.places ?? [];
   const name = cityLabel(t, city.name);
-  const english = isPlaceholderDescription(city.description) ? '' : city.description.replace(/\s+/g, ' ').trim();
-  const description = language === 'ar' ? cityDescriptionAr[city.slug] ?? english : english;
+  // His description; where he has only placeholder text, the addition for his review (data/city-additions.ts).
+  const placeholder = isPlaceholderDescription(city.description);
+  const added = placeholder ? cityDescriptions[city.slug] : undefined;
+  const english = placeholder ? added?.en ?? '' : city.description.replace(/\s+/g, ' ').trim();
+  const description = language === 'ar' ? cityDescriptionAr[city.slug] ?? added?.ar ?? english : english;
+  const heroPhoto = cityPhotoOverrides[city.slug]?.hero ?? city.heroPhoto;
   return (
     <CityGuideLayout>
       <div className="city-guide-topline">
@@ -71,8 +77,8 @@ export default function CityGuide() {
         <span>{t('tpCityGuideOf', { region: regionLabel(t, city.region) })}</span>
       </div>
       <section className="city-guide-hero" data-tone={city.tone}>
-        {city.heroPhoto ? (
-          <img className="city-guide-hero-image" src={city.heroPhoto} alt={name} />
+        {heroPhoto ? (
+          <img className="city-guide-hero-image" {...photoProps(heroPhoto, '(max-width: 760px) 100vw, 1060px')} loading="eager" alt={name} />
         ) : (
           <div className="city-guide-hero-placeholder"><ImageIcon size={22} /><span>{t('tpAddCityPhoto')}</span></div>
         )}
