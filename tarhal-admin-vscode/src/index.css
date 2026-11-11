@@ -1256,7 +1256,7 @@ html.dark .route-fallback { background: linear-gradient(158deg, #142c43 0%, #1c4
    in light and dark mode, as in his app. The selectors are long on purpose: they replace the older chat rules above. ===== */
 :root body .chat-launcher.chat-launcher.chat-launcher {
   position: fixed; z-index: 31; inset-inline-start: 20px; inset-inline-end: auto; bottom: 20px;
-  width: 44px; height: 44px; min-width: 0; min-height: 0; padding: 0; display: grid; place-items: center;
+  width: 44px; height: 44px; min-width: 0; min-height: 0; padding: 0; display: grid; place-items: center; place-content: center;
   border: 0; border-radius: 50%; background: #10263d; color: #ffffff; box-shadow: 0 6px 14px rgba(0, 0, 0, .3);
   font-size: 23px; line-height: 1; cursor: pointer; filter: none;
 }
