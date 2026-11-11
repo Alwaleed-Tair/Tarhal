@@ -1,8 +1,8 @@
+import { FrameHeader } from './components/frame-header';
 import { DirArrow } from '@/components/dir-arrow';
 import { useState } from 'react';
 import { ArrowRight, Armchair, BedDouble, CalendarDays, CarFront, Check, Clock3, Plane, QrCode, X } from 'lucide-react';
 import { Link, Redirect } from 'wouter';
-import { BrandLogo } from '@/components/brand-logo';
 import { Money } from '@/components/money';
 import { routes } from '@/config/routes';
 import { useFormat, useT } from '@/i18n/use-i18n';
@@ -16,7 +16,6 @@ import { notify } from '@/store/notificationStore';
 import { BoardingPass, bookingReference } from './components/boarding-pass';
 import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
-import { HeaderControls } from './components/traveler-controls';
 import { cityLabel, errorKey, riyadhDay, riyadhTime } from './trip';
 import { groupTrips, useMyBookings } from './use-my-bookings';
 
@@ -245,14 +244,10 @@ export default function MyBookings() {
 
   return (
     <PassengerShell>
-      <div className="bookings-page">
+      <div className="bookings-page tframe">
+        <FrameHeader note="tpBookingsHeaderNote" />
         <Sidebar />
-        <main className="bookings-shell">
-          <header className="bookings-header">
-            <Link className="bookings-brand" href={routes.passenger.home}><BrandLogo /></Link>
-            <div className="header-end"><span className="bookings-header-note"><span className="bookings-header-dot" />{t('tpBookingsHeaderNote')}</span><HeaderControls /></div>
-          </header>
-
+        <main className="bookings-shell tframe-content" data-frame="content">
           <section className="bookings-intro">
             <div>
               <p className="bookings-eyebrow">{t('tpBookingsEyebrow')}</p>

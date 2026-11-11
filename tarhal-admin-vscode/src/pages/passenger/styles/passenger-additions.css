@@ -414,3 +414,25 @@ a.Panel-Note { text-decoration: underline; }
 
 /* On the city photo the small "Discover Saudi Arabia" line keeps his light colour in light mode too (it sits on the photo). */
 .city-guide-hero .city-guide-hero-copy .city-guide-eyebrow { color: rgba(234, 242, 247, .86); text-shadow: 0 1px 4px rgba(0, 0, 0, .45); }
+
+/* Shared page frame (components/frame-header.tsx). Tariq's home page is the reference: every traveler page has his logo,
+   the controls group and the rail in the same place, and its content in the same box as his home .Stage (the same max
+   width, side padding and top line). Inside that box each page keeps his own layout. Built once; pages only add the
+   classes tframe (page root), tframe-content (content box) and render <FrameHeader />. */
+.tframe.tframe { position: relative; }
+.tframe-logo-link { display: contents; }
+.tframe .tarhallogo.tarhallogo { z-index: 4; }
+.tframe .home-controls.tframe-end { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px 14px; }
+.tframe-note { display: inline-flex; align-items: center; gap: 8px; color: rgba(227, 237, 246, .82); font-size: 11px; letter-spacing: .02em; white-space: nowrap; }
+.tframe-dot { width: 6px; height: 6px; border-radius: 50%; background: #e9d6aa; }
+.tframe-content.tframe-content.tframe-content { box-sizing: border-box; width: 100%; max-width: 1440px; margin: 0 auto; padding: 122px 90px 48px 200px; }
+/* The travel guide and city pages put his rail in a grid column; the rail is fixed, so the frame does the spacing. */
+.travel-layout.travel-layout.travel-layout, .city-guide-layout.city-guide-layout.city-guide-layout { display: block; width: 100%; max-width: none; min-height: 0; margin: 0; padding: 0; }
+/* Login and register: no rail; his card sits in the middle of the same content box. */
+.login-page.login-page.tframe { display: block; padding: 0 0 84px; }
+.tframe-auth.tframe-auth { display: flex; justify-content: center; }
+/* Up to 1100px his logo at 100px ran under the controls (also on his home page): it lines up with the content edge
+   (32px) at his smaller phone size (150px) instead, and the tagline makes room for the controls. */
+@media (max-width: 1100px) { .tframe-content.tframe-content.tframe-content { padding: 100px 32px 36px 32px; } .tframe .tarhallogo.tarhallogo { left: 32px; width: 150px; height: 150px; top: -20px; } .tframe-note.tframe-note { display: none; } }
+@media (max-width: 760px) { .tframe-content.tframe-content.tframe-content { padding: 96px 20px 32px 20px; } .tframe .tarhallogo.tarhallogo { left: 4px; } }
+@media (max-width: 480px) { .tframe-content.tframe-content.tframe-content { padding: 90px 14px 28px 14px; } }

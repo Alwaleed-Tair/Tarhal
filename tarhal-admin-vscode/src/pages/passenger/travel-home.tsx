@@ -1,3 +1,4 @@
+import { FrameHeader } from './components/frame-header';
 import { Link } from 'wouter';
 import { routes } from '@/config/routes';
 import { useT } from '@/i18n/use-i18n';
@@ -7,12 +8,9 @@ import { useDemoState } from '@/store/demoStore';
 import Airplane1 from './assets/Airplane1.webp';
 import Alula from './assets/Alula.webp';
 import Riyadh from './assets/Riyadh.webp';
-import Tarhallogo from './assets/Tarhallogo.webp';
-import TarhallogoLight from './assets/Tarhallogo-light.webp';
 import saudi from './assets/saudi.webp';
 import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
-import { HeaderControls } from './components/traveler-controls';
 import { withNext } from '@/lib/next-path';
 import { cityLabel } from './trip';
 import { upcoming, useMyBookings } from './use-my-bookings';
@@ -67,12 +65,11 @@ export default function TravelHome() {
 
   return (
     <PassengerShell>
-      <div className="Whole-Container">
+      <div className="Whole-Container tframe">
         {/* His logo (his Navbar.jsx): the only brand mark on this page. */}
-        <Link href={routes.passenger.home} aria-label="Tarhal"><img className="tarhallogo tarhal-logo-light" src={TarhallogoLight} alt="Tarhal" width={480} height={480} /><img className="tarhallogo tarhal-logo-dark" src={Tarhallogo} alt="" aria-hidden="true" width={480} height={480} /></Link>
+        <FrameHeader />
         <Sidebar />
-        <div className="home-controls"><HeaderControls /></div>
-        <div className="Stage">
+        <div className="Stage" data-frame="content">
           <section className="First-Container">
             <div className="Panelfirst">
               <div className="PanelTop" />

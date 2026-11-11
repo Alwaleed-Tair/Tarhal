@@ -1,7 +1,7 @@
+import { FrameHeader } from './components/frame-header';
 import { useEffect, useState, type FormEvent, type InputHTMLAttributes, type ReactElement } from 'react';
 import { CalendarDays, Mail, Phone, UserRound } from 'lucide-react';
-import { Link, Redirect } from 'wouter';
-import { BrandLogo } from '@/components/brand-logo';
+import { Redirect } from 'wouter';
 import { routes } from '@/config/routes';
 import { useFormat, useT } from '@/i18n/use-i18n';
 import type { TranslationKey } from '@/i18n/translations';
@@ -10,7 +10,6 @@ import { tripService, type Profile } from '@/services/tripService';
 import { logout, saveSession, useAuth } from '@/store/authStore';
 import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
-import { HeaderControls } from './components/traveler-controls';
 import { errorKey, riyadhDay, riyadhToday } from './trip';
 
 type Errors = Partial<Record<'name' | 'phone' | 'dateOfBirth', TranslationKey>>;
@@ -94,14 +93,10 @@ export default function ProfilePage() {
 
   return (
     <PassengerShell>
-      <div className="bookings-page">
+      <div className="bookings-page tframe">
+        <FrameHeader />
         <Sidebar />
-        <main className="bookings-shell">
-          <header className="bookings-header">
-            <Link className="bookings-brand" href={routes.passenger.home}><BrandLogo /></Link>
-            <div className="header-end"><HeaderControls /></div>
-          </header>
-
+        <main className="bookings-shell tframe-content" data-frame="content">
           <section className="bookings-intro">
             <div>
               <p className="bookings-eyebrow">{t('tpProfileEyebrow')}</p>

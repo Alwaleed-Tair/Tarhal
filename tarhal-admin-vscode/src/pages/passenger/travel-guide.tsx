@@ -1,13 +1,12 @@
+import { FrameHeader } from './components/frame-header';
 import { cityPhotoOverrides } from './data/city-additions';
 import { photoProps } from './data/photo-sizes';
 import { ArrowRight, Image as ImageIcon } from 'lucide-react';
 import { Link } from 'wouter';
 import { routes } from '@/config/routes';
-import { BrandLogo } from '@/components/brand-logo';
 import { useFormat, useT } from '@/i18n/use-i18n';
 import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
-import { HeaderControls } from './components/traveler-controls';
 import { cities } from './data/cities';
 import { cityLabel } from './trip';
 
@@ -29,21 +28,11 @@ export default function TravelGuide() {
   const format = useFormat();
   return (
     <PassengerShell>
-      <div className="tarhal-page">
+      <div className="tarhal-page tframe">
+        <FrameHeader note="tpGuideHeaderNote" />
         <div className="travel-layout">
           <Sidebar />
-          <main className="travel-main">
-            <header className="site-header">
-              <Link className="brand" href={routes.passenger.home}><BrandLogo /></Link>
-              <div className="header-end">
-                <div className="header-note">
-                  <span className="header-dot" />
-                  {t('tpGuideHeaderNote')}
-                </div>
-                <HeaderControls />
-              </div>
-            </header>
-
+          <main className="travel-main tframe-content" data-frame="content">
             <section className="intro" aria-labelledby="welcome-title">
               <div className="intro-copy">
                 <p className="eyebrow">{t('tpGuideEyebrow')}</p>

@@ -1,7 +1,7 @@
+import { FrameHeader } from './components/frame-header';
 import { useCallback, useEffect, useRef, useState, type FocusEvent, type FormEvent, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { ArrowLeftRight, ArrowRight, Armchair, BedDouble, CalendarDays, CarFront, Check, ChevronDown, Minus, Plane, Plus, UsersRound, X } from 'lucide-react';
-import { Link, useLocation } from 'wouter';
-import { BrandLogo } from '@/components/brand-logo';
+import { useLocation } from 'wouter';
 import { Money } from '@/components/money';
 import { routes } from '@/config/routes';
 import { useFormat, useT } from '@/i18n/use-i18n';
@@ -19,7 +19,6 @@ import HotelStayStep, { type HotelPlan } from './components/hotel-stay-step';
 import { PassengerShell } from './components/passenger-shell';
 import SeatSelectionStep, { type ChosenSeat } from './components/seat-selection-step';
 import Sidebar from './components/passenger-sidebar';
-import { HeaderControls } from './components/traveler-controls';
 import TravelerDetailsStep from './components/traveler-details-step';
 import TripReady, { type TripItem } from './components/trip-ready';
 import { addDays, AIRPORT, cityLabel, DRAFT_KEY, durationMinutes, errorKey, riyadhDay, riyadhTime, riyadhToday, TRIP_CITIES, type TripCity } from './trip';
@@ -336,14 +335,10 @@ export default function FlightBooking() {
 
   return (
     <PassengerShell>
-      <main className="tarhal-page">
+      <main className="tarhal-page tframe">
+        <FrameHeader note="tpHeaderNote" />
         <Sidebar />
-        <div className="tarhal-shell">
-          <header className="site-header">
-            <Link className="brand-slot" href={routes.passenger.home}><BrandLogo /></Link>
-            <div className="header-end"><span className="header-note"><span className="header-dot" />{t('tpHeaderNote')}</span><HeaderControls /></div>
-          </header>
-
+        <div className="tarhal-shell tframe-content" data-frame="content">
           <section className="welcome" aria-labelledby="welcome-title">
             <div className="welcome-copy">
               <p className="eyebrow">{t(eyebrow)}</p>

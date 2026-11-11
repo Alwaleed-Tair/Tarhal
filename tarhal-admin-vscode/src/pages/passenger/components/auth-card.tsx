@@ -1,10 +1,7 @@
+import { FrameHeader } from './frame-header';
 import type { InputHTMLAttributes, ReactNode } from 'react';
-import { Link } from 'wouter';
-import { routes } from '@/config/routes';
 import Airplane1 from '../assets/Airplane1.webp';
-import { BrandLogo } from '@/components/brand-logo';
 import { PassengerShell } from './passenger-shell';
-import { HeaderControls } from './traveler-controls';
 
 /**
  * Tariq's login card (his Login.jsx / SignUp.jsx look): form on the left, his airplane panel on the right.
@@ -14,11 +11,9 @@ import { HeaderControls } from './traveler-controls';
 export function AuthCard({ title, subtitle, footer, children }: { title: string; subtitle: string; footer: ReactNode; children: ReactNode }) {
   return (
     <PassengerShell>
-      <div className="login-page">
-        <div className="auth-corner">
-          <Link href={routes.passenger.home} className="auth-logo"><BrandLogo /></Link>
-          <div className="auth-controls"><HeaderControls auth /></div>
-        </div>
+      <div className="login-page tframe">
+        <FrameHeader auth />
+        <div className="tframe-content tframe-auth" data-frame="content">
         <div className="login-container">
           <div className="login-form-panel">
             <div className="login-form-inner">
@@ -32,6 +27,7 @@ export function AuthCard({ title, subtitle, footer, children }: { title: string;
           <div className="login-image-panel" aria-hidden="true">
             <img className="login-airplane-img" src={Airplane1} alt="" />
           </div>
+        </div>
         </div>
       </div>
     </PassengerShell>

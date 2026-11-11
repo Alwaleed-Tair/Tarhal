@@ -1,12 +1,11 @@
+import { FrameHeader } from './components/frame-header';
 import type { ReactNode } from 'react';
 import { ArrowLeft, Image as ImageIcon } from 'lucide-react';
 import { Link, useParams } from 'wouter';
 import { routes } from '@/config/routes';
-import { BrandLogo } from '@/components/brand-logo';
 import { useFormat, useT } from '@/i18n/use-i18n';
 import { PassengerShell } from './components/passenger-shell';
 import Sidebar from './components/passenger-sidebar';
-import { HeaderControls } from './components/traveler-controls';
 import { AiCityGuide } from './components/ai-city-guide';
 import { cities } from './data/cities';
 import { useDemoState } from '@/store/demoStore';
@@ -17,23 +16,13 @@ import { cityDescriptions, cityPhotoOverrides } from './data/city-additions';
 import { photoProps } from './data/photo-sizes';
 
 function CityGuideLayout({ children }: { children: ReactNode }) {
-  const t = useT();
   return (
     <PassengerShell>
-      <div className="city-guide-page">
+      <div className="city-guide-page tframe">
+        <FrameHeader note="tpGuideHeaderNote" />
         <div className="city-guide-layout">
           <Sidebar />
-          <main className="city-guide-main">
-            <header className="city-guide-header">
-              <Link className="city-guide-brand" href={routes.passenger.home}><BrandLogo /></Link>
-              <div className="header-end">
-                <div className="city-guide-header-note">
-                  <span className="city-guide-header-dot" />
-                  {t('tpGuideHeaderNote')}
-                </div>
-                <HeaderControls />
-              </div>
-            </header>
+          <main className="city-guide-main tframe-content" data-frame="content">
             {children}
           </main>
         </div>
