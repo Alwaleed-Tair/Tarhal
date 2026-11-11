@@ -1411,3 +1411,25 @@ button.currency-select:focus-visible { outline: 0; border-color: hsl(var(--ring)
 }
 :where(.app-shell) .data-table th { overflow-wrap: normal; word-break: normal; hyphens: manual; }
 
+/* ===== 43. Light mode decorations, drawn on purpose (dark mode is Tariq's and unchanged). The automatic light colours
+   (vite-plugins/passenger-css.ts) would turn his beige-blue circle yellow and lose his pale dotted path and gold dots on
+   a light page, and flatten the greeting band to grey. The same drawings, in light-mode colours of his own blues.
+   (His stylesheets load after this file, so the selectors are a little longer on purpose.) ===== */
+html:not(.dark) body .passenger-app .orbit-sun.orbit-sun,
+html:not(.dark) body .passenger-app .hero-orbit-globe.hero-orbit-globe {
+  background: linear-gradient(145deg, #e9dfc8 0%, #b2c8e0 48%, #6f95bd 100%);
+  border-color: rgba(255, 255, 255, .7);
+  box-shadow: 0 10px 28px rgba(16, 38, 61, .16), inset 0 1px 8px rgba(255, 255, 255, .45);
+}
+html:not(.dark) body .passenger-app .hero-orbit-globe.hero-orbit-globe { color: #10263d; }
+html:not(.dark) body .passenger-app .orbit-ring.orbit-ring { border-color: rgba(43, 102, 163, .26); }
+html:not(.dark) body .passenger-app .orbit-ring.orbit-ring-small { border-color: rgba(43, 102, 163, .18); }
+html:not(.dark) body .passenger-app .hero-orbit-ring.hero-orbit-ring-outer { border-color: rgba(43, 102, 163, .22); }
+html:not(.dark) body .passenger-app .hero-orbit-ring.hero-orbit-ring-inner { border-color: rgba(43, 102, 163, .3); }
+html:not(.dark) body .passenger-app .orbit-route.orbit-route { border-color: rgba(43, 102, 163, .55) transparent transparent; }
+html:not(.dark) body .passenger-app .orbit-route.orbit-route::before,
+html:not(.dark) body .passenger-app .orbit-route.orbit-route::after,
+html:not(.dark) body .passenger-app .hero-orbit-dot.hero-orbit-dot { background: #c2954a; box-shadow: 0 0 6px rgba(194, 149, 74, .55); }
+html:not(.dark) body .passenger-app .orbit-ground.orbit-ground { background: linear-gradient(155deg, rgba(43, 102, 163, .13), rgba(43, 102, 163, .02)); }
+/* The greeting card's top band: his navy-to-blue band, as a soft light blue gradient. */
+html:not(.dark) body .passenger-app .PanelTop.PanelTop { background: linear-gradient(to right, #d3e1f0, #a6c2e1); box-shadow: 0 4px 10px rgba(16, 38, 61, .12); }
