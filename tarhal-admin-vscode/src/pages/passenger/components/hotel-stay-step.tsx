@@ -1,3 +1,4 @@
+import { CatalogPhoto } from '@/components/catalog-photo';
 import { DirArrow } from '@/components/dir-arrow';
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, BedDouble, Check, Minus, Plus, Star } from 'lucide-react';
@@ -11,12 +12,11 @@ import { addDays, cityLabel, errorKey } from '../trip';
 // Same limit as POST /api/hotel-bookings.
 const MAX_NIGHTS = 30;
 
-export type HotelPlan = { hotelId: string; city: string; name: string; rating: number; nightlyRate: number; nights: number; checkIn: string; checkOut: string; guests: number };
+export type HotelPlan = { hotelId: string; city: string; name: string; rating: number; nightlyRate: number; nights: number; checkIn: string; checkOut: string; guests: number; imageUrl?: string };
 
 function HotelPhoto({ src, name }: { src: string; name: string }) {
-  const [failed, setFailed] = useState(!src);
-  if (failed) return <span className="hotel-photo hotel-photo-placeholder" aria-hidden="true"><BedDouble size={30} strokeWidth={1.4} /></span>;
-  return <span className="hotel-photo"><img src={src} alt={name} loading="lazy" onError={() => setFailed(true)} /></span>;
+  const t = useT();
+  return <span className="hotel-photo"><CatalogPhoto src={src} kind="hotel" alt={t('photoHotel', { name })} sizes="(max-width: 700px) 92vw, 260px" /></span>;
 }
 
 type Props = { city: string; checkIn: string; defaultNights?: number; guests: number; initial?: HotelPlan | null; onBack: () => void; onSkip: () => void; onComplete: (plan: HotelPlan) => void };
@@ -59,7 +59,7 @@ export default function HotelStayStep({ city, checkIn, defaultNights = 1, guests
 
   const onContinue = () => {
     if (!chosen) { setError('tpChooseHotel'); return; }
-    onComplete({ hotelId: String(chosen.apiId), city, name: chosen.id, rating: chosen.rating ?? 0, nightlyRate: chosen.price, nights, checkIn, checkOut, guests });
+    onComplete({ hotelId: String(chosen.apiId), city, name: chosen.id, rating: chosen.rating ?? 0, nightlyRate: chosen.price, nights, checkIn, checkOut, guests, imageUrl: chosen.imageUrl });
   };
 
   return (

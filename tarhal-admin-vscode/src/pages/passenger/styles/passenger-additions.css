@@ -436,3 +436,13 @@ a.Panel-Note { text-decoration: underline; }
 @media (max-width: 1100px) { .tframe-content.tframe-content.tframe-content { padding: 100px 32px 36px 32px; } .tframe .tarhallogo.tarhallogo { left: 32px; width: 150px; height: 150px; top: -20px; } .tframe-note.tframe-note { display: none; } }
 @media (max-width: 760px) { .tframe-content.tframe-content.tframe-content { padding: 96px 20px 32px 20px; } .tframe .tarhallogo.tarhallogo { left: 4px; } }
 @media (max-width: 480px) { .tframe-content.tframe-content.tframe-content { padding: 90px 14px 28px 14px; } }
+
+/* Hotel and car photos (components/catalog-photo.tsx) in his cards: his photo box on the hotel cards, his 64 x 51 car box
+   on the car cards, his small icon tile on the Ready step, and a short photo strip in My bookings. */
+.car-art.car-art-photo { padding: 0; }
+.car-art.car-art-photo::after { display: none; }
+.car-art-photo > img, .car-art-photo > .catalog-photo-empty { display: block; width: 100%; height: 100%; object-fit: cover; }
+.trip-thumb.trip-thumb { width: 44px; height: 33px; overflow: hidden; padding: 0; }
+.trip-thumb > img, .trip-thumb > .catalog-photo-empty { display: block; width: 100%; height: 100%; object-fit: cover; }
+.booking-service .booking-thumb { display: block; width: 100%; height: 84px; margin: 2px 0 8px; object-fit: cover; border-radius: 10px; }
+.hotel-photo > .catalog-photo-empty { height: 100%; }

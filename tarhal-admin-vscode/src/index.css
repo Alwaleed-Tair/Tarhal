@@ -1461,3 +1461,7 @@ html:not(.dark) body .passenger-app .PanelTop.PanelTop { background: linear-grad
 }
 .chat-intro.is-measuring { visibility: hidden; animation: none; }
 @media (prefers-reduced-motion: reduce) { .chat-intro { animation: none; } }
+
+/* ===== 45. Hotel and car photos (components/catalog-photo.tsx): the placeholder used when there is no photo, and the
+   admin thumbnails in the Hotels and Cars tables (inside the name column, so the column widths stay the same). ===== */
+.catalog-photo-empty { display: grid; place-items: center; width: 100%; height: 100%; color: #7f9db4; background: #e3ebf1; }

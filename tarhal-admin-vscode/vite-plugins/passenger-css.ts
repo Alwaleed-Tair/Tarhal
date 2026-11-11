@@ -114,6 +114,9 @@ export function lightColor(token: string, role: Role, inGradient = false): strin
   if (role === 'text') return l <= 0.5 ? null : hsla(h, s, darkText(l), c.a);
   if (!inGradient && isAccent(token)) return null;
   // Faint white overlays (glass chips, pills, hairlines) would vanish on a pale page: the same faint touch in navy.
+  // Half-see-through white surfaces (cards on his light panels, such as the car choices) stay a light card instead of
+  // turning grey: a little lighter than the panel, as in dark mode.
+  if (l >= 0.85 && c.a >= 0.3 && c.a < 0.5) return hsla(212, 0.45, 0.985, 0.8);
   if (l >= 0.85 && c.a < 0.5) return hsla(210, 0.45, 0.2, Math.min(0.14, c.a * 1.2 + 0.02));
   // Light mode is a calm, light version of his blue design (no pure white, no flat grey):
   // - his light panels (#f7f8fc, #f8f9fc) and plain white become a soft blue-tinted panel (#edf2f8);

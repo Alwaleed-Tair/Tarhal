@@ -1,3 +1,4 @@
+import { CatalogPhoto } from '@/components/catalog-photo';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { ArrowLeft, ArrowRight, CalendarDays, CarFront, Check, MapPin, UsersRound } from 'lucide-react';
 import { Money } from '@/components/money';
@@ -9,7 +10,7 @@ import { translateCarCategory } from '@/i18n/labels';
 import { useDemoState } from '@/store/demoStore';
 import { addDays, cityLabel, errorKey, riyadhToday, TRIP_CITIES } from '../trip';
 
-export type CarPlan = { carId: string; location: string; pickup: string; returnDate: string; car: string; dailyRate: number };
+export type CarPlan = { carId: string; location: string; pickup: string; returnDate: string; car: string; dailyRate: number; imageUrl?: string };
 
 type Props = { city: string; departure: string; returnDay?: string | null; initial?: CarPlan | null; onBack: () => void; onSkip: () => void; onComplete: (plan: CarPlan) => void };
 
@@ -64,7 +65,7 @@ export default function CarRentalStep({ city, departure, returnDay = null, initi
     if (returnDate <= pickup) { setError('tpErrReturnBeforePickup'); return; }
     if (!selectedCar) { setError('tpChooseCar'); return; }
     setError(null);
-    onComplete({ carId: String(selectedCar.apiId), location, pickup, returnDate, car: selectedCar.id, dailyRate: selectedCar.price });
+    onComplete({ carId: String(selectedCar.apiId), location, pickup, returnDate, car: selectedCar.id, dailyRate: selectedCar.price, imageUrl: selectedCar.imageUrl });
   };
 
   return (
@@ -123,7 +124,7 @@ export default function CarRentalStep({ city, departure, returnDay = null, initi
               return (
                 <button className={`car-option${chosen ? ' selected' : ''}`} key={String(car.apiId)} type="button" role="radio" aria-checked={chosen}
                   onClick={() => { setCarId(String(car.apiId)); setError(null); }} data-testid={`option-car-${car.apiId}`}>
-                  <span className="car-art" aria-hidden="true"><CarFront size={28} strokeWidth={1.5} /><span>{(car.make ?? car.id).slice(0, 1)}</span></span>
+                  <span className="car-art car-art-photo"><CatalogPhoto src={car.imageUrl} kind="car" alt={t('photoCar', { car: `${car.make ?? ''} ${car.model ?? ''}`.trim() })} sizes="128px" /></span>
                   <span className="car-copy">
                     <strong>{car.make} {car.model}</strong>
                     <span>{car.year ? format.year(car.year) : ''}{car.category ? ` · ${translateCarCategory(car.category, language)}` : ''}</span>

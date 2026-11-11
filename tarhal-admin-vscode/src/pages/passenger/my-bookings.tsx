@@ -1,3 +1,4 @@
+import { CatalogPhoto } from '@/components/catalog-photo';
 import { FrameHeader } from './components/frame-header';
 import { DirArrow } from '@/components/dir-arrow';
 import { useState } from 'react';
@@ -105,6 +106,7 @@ function HotelSection({ hotel, onChanged }: { hotel: MyHotelBooking | null; onCh
       <div className="booking-section-title"><span className="booking-icon"><BedDouble size={17} /></span><span>{t('tpHotel')}</span></div>
       {hotel ? (
         <>
+          <CatalogPhoto className="booking-thumb" src={hotel.hotel.imageUrl} kind="hotel" alt={t('photoHotel', { name: hotel.hotel.name })} sizes="(max-width: 700px) 92vw, 280px" />
           <strong>{hotel.hotel.name}</strong>
           <span className="booking-service-detail">{cityLabel(t, hotel.hotel.city)} · {format.dayMonth(hotel.checkIn)} <DirArrow /> {format.dayMonth(hotel.checkOut)} · {t(nights(hotel.checkIn, hotel.checkOut) === 1 ? 'tpNight1' : 'tpNights', { count: format.number(nights(hotel.checkIn, hotel.checkOut)) })}</span>
           <span className="booking-service-detail"><Money sar={hotel.totalPrice} /> · <span className={`booking-part-status${hotel.active ? '' : ' booking-status-cancelled'}`}>{t(statusKey(hotel))}</span></span>
@@ -123,6 +125,7 @@ function CarSection({ car, onChanged }: { car: MyCarRental | null; onChanged: ()
       <div className="booking-section-title"><span className="booking-icon"><CarFront size={17} /></span><span>{t('tpCar')}</span></div>
       {car ? (
         <>
+          <CatalogPhoto className="booking-thumb" src={car.car.imageUrl} kind="car" alt={t('photoCar', { car: `${car.car.make} ${car.car.model}` })} sizes="(max-width: 700px) 92vw, 280px" />
           <strong dir="auto">{car.car.make} {car.car.model} {car.car.year ? format.year(car.car.year) : ''}</strong>
           <span className="booking-service-detail">{cityLabel(t, car.car.city)} · {format.dayMonth(car.pickupDate)} <DirArrow /> {format.dayMonth(car.returnDate)}</span>
           <span className="booking-service-detail"><Money sar={car.totalPrice} /> · <span className={`booking-part-status${car.active ? '' : ' booking-status-cancelled'}`}>{t(statusKey(car))}</span></span>

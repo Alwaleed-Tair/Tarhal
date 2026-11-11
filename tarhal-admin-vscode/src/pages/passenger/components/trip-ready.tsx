@@ -1,6 +1,7 @@
+import { CatalogPhoto } from '@/components/catalog-photo';
 import { DirArrow } from '@/components/dir-arrow';
 import { useState } from 'react';
-import { ArrowRight, Armchair, BedDouble, CarFront, Check, CreditCard, Plane, RotateCcw } from 'lucide-react';
+import { ArrowRight, Armchair, Check, CreditCard, Plane, RotateCcw } from 'lucide-react';
 import { Link } from 'wouter';
 import { Money } from '@/components/money';
 import { routes } from '@/config/routes';
@@ -63,7 +64,10 @@ export default function TripReady({ items, onPay, onStartOver }: Props) {
       <div className="complete-itinerary">
         {items.map((item, index) => (
           <div key={`${item.kind}-${index}`} data-testid={`ready-item-${item.kind}${item.kind === 'flight' && item.leg === 'return' ? '-return' : ''}`}>
-            <span className="complete-icon-small">{item.kind === 'flight' ? <Plane size={16} /> : item.kind === 'hotel' ? <BedDouble size={16} /> : <CarFront size={16} />}</span>
+            {item.kind === 'flight' ? <span className="complete-icon-small"><Plane size={16} /></span>
+              : <span className="complete-icon-small trip-thumb">{item.kind === 'hotel'
+                ? <CatalogPhoto src={item.hotel.imageUrl} kind="hotel" alt={t('photoHotel', { name: item.hotel.name })} sizes="64px" />
+                : <CatalogPhoto src={item.car.imageUrl} kind="car" alt={t('photoCar', { car: item.car.car })} sizes="64px" />}</span>}
             {item.kind === 'flight' && (
               <div>
                 <small>{t(item.leg === 'return' ? 'tpReturnFlight' : item.leg === 'outbound' ? 'tpOutboundFlight' : 'tpFlight')}{reference(item)}</small>
