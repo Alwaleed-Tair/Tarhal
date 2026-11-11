@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, type ComponentType, type ReactNode } from 'r
 import { Redirect, Route, Switch, useLocation, useSearch, Router as WouterRouter } from 'wouter';
 import { ErrorBoundary } from '@/components/error-boundary';
 import ChatAssistant from '@/components/chat-assistant';
+import { ChatIntro } from '@/components/chat-intro';
 import { Layout } from '@/components/layout';
 import ToastViewport from '@/components/toast-viewport';
 import { useDocumentSettings } from '@/hooks/use-document-settings';
@@ -139,6 +140,7 @@ export default function App() {
     <WouterRouter>
       <Routes />
       <ChatAssistant />
+      <ChatIntro />
       <ToastViewport />
     </WouterRouter>
   );

@@ -1433,3 +1433,31 @@ html:not(.dark) body .passenger-app .hero-orbit-dot.hero-orbit-dot { background:
 html:not(.dark) body .passenger-app .orbit-ground.orbit-ground { background: linear-gradient(155deg, rgba(43, 102, 163, .13), rgba(43, 102, 163, .02)); }
 /* The greeting card's top band: his navy-to-blue band, as a soft light blue gradient. */
 html:not(.dark) body .passenger-app .PanelTop.PanelTop { background: linear-gradient(to right, #d3e1f0, #a6c2e1); box-shadow: 0 4px 10px rgba(16, 38, 61, .12); }
+
+/* ===== 44. Chat intro bubble (components/chat-intro.tsx): beside the camel on Tariq's rail, in the chat window's look
+   (#f1f4fa card, navy text, Inter), with a small pointer to the camel. The same in light and dark, like the chat. ===== */
+.chat-intro {
+  position: fixed; z-index: 30; bottom: 30px; inset-inline-start: 131px; width: max-content; max-width: 250px;
+  display: flex; align-items: flex-start; gap: 4px; padding: 10px 8px 10px 14px; padding-inline: 14px 8px;
+  border: 2px solid #e1e5f0; border-radius: 18px; border-end-start-radius: 6px; background: #f1f4fa; color: #10263d;
+  box-shadow: 0 12px 30px rgba(8, 27, 44, .28); font-family: 'Inter', var(--app-font-sans);
+  animation: chat-intro-in .35s ease-out both;
+}
+.chat-intro::before { /* pointer toward the camel, on the start side */
+  content: ''; position: absolute; bottom: 14px; inset-inline-start: -8px; width: 12px; height: 12px;
+  background: #f1f4fa; border-inline-start: 2px solid #e1e5f0; border-bottom: 2px solid #e1e5f0; transform: rotate(45deg);
+}
+[dir='rtl'] .chat-intro::before { transform: rotate(-45deg); }
+.chat-intro-text { flex: 1; padding: 0; border: 0; background: none; color: inherit; font: inherit; font-size: calc(13px * var(--text-scale)); font-weight: 600; line-height: 1.45; text-align: start; cursor: pointer; }
+.chat-intro-close { display: grid; place-items: center; flex: none; width: 24px; height: 24px; margin-top: -2px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #486983; cursor: pointer; }
+.chat-intro-close:hover { background: #e1e5f0; color: #10263d; }
+.chat-intro :is(.chat-intro-text, .chat-intro-close):focus-visible { outline: 2px solid #3d5a80; outline-offset: 2px; border-radius: 8px; }
+@keyframes chat-intro-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+/* Up to 1100px Tariq's rail is a bottom bar with the camel at its end: the bubble sits above the camel, pointing down. */
+@media (max-width: 1100px) {
+  .chat-intro { bottom: 76px; inset-inline-start: auto; inset-inline-end: 12px; max-width: min(250px, calc(100vw - 24px)); border-end-start-radius: 18px; border-end-end-radius: 6px; }
+  .chat-intro::before, [dir='rtl'] .chat-intro::before { bottom: -8px; inset-inline-start: auto; inset-inline-end: 16px; border-inline-start: 0; border-inline-end: 2px solid #e1e5f0; transform: rotate(45deg); }
+  [dir='rtl'] .chat-intro::before { transform: rotate(-45deg); }
+}
+.chat-intro.is-measuring { visibility: hidden; animation: none; }
+@media (prefers-reduced-motion: reduce) { .chat-intro { animation: none; } }
