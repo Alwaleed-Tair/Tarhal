@@ -32,7 +32,7 @@ function Logo() {
   return (
     <Link className="brand" href="/dashboard" aria-label={`${brand.name} — ${t('dashboard')}`} title={t('dashboard')}>
       {/* The same logo as the traveler pages, in its version for navy (the sidebar is navy in light and dark mode). */}
-      <BrandLogo tone="onDark" height={40} className="brand-logo" />
+      <BrandLogo tone="onDark" height={40} markHeight={34} className="brand-logo" />
     </Link>
   );
 }

@@ -1235,8 +1235,16 @@ html.dark .tarhal-logo-light, html:not(.dark) .tarhal-logo-dark { display: none 
 .tarhal-logo img { display: block; width: auto; max-width: none; height: var(--logo-h, 36px); }
 :where(.app-shell) .brand .tarhal-logo img { width: auto; height: 40px; border-radius: 0; }
 /* Collapsed sidebar: only the bird (the left part of the same picture). */
-.app-shell.is-collapsed .brand .tarhal-logo img { width: 40px; height: 40px; object-fit: cover; object-position: left center; }
-[dir='rtl'] .app-shell.is-collapsed .brand .tarhal-logo img { object-position: left center; }
+/* Collapsed sidebar: the bird alone (its own picture, cut from the same logo), whole and centred, at the same height
+   on the page. The full logo and the bird cross-fade while the sidebar changes width (none with "reduce motion"). */
+:where(.app-shell) .brand .tarhal-logo:has(.tarhal-logo-mark) { display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; flex: none; width: 137px; overflow: hidden; transition: width .2s ease; }
+:where(.app-shell) .brand .tarhal-logo:has(.tarhal-logo-mark) img { grid-area: 1 / 1; transition: opacity .2s ease; }
+:where(.app-shell) .brand .tarhal-logo .tarhal-logo-full { justify-self: start; }
+:where(.app-shell) .brand .tarhal-logo .tarhal-logo-mark { height: 34px; width: 45px; opacity: 0; }
+.app-shell.is-collapsed .brand .tarhal-logo:has(.tarhal-logo-mark) { width: 45px; }
+.app-shell.is-collapsed .brand .tarhal-logo .tarhal-logo-full { opacity: 0; }
+.app-shell.is-collapsed .brand .tarhal-logo .tarhal-logo-mark { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { :where(.app-shell) .brand .tarhal-logo:has(.tarhal-logo-mark), :where(.app-shell) .brand .tarhal-logo:has(.tarhal-logo-mark) img { transition: none; } }
 @media (max-width: 480px) { .passenger-app :is(.site-header, .bookings-header, .city-guide-header) .tarhal-logo img { height: 30px; } }
 
 /* ===== 38. Smooth page changes. The rail and controls are drawn in the same place on every page (the admin Layout is
