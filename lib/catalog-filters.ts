@@ -1,4 +1,5 @@
 import type { Prisma } from '@prisma/client';
+import { StayError, stayRange } from './stays.ts';
 
 export class FilterError extends Error {}
 
@@ -60,7 +61,7 @@ export function hotelFilters(params: URLSearchParams): Prisma.HotelWhereInput {
 }
 
 export function carFilters(params: URLSearchParams): Prisma.CarWhereInput {
-  checkKeys(params, ['minPrice', 'maxPrice', 'category', 'city', 'make', 'minSeats', 'minYear', 'transmission']);
+  checkKeys(params, ['minPrice', 'maxPrice', 'category', 'city', 'make', 'minSeats', 'minYear', 'transmission', 'pickupDate', 'returnDate']);
   function minimum(key: string, max: number) {
     const raw = read(params, key);
     if (raw === undefined) return undefined;
@@ -73,7 +74,26 @@ export function carFilters(params: URLSearchParams): Prisma.CarWhereInput {
     isAvailable: true, city: textFilter(params, 'city'), make: textFilter(params, 'make'),
     seats: minimum('minSeats', 100), year: minimum('minYear', 9999),
     ...(transmission !== undefined && { transmission: transmission as 'AUTOMATIC' | 'MANUAL' }),
+    ...freeForDays(params),
   };
+}
+
+/**
+ * pickupDate + returnDate (YYYY-MM-DD, the same rules as POST /api/car-rentals): leave out cars with an active rental
+ * on any of those days (the same overlap test as the booking), so the list only offers cars that can be booked.
+ */
+function freeForDays(params: URLSearchParams): Prisma.CarWhereInput {
+  const pickup = read(params, 'pickupDate');
+  const back = read(params, 'returnDate');
+  if (pickup === undefined && back === undefined) return {};
+  if (pickup === undefined || back === undefined) throw new FilterError('pickupDate and returnDate must be sent together');
+  try {
+    const { start, end } = stayRange(pickup, back, ['pickupDate', 'returnDate']);
+    return { rentals: { none: { isActive: true, pickupDate: { lt: end }, returnDate: { gt: start } } } };
+  } catch (error) {
+    if (error instanceof StayError) throw new FilterError(error.message);
+    throw error;
+  }
 }
 
 export function catalogPagination(params: URLSearchParams) {

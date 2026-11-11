@@ -1,10 +1,20 @@
-/** Single place to rename routes. Admin paths are unchanged except the dashboard, which moved from "/" to "/dashboard". */
+/**
+ * Single place to rename routes. The traveler site is Tariq's design (src/pages/passenger); the admin pages keep their own paths.
+ * Old traveler URLs (/travel/..., /stays, /rentals and Tariq's own /flightbooking, /travelguide, /city/:slug, /signup)
+ * redirect to these in App.tsx, so saved links keep working.
+ */
 export const routes = {
   home: '/',
-  stays: '/stays',
-  rentals: '/rentals',
   login: '/login',
   register: '/register',
+  passenger: {
+    home: '/',
+    flights: '/book-flight',
+    bookings: '/my-bookings',
+    profile: '/profile',
+    guide: '/travel-guide',
+    city: (slug: string) => `/travel-guide/${slug}`,
+  },
   admin: {
     dashboard: '/dashboard',
     flights: '/flights',

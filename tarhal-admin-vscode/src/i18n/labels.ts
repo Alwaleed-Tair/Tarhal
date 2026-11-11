@@ -3,11 +3,15 @@ import type { Language, TranslationKey, TranslationParam } from '@/i18n/translat
 const AIRPORT_AR: Record<string, string> = {
   RUH: 'الرياض', JED: 'جدة', DXB: 'دبي', AMM: 'عمّان', DOH: 'الدوحة', CAI: 'القاهرة',
   DMM: 'الدمام', DDM: 'الدمام', // "DDM" is how the demo data spells Dammam
+  AHB: 'أبها', TIF: 'الطائف', ABT: 'الباحة', ULH: 'العلا', MED: 'المدينة المنورة', TUU: 'تبوك', GIZ: 'جازان',
 };
 
 /** Arabic labels for stored English values (cities, rooms, hotels, cars). */
 const VALUE_AR: Record<string, string> = {
   Riyadh: 'الرياض', Jeddah: 'جدة', Dubai: 'دبي', Amman: 'عمّان', Doha: 'الدوحة', Cairo: 'القاهرة',
+  // Cities, room types and airlines as stored in the seed data.
+  Abha: 'أبها', AlUla: 'العلا', Dammam: 'الدمام', Madinah: 'المدينة المنورة', Taif: 'الطائف', 'Al Khobar': 'الخبر', Makkah: 'مكة المكرمة', 'Al Baha': 'الباحة', Tabuk: 'تبوك',
+  Single: 'غرفة مفردة', Double: 'غرفة مزدوجة', Family: 'غرفة عائلية', Suite: 'جناح', Twin: 'غرفة بسريرين', flynas: 'طيران ناس',
   'King Suite': 'جناح كينج', Deluxe: 'ديلوكس', 'Twin Room': 'غرفة توأم', 'Standard Room': 'غرفة عادية',
   'Hilton Garden': 'هيلتون جاردن', 'The Boulevard': 'ذا بوليفارد', 'Mövenpick': 'موفنبيك',
   'Toyota Camry': 'تويوتا كامري', 'Kia Carnival': 'كيا كرنفال', 'BMW 3 Series': 'بي إم دبليو الفئة الثالثة',
@@ -16,6 +20,10 @@ const VALUE_AR: Record<string, string> = {
   Economy: 'الدرجة السياحية', 'Premium Economy': 'السياحية المميزة', Business: 'درجة الأعمال', 'First Class': 'الدرجة الأولى',
   Saudia: 'السعودية', Flynas: 'طيران ناس', Flyadeal: 'طيران أديل', Emirates: 'طيران الإمارات', 'Qatar Airways': 'الخطوط القطرية',
 };
+
+/** Car categories: their own words ("Economy" for a car is not the flight class). */
+const CAR_CATEGORY_AR: Record<string, string> = { Compact: 'صغيرة', Economy: 'اقتصادية', Luxury: 'فاخرة', SUV: 'دفع رباعي', Sedan: 'سيدان', Van: 'عائلية' };
+export const translateCarCategory = (value: string, language: Language) => (language === 'ar' && CAR_CATEGORY_AR[value]) || value;
 
 /** Translates a stored value for display. English is returned untouched. */
 export function translateValue(value: string, language: Language): string {

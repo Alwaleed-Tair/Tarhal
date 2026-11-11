@@ -2,7 +2,7 @@
 
 Everything the frontend gets from a server goes through `src/services/`. Pages never call `fetch`/`axios` directly.
 What an admin page does when a request fails depends on why (`src/hooks/use-admin-data.ts`):
-- **401 or 403:** the session is cleared and the page goes to `/login`.
+- **401 or 403:** the session is cleared and the page goes to `/login?next=<page>`. Any 401 on a request that needs a login clears the saved session in one place (`src/services/api.ts`); admins land on `/dashboard` after login, travelers go back to `next`.
 - **The server cannot be reached:** demo rows with a yellow **"Demo data · server unreachable"** badge. Nothing can be saved.
 - **Any other answer (400, 404, 500...):** an error state with a Try again button. Demo rows are never shown as if they were real.
 
@@ -25,11 +25,11 @@ Login uses Mohammed's HTTP-only session cookie, so every request is sent with `w
 | Mohammed | Cars list and filters | `src/services/carService.ts` (`GET /cars`) | connected; the API only lists available cars |
 | Saud | Admin hotel and car add / edit | not connected: `WRITE_ACTIONS` in `src/pages/admin-resource.tsx` keeps the buttons hidden | waiting for `POST` and `PATCH /admin/hotels` and `/admin/cars`. The hidden form was never tested against a real route |
 | Saud | Admin flights + airlines | `flightService.adminList` (`GET /admin/flights`), `flightService.airlineDirectory` (`GET /admin/airlines`) | connected; re-check field names in `toRow` against Saud's new code |
-| Abdulelah / Tariq | Passenger booking (public site, not admin) | `flightService.search/getById`, `bookingService.create` | 409 = seat taken |
+| Abdulelah / Tariq | Passenger booking (public site, not admin) | `flightService.search/getById/hold`, `bookingService.create/mine/cancel` | connected: search, seat map, hold, book, my bookings, cancel. 409 = seat taken |
 | Saud | Admin bookings table | `bookingService.list` (`GET /admin/bookings`) | connected; re-check the response shape against Saud's new code |
 | Saud | Admin flight add / edit | `src/components/resource-modal.tsx` (`send`) → `POST /admin/flights` (needs `airlineId`), `PATCH /admin/flights/[id]` | connected; PATCH only changes price and departure time |
-| Tariq | Trip search form | `src/components/search-form-slot.tsx` | drop `<TripSearchForm />` in as children on `pages/home.tsx` |
-| Tariq | Search API | `src/components/listing-view.tsx` (local text filter) | replace with a request if search should be server-side |
+| Tariq | Passenger pages | `src/pages/passenger/` (his pages from `User-Fixes`), styles in `src/pages/passenger/styles/` | his CSS files are unchanged; `vite-plugins/passenger-css.ts` scopes them and adds dark mode, RTL and Senior Mode at build time |
+| Tariq | Hotel and car steps of the booking page | `hotelService.list`, `carService.list` with `city` | real listings; hotel and car **booking** is not connected (no API yet): the steps say so |
 
 ## Page → data map
 | Page | Data source | Fallback |
@@ -42,6 +42,10 @@ Login uses Mohammed's HTTP-only session cookie, so every request is sent with `w
 | `/bookings`, `/revenue` | `bookingService.list()` (`GET /admin/bookings`) | demo store |
 | `/dashboard` | `GET /admin/bookings` and `GET /admin/flights` | demo store and demo flights |
 | `/users` | customers found in `GET /admin/bookings` (there is no users endpoint yet) | demo store |
+| `/travel` (traveler home) | `bookingService.mine()` (`GET /bookings`) for the last and upcoming bookings | none: a message |
+| `/travel/flights` | `GET /flights/search`, `GET /flights/:id`, `POST /flights/:id/hold` (countdown from `heldUntil`; when it runs out, or the booking gets 409, back to the seats), `POST /bookings`; hotels and cars from `GET /hotels`, `GET /cars` | none: friendly error messages by status. Seats are read as free or held only, never by who holds them |
+| `/travel/bookings` | `GET /bookings`, `POST /bookings/:id/cancel` (signed-out visitors go to `/login?next=...`) | none |
+| `/travel/guide`, `/travel/guide/:city` | Tariq's city content in `src/pages/passenger/data/cities.ts` | none needed |
 
 Admin pages need a signed-in user who is not a traveler (`AdminOnly` in `src/App.tsx`). That only hides the pages; the server's 401 on `/api/admin/*` is the real protection.
 

@@ -1,30 +1,44 @@
 import { getCurrentUser } from '../../../lib/auth.ts';
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server.js';
 import { prisma } from '../../../lib/prisma';
+
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+const text = (v: unknown, max: number) => typeof v === 'string' && v.trim().length > 0 && v.trim().length <= max && !/[\u0000-\u001f\u007f]/.test(v);
+
+/** Reason the travelers list is unusable, or null. One seat per traveler, 1 to 9 travelers. */
+function travelersError(travelers: unknown): string | null {
+  if (!Array.isArray(travelers) || travelers.length === 0) return 'Missing required booking fields';
+  if (travelers.length > 9) return 'A booking can have at most 9 travelers';
+  for (const t of travelers) {
+    if (!t || typeof t !== 'object' || !t.seatId || !t.fullName || !t.passportNumber || !t.dateOfBirth) {
+      return 'Missing traveler details (seatId, fullName, passportNumber, dateOfBirth are required)';
+    }
+    if (typeof t.seatId !== 'string' || !text(t.fullName, 100) || !text(t.passportNumber, 20)) return 'Traveler details are not valid';
+    const dob = new Date(t.dateOfBirth);
+    if (typeof t.dateOfBirth !== 'string' || !DAY.test(t.dateOfBirth) || Number.isNaN(dob.getTime()) || dob > new Date() || dob.getUTCFullYear() < 1900) {
+      return 'dateOfBirth must be a past date (YYYY-MM-DD)';
+    }
+  }
+  if (new Set(travelers.map((t) => t.seatId)).size !== travelers.length) return 'Each traveler needs a different seat';
+  return null;
+}
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    
     const user = await getCurrentUser();
     if (!user) return NextResponse.json({ error: 'Login required' }, { status: 401 });
     const userId = user.id;
+    const body = await request.json().catch(() => null);
+    if (!body || typeof body !== 'object') return NextResponse.json({ error: 'Send a valid JSON object' }, { status: 400 });
     const { flightId, travelers } = body;
 
-    if (!userId || !flightId || !travelers || !Array.isArray(travelers) || travelers.length === 0) {
+    if (!flightId || typeof flightId !== 'string') {
       return NextResponse.json({ error: "Missing required booking fields" }, { status: 400 });
     }
+    const invalid = travelersError(travelers);
+    if (invalid) return NextResponse.json({ error: invalid }, { status: 400 });
 
-    // Validate traveler fields
-    for (const t of travelers) {
-      if (!t.seatId || !t.fullName || !t.passportNumber || !t.dateOfBirth) {
-        return NextResponse.json({ 
-          error: "Missing traveler details (seatId, fullName, passportNumber, dateOfBirth are required)" 
-        }, { status: 400 });
-      }
-    }
-
-    const requestedSeatIds = travelers.map((t: any) => t.seatId);
+    const requestedSeatIds: string[] = travelers.map((t: any) => t.seatId);
     const now = new Date();
 
     const result = await prisma.$transaction(async (tx) => {
@@ -83,8 +97,8 @@ export async function POST(request: Request) {
           travelers: {
             create: travelers.map((t: any) => ({
               seatId: t.seatId,
-              fullName: t.fullName,
-              passportNumber: t.passportNumber,
+              fullName: t.fullName.trim(),
+              passportNumber: t.passportNumber.trim(),
               dateOfBirth: new Date(t.dateOfBirth),
             }))
           }
@@ -104,6 +118,9 @@ export async function POST(request: Request) {
     if (err.message === "FLIGHT_NOT_FOUND") {
       return NextResponse.json({ error: "Flight not found" }, { status: 404 });
     }
+    if (err.message === "SEAT_NOT_FOUND") {
+      return NextResponse.json({ error: "One or more seats do not exist" }, { status: 404 });
+    }
     if (err.message === "SEAT_FLIGHT_MISMATCH") {
       return NextResponse.json({ error: "One or more seats do not belong to the requested flight" }, { status: 400 });
     }
@@ -119,7 +136,8 @@ export async function GET() {
 
     const bookings = await prisma.booking.findMany({
       where: { userId: user.id },
-      include: { flight: { include: { airline: true } }, travelers: { include: { seat: true } } },
+      // A seat of a cancelled booking may be held by someone else now, so only the seat's own details are sent.
+      include: { flight: { include: { airline: true } }, travelers: { include: { seat: { select: { id: true, seatCode: true, ticketClass: true, priceMultiplier: true } } } } },
       orderBy: { createdAt: 'desc' },
     });
 

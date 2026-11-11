@@ -1,9 +1,11 @@
+import { BrandLogo } from '@/components/brand-logo';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Accessibility, BriefcaseBusiness, CarFront, ChevronDown, CircleUserRound, FileText, Gauge, Hotel, Languages, LogOut, Menu, Moon, PanelLeftClose, PanelLeftOpen, Plane, Search, Settings2, Sun, Users, X } from 'lucide-react';
 import { useT } from '@/i18n/use-i18n';
 import { CurrencySelect } from '@/components/currency-select';
 import { NotificationsMenu } from '@/components/notifications-menu';
+import { useAuth } from '@/store/authStore';
 import { setSeniorMode, updateSettings, useDemoState } from '@/store/demoStore';
 import { brand } from '@/config/branding';
 import { useDismiss } from '@/hooks/use-dismiss';
@@ -26,16 +28,11 @@ const navItems = [
 export { useT };
 
 function Logo() {
-  const [failed, setFailed] = useState(false);
   const t = useT();
   return (
     <Link className="brand" href="/dashboard" aria-label={`${brand.name} — ${t('dashboard')}`} title={t('dashboard')}>
-      {failed
-        ? <span className="brand-mark" aria-hidden="true">{brand.name[0]}</span>
-        : <img src={brand.logoSrc} alt="" onError={() => setFailed(true)} />}
-      <span className="brand-text">
-        <span className="brand-name">{brand.name.toUpperCase()}</span>
-      </span>
+      {/* The same logo as the traveler pages, in its version for navy (the sidebar is navy in light and dark mode). */}
+      <BrandLogo tone="onDark" height={40} markHeight={34} className="brand-logo" />
     </Link>
   );
 }
@@ -102,14 +99,22 @@ function Sidebar({ onNavClick }: { onNavClick: () => void }) {
 function MobileNav({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [location] = useLocation();
   const t = useT();
+  const closeButton = useRef<HTMLButtonElement>(null);
+  // Keyboard users land in the menu when it opens, and back on the menu button when it closes.
+  useEffect(() => {
+    if (!open) return;
+    const opener = document.activeElement as HTMLElement | null;
+    closeButton.current?.focus();
+    return () => opener?.focus?.();
+  }, [open]);
 
   return (
     <div className={`mobile-nav ${open ? 'open' : ''}`} aria-hidden={!open}>
-      <button className="mobile-close" onClick={onClose} aria-label={t('closeNavigation')}><X /></button>
+      <button ref={closeButton} className="mobile-close" onClick={onClose} aria-label={t('closeNavigation')}><X /></button>
       <Logo />
       <LogoControls />
       <div className="mobile-currency"><CurrencySelect /></div>
-      <nav className="nav-list">
+      <nav className="nav-list" aria-label={t('mainNavigation')}>
         {navItems.map(({ href, key, icon: Icon }) => (
           <Link
             key={href}
@@ -131,7 +136,6 @@ function GlobalSearch() {
   const [, setLocation] = useLocation();
   const t = useT();
 
-  // TODO / INTEGRATION POINT: Connect Tariq's Search API here
   const [search, setSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
 
@@ -180,7 +184,7 @@ function GlobalSearch() {
       </label>
 
       {isOpen && suggestions.length > 0 && (
-        <div className="search-suggestions" role="listbox">
+        <div className="search-suggestions">
           {suggestions.map(({ href, key, icon: Icon }) => (
             <button
               key={href}
@@ -210,6 +214,7 @@ function UserMenu() {
   const menuRef = useRef<HTMLDivElement>(null);
   const t = useT();
   const signOut = useSignOut();
+  const name = useAuth().user?.name || t('admin');
   useDismiss(menuRef, isOpen, () => setIsOpen(false));
 
   return (
@@ -218,11 +223,11 @@ function UserMenu() {
         className="user-button"
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
-        aria-label={t('admin')}
+        aria-label={name}
         data-testid="button-user-menu"
       >
         <CircleUserRound size={17} />
-        <span className="user-name">{t('admin')}</span>
+        <span className="user-name">{name}</span>
         <ChevronDown size={15} className="user-chevron" />
       </button>
       {isOpen && (
@@ -291,6 +296,7 @@ function Topbar({ onOpenMobileMenu }: { onOpenMobileMenu: () => void }) {
 }
 
 export function Layout({ children }: { children: ReactNode }) {
+  const [location] = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const collapsed = useSidebarCollapsed();
   // Toasts and the chatbot are rendered outside this shell. This marker lets index.css restyle and reposition
@@ -313,7 +319,8 @@ export function Layout({ children }: { children: ReactNode }) {
       <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
       <main className="main-shell">
         <Topbar onOpenMobileMenu={() => setMenuOpen(true)} />
-        <div className="page-wrap">{children}</div>
+        {/* Keyed by address: only the page content re-enters (short fade, see .page-enter in index.css). */}
+        <div className="page-wrap page-enter" key={location}>{children}</div>
       </main>
     </div>
   );

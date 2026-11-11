@@ -5,7 +5,7 @@ import { Money, MoneyShort } from '@/components/money';
 import { ChartSkeleton } from '@/components/skeleton';
 import type { TranslationKey } from '@/i18n/translations';
 import { useFormat, useT } from '@/i18n/use-i18n';
-import { monthlyRevenue, revenueBetween } from '@/lib/booking-stats';
+import { bookingMetrics, monthlyRevenue, revenueBetween } from '@/lib/booking-stats';
 
 type Period = 'thisMonth' | 'last3' | 'last6' | 'ytd' | 'year' | 'custom';
 
@@ -52,7 +52,6 @@ function niceScale(max: number) {
 export default function RevenueChart({ service, bookings, loading, offline, showTotal = false, allowCustomRange = false }: { service: ServiceFilter; bookings: Booking[]; loading: boolean; offline: boolean; showTotal?: boolean; /** Adds a "Custom range" choice with from and to dates, built in the browser from the booking dates. */ allowCustomRange?: boolean }) {
   const t = useT();
   const format = useFormat();
-  // INTEGRATION POINT: Connect Saud's Flight & Booking APIs here (revenue is an aggregate of bookings)
   const [period, setPeriod] = useState<Period>('year');
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [range, setRange] = useState(() => { const today = isoToRiyadhLocal(new Date().toISOString()).slice(0, 10); return { from: `${today.slice(0, 8)}01`, to: today }; });
@@ -60,9 +59,11 @@ export default function RevenueChart({ service, bookings, loading, offline, show
   const rangeValid = Boolean(range.from && range.to && range.from <= range.to);
 
   const months = useMemo(() => monthlyRevenue(bookings, CURRENT_YEAR), [bookings]);
-  // Hotel and car booking APIs do not exist yet: live data only has flights. Their revenue is labelled, never shown as zero.
-  const noData = !offline && (service === 'hotel' || service === 'car');
-  const series = service === 'all' ? (offline ? ALL_SERIES : (['flights'] as RevenueKey[])) : [SERIES_BY_SERVICE[service]];
+  // A service with no bookings from the API is labelled, never shown as zero. This follows the data, so it changes by itself when other bookings appear.
+  const hasBookings = (key: RevenueKey) => bookings.some((booking) => SERIES_BY_SERVICE[booking.type] === key);
+  const noData = !offline && service !== 'all' && !hasBookings(SERIES_BY_SERVICE[service]);
+  const series = service === 'all' ? (offline ? ALL_SERIES : ALL_SERIES.filter(hasBookings)) : [SERIES_BY_SERVICE[service]];
+  const missingSeries = !offline && service === 'all' ? ALL_SERIES.filter((key) => !hasBookings(key)) : [];
   const rows = useMemo(() => {
     if (period !== 'custom') return monthsFor(months, period).map((month) => ({ ...month, key: String(month.monthIndex), label: format.month(month.monthIndex) }));
     if (!rangeValid) return [];
@@ -73,8 +74,10 @@ export default function RevenueChart({ service, bookings, loading, offline, show
   const dense = rows.length > 12;
   const labelEvery = dense ? Math.ceil(rows.length / 8) : 1;
   // Scale in the display currency so axis ticks stay round after conversion.
-  const { top, ticks } = niceScale(format.convert(Math.max(...rows.flatMap((row) => series.map((key) => row[key])))));
+  const { top, ticks } = niceScale(format.convert(Math.max(0, ...rows.flatMap((row) => series.map((key) => row[key])))));
   const total = rows.reduce((sum, row) => sum + series.reduce((inner, key) => inner + row[key], 0), 0);
+
+  const allTime = useMemo(() => bookingMetrics(bookings, service).revenue, [bookings, service]);
 
   if (noData) return <p className="chart-no-data" data-testid="chart-no-data">{t('noDataYet')}</p>;
 
@@ -104,6 +107,8 @@ export default function RevenueChart({ service, bookings, loading, offline, show
           </div>
         )}
       </div>
+
+      {!loading && Math.abs(allTime - total) > 0.005 && <p className="chart-period-note" data-testid="chart-period-note">{t('chartPeriodNote', { year: format.year(CURRENT_YEAR) })} <span>{t('allBookingsTotal')}: <Money sar={allTime} /></span></p>}
 
       {loading ? <ChartSkeleton /> : custom && !rangeValid ? null : total === 0 ? <p className="chart-no-data" data-testid="chart-empty">{t('noRevenueInPeriod')}</p> : (
         <div className="chart-scroll">
@@ -149,7 +154,7 @@ export default function RevenueChart({ service, bookings, loading, offline, show
 
       <ul className="chart-legend" aria-label={t('chartLegend')}>
         {series.map((key) => <li key={key}><i className={`legend-dot ${BAR_CLASS[key]}`} />{t(key)}</li>)}
-        {!offline && service === 'all' && <li className="chart-legend-note">{t('hotels')} · {t('cars')}: {t('noDataYet')}</li>}
+        {missingSeries.length > 0 && <li className="chart-legend-note">{missingSeries.map((key) => t(key)).join(' · ')}: {t('noDataYet')}</li>}
       </ul>
     </div>
   );

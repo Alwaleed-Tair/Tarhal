@@ -1,7 +1,7 @@
 /* ==========================================================================
    1. Fonts & Tailwind Setup
    ========================================================================== */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 @custom-variant dark (&:is(.dark *));
 
@@ -53,7 +53,8 @@
   --card: 218 34% 97%;
   --card-foreground: 214 43% 18%;
   --card-border: 214 30% 88%;
-  --primary: 216 86% 53%;
+  /* 47% (was 53%): white text on primary buttons, and primary links on the page background, reach WCAG AA 4.5:1. Same hue. */
+  --primary: 216 86% 47%;
   --primary-foreground: 0 0% 100%;
   --secondary: 211 40% 76%;
   --secondary-foreground: 214 43% 18%;
@@ -129,12 +130,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ==========================================================================
    6. Sidebar / Brand / Navigation
    ========================================================================== */
-.sidebar { width: 232px; flex: 0 0 232px; background: hsl(var(--sidebar)); color: hsl(var(--sidebar-foreground)); padding: 22px 13px 16px; display: flex; flex-direction: column; }
-.brand { height: 84px; display: flex; align-items: center; gap: 10px; padding: 0 11px; color: inherit; text-decoration: none; }
-.brand img { width: 46px; height: 42px; flex: 0 0 auto; border-radius: 10px; background: transparent; object-fit: contain; }
-.brand-name { color: #eef4ff; font-size: calc(15px * var(--text-scale)); font-weight: 700; letter-spacing: .12em; }
-.brand-mark { width: 40px; height: 40px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 11px; background: #eef4ff; color: hsl(var(--sidebar)); font-size: calc(17px * var(--text-scale)); font-weight: 800; }
-.brand-logo-img { height: 40px; width: auto; }
+:where(.app-shell) .sidebar { width: 232px; flex: 0 0 232px; background: hsl(var(--sidebar)); color: hsl(var(--sidebar-foreground)); padding: 22px 13px 16px; display: flex; flex-direction: column; }
+:where(.app-shell) .brand { height: 84px; display: flex; align-items: center; gap: 10px; padding: 0 11px; color: inherit; text-decoration: none; }
+:where(.app-shell) .brand img { width: 46px; height: 42px; flex: 0 0 auto; border-radius: 10px; background: transparent; object-fit: contain; }
+:where(.app-shell) .brand-name { color: #eef4ff; font-size: calc(15px * var(--text-scale)); font-weight: 700; letter-spacing: .12em; }
+:where(.app-shell) .brand-mark { width: 40px; height: 40px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 11px; background: #eef4ff; color: hsl(var(--sidebar)); font-size: calc(17px * var(--text-scale)); font-weight: 800; }
+:where(.app-shell) .brand-logo-img { height: 40px; width: auto; }
 
 .nav-list { display: grid; gap: 5px; }
 .nav-link { display: flex; align-items: center; gap: 11px; min-height: 42px; padding: 8px 11px; border-radius: 7px; color: inherit; text-decoration: none; font-weight: 600; font-size: calc(15px * var(--text-scale)); transition: background .18s ease, transform .18s ease; }
@@ -142,7 +143,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 [dir='rtl'] .nav-link:hover { transform: translateX(-2px); }
 .nav-link.active { background: hsl(var(--sidebar-primary)); color: white; }
 .nav-icon { width: 17px; display: inline-grid; place-items: center; opacity: .9; }
-.sidebar-foot { margin-top: auto; padding: 14px 5px 0; }
+:where(.app-shell) .sidebar-foot { margin-top: auto; padding: 14px 5px 0; }
 
 /* ==========================================================================
    7. Theme Toggle Pill
@@ -409,7 +410,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* --- Large text: every font-size above is `calc(Npx * var(--text-scale))` ---------- */
 :root { --text-scale: 1; }
 .accessibility-large { --text-scale: 1.25; }
-.accessibility-large .sidebar { width: 290px; flex-basis: 290px; }
+.accessibility-large :where(.app-shell) .sidebar { width: 290px; flex-basis: 290px; }
 .accessibility-large .chat-launcher { width: 250px; }
 .accessibility-large .chat-panel { inset-inline-start: 306px; }
 .accessibility-large .nav-link,
@@ -530,7 +531,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
    20. Responsive — Tablet (≤1120px)
    ========================================================================== */
 @media (max-width: 1120px) {
-  .sidebar { width: 200px; flex-basis: 200px; }
+  :where(.app-shell) .sidebar { width: 200px; flex-basis: 200px; }
   .metric-grid { margin-inline: 0; }
   .action-row { gap: 15px; margin-inline: 0; }
   .page-wrap { padding-inline: 15px; }
@@ -539,7 +540,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .content-grid { grid-template-columns: 1fr; }
   .chat-launcher { width: 172px; }
   .chat-panel { inset-inline-start: 216px; }
-  .accessibility-large .sidebar { width: 250px; flex-basis: 250px; }
+  .accessibility-large :where(.app-shell) .sidebar { width: 250px; flex-basis: 250px; }
   .accessibility-large .chat-panel { inset-inline-start: 266px; }
 }
 
@@ -548,7 +549,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
    ========================================================================== */
 @media (max-width: 680px) {
   .app-shell { display: block; }
-  .sidebar { display: none; }
+  :where(.app-shell) .sidebar { display: none; }
   .main-shell { min-height: 100dvh; }
   /* Narrow gap/padding and a shrinkable search box so the top bar (menu, search, currency, toggles, avatar) fits 360-390px phones. */
   .topbar { height: 62px; justify-content: space-between; gap: 6px; padding: 0 10px; }
@@ -635,7 +636,7 @@ html.accessibility-large { font-size: 125%; }
 .navbar-currency-menu, .mobile-currency { display: none; }
 @media (max-width: 639px) { .navbar-currency { display: none; } .navbar-currency-menu { display: block; } }
 @media (max-width: 680px) {
-  .topbar > .currency-select { display: none; }
+  .topbar > .currency-dd { display: none; }
   .mobile-currency { display: block; margin: 10px 0 4px; }
   .user-button .user-name, .user-button .user-chevron { display: none; }
 }
@@ -671,7 +672,7 @@ html.accessibility-large { font-size: 125%; }
 
 
 /* ===== 28. Saudi Riyal symbol (official shape, inherits the surrounding text color). Same height as the digits, sitting on the baseline. ===== */
-.sar-symbol { display: inline-block; height: .72em; width: auto; aspect-ratio: 1124.14 / 1256.39; vertical-align: baseline; flex: none; }
+.sar-symbol { display: inline-block; height: .9em; width: auto; aspect-ratio: 1124.14 / 1256.39; vertical-align: -0.1em; flex: none; }
 
 /* Responsive QA: let header controls wrap on mid-size screens */
 .page-heading { flex-wrap: wrap; }
@@ -742,7 +743,7 @@ html.accessibility-large[data-admin-sidebar='collapsed'] { --adm-sidebar: 92px; 
 .accessibility-contrast .app-shell { background: hsl(var(--background)); }
 
 /* Sidebar */
-html[data-admin-sidebar] .sidebar { width: var(--adm-sidebar); flex-basis: var(--adm-sidebar); }
+html[data-admin-sidebar] :where(.app-shell) .sidebar { width: var(--adm-sidebar); flex-basis: var(--adm-sidebar); }
 :where(.app-shell) .sidebar { position: sticky; top: 0; z-index: 25; height: 100dvh; padding: 14px 12px 84px; overflow-y: auto; border-inline-end: 1px solid hsl(var(--sidebar-border)); transition: width .2s ease, flex-basis .2s ease; }
 :where(.app-shell) .brand { height: 52px; margin-bottom: 14px; padding: 0 8px; }
 :where(.app-shell) .brand img { width: 36px; height: 34px; }
@@ -767,7 +768,7 @@ html[data-admin-sidebar] .sidebar { width: var(--adm-sidebar); flex-basis: var(-
 @media (min-width: 681px) {
   html[data-admin-sidebar] .chat-launcher { inset-inline-start: 12px; width: calc(var(--adm-sidebar) - 24px); min-height: 44px; border-radius: var(--adm-radius-sm, 8px); box-shadow: none; }
   html[data-admin-sidebar='collapsed'] .chat-launcher { justify-content: center; padding: 0; }
-  html[data-admin-sidebar='collapsed'] .chat-launcher > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  html[data-admin-sidebar='collapsed'] .chat-launcher > span:not(.chat-camel) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   html[data-admin-sidebar] .chat-panel { inset-inline-start: calc(var(--adm-sidebar) + 16px); width: min(370px, calc(100vw - var(--adm-sidebar) - 32px)); }
 }
 
@@ -979,7 +980,7 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 /* Phone drawer */
 @media (max-width: 680px) {
   :where(.app-shell) .mobile-nav { inset-inline-end: auto; inset-inline-start: 0; width: min(300px, 86vw); align-content: start; gap: 4px; padding: 14px 12px; overflow-y: auto; visibility: hidden; box-shadow: 0 0 40px hsl(var(--sidebar) / .4); transition: transform .22s ease, visibility .22s; }
-  :where(.app-shell) .mobile-nav.open { visibility: visible; }
+  :where(.app-shell) .mobile-nav.open { visibility: visible; transition: transform .22s ease, visibility 0s; }
   :where(.app-shell) .mobile-nav .nav-list { gap: 2px; }
   :where(.app-shell) .mobile-nav .logo-controls { margin-block: 4px 12px; }
   :where(.app-shell) .mobile-nav .brand { height: 44px; margin-bottom: 8px; }
@@ -1047,13 +1048,13 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 }
 
 /* ===== 29. Admin Hotels and Cars: filters, pager, and the honest notes under the numbers ===== */
-.filter-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; align-items: start; margin: 0 0 21px; padding: 16px; border: 1px solid hsl(var(--border)); border-radius: 16px; background: hsl(var(--card)); }
+/* Fixed columns: the City box is the same width on Hotels (4 filters) and Cars (5 filters). */
+.filter-bar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; align-items: start; margin: 0 0 21px; padding: 16px; border: 1px solid hsl(var(--border)); border-radius: 16px; background: hsl(var(--card)); }
 .filter-bar .modal-field { min-width: 0; }
 .filter-bar-clear { align-self: end; min-height: 40px; }
 .field-hint { margin: 0; color: hsl(var(--muted-foreground)); font-size: calc(12px * var(--text-scale)); line-height: 1.4; }
 .table-pager { padding: 14px 12px; border-top: 1px solid hsl(var(--border)); }
 .metric-hint { display: block; margin-top: 6px; opacity: .9; font-size: calc(12px * var(--text-scale)); }
-.metric-note { margin: -11px 0 27px; color: hsl(var(--muted-foreground)); font-size: calc(13px * var(--text-scale)); }
 .modal-check { display: flex; align-items: center; gap: 8px; min-height: 40px; font-weight: 600; }
 .modal-check input { width: 18px; height: 18px; accent-color: hsl(var(--primary)); }
 .label-with-symbol { display: inline-flex; align-items: center; gap: 5px; }
@@ -1069,8 +1070,404 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 :where(.app-shell) .button-primary, :where(.app-shell) .radio-option.selected { background: hsl(216 86% 50%); color: #fff; }
 .button[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
 :where(:root:not(.dark) .app-shell) .data-table th { color: hsl(215 28% 32%); }
-:where(.app-shell) :is(.status-pending, .status-boarding, .status-limited), :where(.app-shell) .context-badge-warning { color: #8a5a00; }
+:where(.app-shell) :is(.status-pending, .status-boarding, .status-limited), :where(.app-shell) .context-badge-warning { color: #6b4500; }
 .dark :where(.app-shell) :is(.status-pending, .status-boarding, .status-limited), .dark :where(.app-shell) .context-badge-warning { color: #f0b84f; }
 :where(.app-shell) .status-cancelled { color: #a61b1b; }
 .dark :where(.app-shell) .status-cancelled { color: #ff9a94; }
 .accessibility-large :where(.app-shell) .chart-months span { overflow: visible; white-space: normal; overflow-wrap: anywhere; font-size: 11px; line-height: 1.15; }
+
+/* ===== 31. Dashboard: six cards in full rows, every row the same height ===== */
+:where(.app-shell) .metric-grid-six { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 1fr; }
+@media (max-width: 1023px) {
+  :where(.app-shell) .metric-grid-six { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filter-bar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 680px) {
+  .filter-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .accessibility-large :where(.app-shell) .metric-grid-six { grid-template-columns: minmax(0, 1fr); }
+  .accessibility-large .filter-bar { grid-template-columns: minmax(0, 1fr); }
+}
+.chart-period-note { display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 0 0 12px; color: hsl(var(--muted-foreground)); font-size: calc(12px * var(--text-scale)); }
+.chart-period-note span { font-weight: 700; color: hsl(var(--foreground)); }
+
+/* ===== 32. Dashboard: the two panels end at the same height; "nothing here" sits in the middle of either one ===== */
+:where(.app-shell) .content-grid { align-items: stretch; }
+:where(.app-shell) .content-grid > .section-card { display: flex; flex-direction: column; }
+:where(.app-shell) .content-grid > .section-card > .table-wrap, :where(.app-shell) .content-grid > .section-card > .section-body { flex: 1 1 auto; }
+:where(.app-shell) .content-grid .table-wrap:has(> .empty-state), :where(.app-shell) .content-grid .section-body:has(> .chart-no-data) { display: grid; place-items: center; }
+:where(.app-shell) .data-table-stack td > * { min-width: 0; overflow-wrap: anywhere; }
+:where(.app-shell) .modal-seats legend { padding-bottom: 8px; }
+
+/* ===== 33. Dashboard: Hotels and Car Rentals have four cards, in one row or two even rows ===== */
+:where(.app-shell) .metric-grid-four { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 1fr; }
+.accessibility-large :where(.app-shell) .metric-grid-four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 1023px) { :where(.app-shell) .metric-grid-four { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 680px) {
+  /* The wide first card is for the six-card layout; four cards stay in two even rows. */
+  :where(.app-shell) .metric-grid-four .metric-card:nth-child(2) { grid-column: auto; order: 0; }
+  .accessibility-large :where(.app-shell) .metric-grid-four { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ===== 34. Dashboard: every box has the label at the top and the number on one shared line, even when a label wraps or a box has no second line ===== */
+:where(.app-shell) :is(.metric-grid-six, .metric-grid-four) .metric-card { justify-content: flex-start; }
+:where(.app-shell) :is(.metric-grid-six, .metric-grid-four) .metric-main { flex-wrap: nowrap; margin-top: auto; padding-top: 8px; }
+:where(.app-shell) :is(.metric-grid-six, .metric-grid-four) .metric-main .metric-value { flex: none; }
+:where(.app-shell) :is(.metric-grid-six, .metric-grid-four) .metric-main .sparkline { flex: 0 1 auto; min-width: 0; }
+:where(.app-shell) :is(.metric-grid-six, .metric-grid-four) .metric-foot { min-height: calc(24px * var(--text-scale)); line-height: 1.5; }
+:where(.app-shell) :is(.metric-grid-six, .metric-grid-four):has(.metric-change) .metric-foot { min-height: calc(58px * var(--text-scale)); }
+
+/* ===== 35. Traveler site: the site's chat button keeps its own look; up to 1100px, where Tariq's rail is a bottom bar,
+   it sits just above that bar so it never covers it. (Position only; components/chat-assistant.tsx is unchanged.) ===== */
+@media (max-width: 1100px) {
+  html:has(.passenger-app .sidebar) :is(.chat-launcher, .chat-launcher-mobile) { bottom: 76px; }
+  html:has(.passenger-app .sidebar) .chat-panel { bottom: 132px; }
+}
+
+/* ==========================================================================
+   36. Admin in Tariq's visual language (separate block, easy to remove).
+   His colours only: page gradient #142c43 → #1c4265 → #326d9f, panels #f7f8fc with ink #203b55 and
+   #486983, lines #e2e7ef, chips #eef3f8, rail #102b43 with #2b66a3 for the active item, gold #e9d6aa,
+   Manrope for headings, his panel corners (17px 25px 25px 25px) and shadow. Only the look changes.
+   One look for the whole site: LIGHT mode is the admin's own light style (light page, white panels, blue accents) with
+   his shapes; DARK mode is his blue page with his panels, the same as his traveler pages in dark mode.
+   High-contrast mode (Senior Mode) keeps its own colours: everything colour-related is under :not(.accessibility-contrast).
+   ========================================================================== */
+:root:not(.accessibility-contrast) .app-shell {
+  --adm-radius: 22px; --adm-radius-sm: 12px;
+  --adm-shadow: 0 10px 30px rgba(16, 38, 61, .08); --adm-shadow-lift: 0 14px 36px rgba(16, 38, 61, .14);
+}
+:root.dark:not(.accessibility-contrast) .app-shell {
+  --background: 210 44% 95%; --foreground: 209 45% 23%;
+  --card: 228 45% 98%; --card-foreground: 209 45% 23%; --card-border: 216 26% 91%;
+  --border: 216 26% 91%; --input: 216 26% 86%;
+  --muted: 210 44% 95%; --muted-foreground: 209 32% 40%;
+  --secondary: 210 44% 95%; --secondary-foreground: 209 45% 23%;
+  --primary: 210 58% 40%; --primary-foreground: 0 0% 100%; --ring: 210 58% 40%;
+  --sidebar: 208 61% 16%; --sidebar-foreground: 228 54% 97%; --sidebar-border: 208 50% 22%; --sidebar-primary: 210 58% 40%;
+  --metric-surface: 228 45% 98%; --metric-text: 209 45% 23%; --section-surface: 228 45% 98%;
+  --adm-shadow: 0 21px 54px rgba(8, 27, 44, .22); --adm-shadow-lift: 0 21px 54px rgba(8, 27, 44, .32);
+  background: radial-gradient(ellipse at 77% 83%, rgba(71, 134, 185, .58) 0%, transparent 42%), linear-gradient(158deg, #142c43 0%, #1c4265 44%, #326d9f 100%);
+  background-attachment: fixed;
+}
+/* In dark mode his panels are light, so the admin's own dark-mode text colours (made for dark cards) go back to their light-panel values. */
+:root.dark:not(.accessibility-contrast) .app-shell .data-table td { color: hsl(215 37% 31%); }
+:root.dark:not(.accessibility-contrast) .app-shell .data-table td.cell-muted { color: hsl(var(--muted-foreground)); }
+:root.dark:not(.accessibility-contrast) .app-shell .bar-navy { background: #142845; }
+:root.dark:not(.accessibility-contrast) .app-shell .context-badge-success { color: #1f9d61; }
+:root.dark:not(.accessibility-contrast) .app-shell :is(.status-pending, .status-boarding, .status-limited, .context-badge-warning) { color: #6b4500; }
+:root.dark:not(.accessibility-contrast) .app-shell .status-cancelled { color: #a61b1b; }
+:where(.app-shell) :is(h1, h2, .metric-value, .chart-total strong, .brand-name, .modal-header h2) { font-family: 'Manrope', var(--app-font-sans); }
+
+/* His rail: a floating rounded navy panel, the active item in his blue. */
+:root:not(.accessibility-contrast) :where(.app-shell) .sidebar {
+  top: 16px; height: calc(100dvh - 32px); margin-block: 16px; margin-inline-start: 16px; border: 0; border-radius: 30px;
+  box-shadow: 0 21px 54px rgba(8, 27, 44, .35);
+}
+:where(.app-shell) .nav-link { border-radius: 9px; }
+@media (min-width: 681px) {
+  :root:not(.accessibility-contrast) html[data-admin-sidebar] .chat-launcher, :root:not(.accessibility-contrast)[data-admin-sidebar] .chat-launcher { inset-inline-start: 28px; bottom: 30px; }
+}
+
+/* Top bar on his blue page (dark mode): glass controls with his light text. */
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .topbar { background: rgba(20, 44, 67, .72); border-bottom-color: rgba(255, 255, 255, .12); }
+:root.dark:not(.accessibility-contrast) :where(.topbar) :is(.global-search, .currency-select, .lang-pill, .theme-pill, .top-action, .user-button, .menu-toggle) {
+  border-color: rgba(255, 255, 255, .22); background: rgba(255, 255, 255, .1); color: #f8f9fc;
+}
+:root.dark:not(.accessibility-contrast) :where(.topbar) .global-search::placeholder { color: rgba(227, 237, 246, .78); }
+:root.dark:not(.accessibility-contrast) :where(.topbar) :is(.top-action, .user-button, .lang-pill, .menu-toggle):hover { background: rgba(255, 255, 255, .18); }
+:root.dark:not(.accessibility-contrast) :where(.topbar) .theme-pill span { color: #f8f9fc; }
+:root.dark:not(.accessibility-contrast) :where(.topbar) .theme-pill span.selected, :root.dark:not(.accessibility-contrast) :where(.topbar) .senior-toggle.active { background: #2b66a3; color: #ffffff; }
+:where(.topbar) .currency-select select, :where(.topbar) .currency-select select option { color: inherit; }
+:where(.topbar) .currency-select select option { color: #203b55; background: #f7f8fc; }
+
+/* Page heading on his blue page (dark mode): light text, his gold for the current page. */
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .page-header :is(h1, .page-title-row h1) { color: #f8f9fc; font-weight: 800; }
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .page-subtitle { color: rgba(227, 237, 246, .86); }
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .breadcrumb { color: rgba(227, 237, 246, .8); }
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .breadcrumb [aria-current='page'], :root.dark:not(.accessibility-contrast) :where(.app-shell) .breadcrumb a:hover { color: #e9d6aa; }
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .page-header .context-badge { border: 1px solid rgba(255, 255, 255, .22); background: rgba(255, 255, 255, .1); color: #f8f9fc; }
+
+/* His panels: stat cards, sections, chart, settings, dialogs. */
+:root:not(.accessibility-contrast) :where(.app-shell) :is(.metric-card, .section-card, .chart-panel, .setting-card, .filter-bar) {
+  border: 1px solid rgba(255, 255, 255, .28); border-radius: 17px 25px 25px 25px; box-shadow: var(--adm-shadow);
+}
+:where(.app-shell) .metric-label { text-transform: uppercase; letter-spacing: .06em; font-size: calc(11.5px * var(--text-scale)); }
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .metric-label { color: hsl(var(--muted-foreground)); opacity: 1; }
+/* Readable on light panels in both modes (WCAG AA): green status pills, red ghost buttons, page selects in dark mode. */
+:root:not(.accessibility-contrast) :where(.app-shell) :is(.status-confirmed, .status-active, .status-scheduled, .status-available) { color: #0f5e3a; }
+:root:not(.accessibility-contrast) :where(.app-shell) .button-ghost-danger { color: #b4231f; }
+/* The shell sets its own text colour: otherwise it inherits the page's light dark-mode text, unreadable on his light panels. */
+:root.dark:not(.accessibility-contrast) .app-shell { color: hsl(var(--foreground)); }
+:root.dark:not(.accessibility-contrast) .app-shell .page-wrap .select-control { color: hsl(var(--foreground)); background-color: hsl(var(--card)); }
+[dir='rtl'] :where(.app-shell) .metric-label { text-transform: none; letter-spacing: normal; font-size: calc(13px * var(--text-scale)); }
+:where(.app-shell) .metric-value { font-weight: 800; }
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .section-title { background: linear-gradient(90deg, #10263d 0%, #2b66a3 100%); color: #ffffff; font-family: 'Manrope', var(--app-font-sans); font-weight: 700; border-radius: 16px 24px 0 0; }
+:root:not(.accessibility-contrast) :where(.app-shell) .modal-card { border-radius: 17px 25px 25px 25px; }
+:root:not(.accessibility-contrast) :where(.app-shell) .modal-backdrop { background: rgba(8, 27, 44, .6); }
+:where(.app-shell) .button { border-radius: var(--adm-radius-sm); }
+:where(.app-shell) :is(.select-control, .input-control, .page-search) { border-radius: var(--adm-radius-sm); }
+
+:root.dark:not(.accessibility-contrast) :where(.app-shell) .metric-card { color: hsl(var(--metric-text)); }
+:root.dark:not(.accessibility-contrast) .app-shell .button-primary { color: hsl(var(--primary-foreground)); }
+:root.dark:not(.accessibility-contrast) .app-shell .button-primary { background: hsl(var(--primary)); }
+@media (max-width: 1120px) {
+  :root:not(.accessibility-contrast) :where(.app-shell) .sidebar { top: 8px; height: calc(100dvh - 16px); margin-block: 8px; margin-inline-start: 8px; }
+  :root:not(.accessibility-contrast)[data-admin-sidebar] .chat-launcher { inset-inline-start: 20px; bottom: 22px; }
+}
+@media (max-width: 900px) {
+  :root:not(.accessibility-contrast) :where(.app-shell) .sidebar { top: 0; height: 100dvh; margin: 0; border-radius: 0; }
+  :root:not(.accessibility-contrast)[data-admin-sidebar] .chat-launcher { inset-inline-start: 12px; bottom: 24px; }
+}
+
+/* Boarding pass printing (pages/passenger/components/boarding-pass.tsx): only the passes that were asked for are printed. */
+@media print {
+  html.printing-pass body * { visibility: hidden !important; }
+  html.printing-pass .boarding-passes.printing, html.printing-pass .boarding-passes.printing * { visibility: visible !important; }
+  html.printing-pass .boarding-passes.printing { position: absolute; inset: 0 auto auto 0; width: 100%; padding: 12px; }
+  html.printing-pass .boarding-passes.printing .boarding-print { display: none !important; }
+  html.printing-pass .boarding-pass { break-inside: avoid; box-shadow: none !important; }
+}
+
+/* ===== 37. One logo (components/brand-logo.tsx): Tariq's home logo on every traveler page and in the admin sidebar.
+   Light mode shows the copy with navy lettering, dark mode his original with white lettering. ===== */
+html.dark .tarhal-logo-light, html:not(.dark) .tarhal-logo-dark { display: none !important; }
+.tarhal-logo { display: inline-flex; align-items: center; line-height: 0; }
+.tarhal-logo img { display: block; width: auto; max-width: none; height: var(--logo-h, 36px); }
+:where(.app-shell) .brand .tarhal-logo img { width: auto; height: 40px; border-radius: 0; }
+/* Collapsed sidebar: only the bird (the left part of the same picture). */
+/* Collapsed sidebar: the bird alone (its own picture, cut from the same logo), whole and centred, at the same height
+   on the page. The full logo and the bird cross-fade while the sidebar changes width (none with "reduce motion"). */
+:where(.app-shell) .brand .tarhal-logo:has(.tarhal-logo-mark) { display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; flex: none; width: 137px; overflow: hidden; transition: width .2s ease; }
+:where(.app-shell) .brand .tarhal-logo:has(.tarhal-logo-mark) img { grid-area: 1 / 1; transition: opacity .2s ease; }
+:where(.app-shell) .brand .tarhal-logo .tarhal-logo-full { justify-self: start; }
+:where(.app-shell) .brand .tarhal-logo .tarhal-logo-mark { height: 34px; width: 45px; opacity: 0; }
+.app-shell.is-collapsed .brand .tarhal-logo:has(.tarhal-logo-mark) { width: 45px; }
+.app-shell.is-collapsed .brand .tarhal-logo .tarhal-logo-full { opacity: 0; }
+.app-shell.is-collapsed .brand .tarhal-logo .tarhal-logo-mark { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { :where(.app-shell) .brand .tarhal-logo:has(.tarhal-logo-mark), :where(.app-shell) .brand .tarhal-logo:has(.tarhal-logo-mark) img { transition: none; } }
+@media (max-width: 480px) { .passenger-app :is(.site-header, .bookings-header, .city-guide-header) .tarhal-logo img { height: 30px; } }
+
+/* ===== 38. Smooth page changes. The rail and controls are drawn in the same place on every page (the admin Layout is
+   mounted once in App.tsx), page code is prefetched, and only the content fades in. No animation package. ===== */
+.route-fallback { min-height: 100dvh; background: hsl(var(--background)); }
+html.dark .route-fallback { background: linear-gradient(158deg, #142c43 0%, #1c4265 44%, #326d9f 100%); }
+@keyframes page-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.page-enter,
+.passenger-app :is(.tarhal-shell, .bookings-shell, .city-guide-main, .travel-main, .Stage) { animation: page-enter 200ms ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .page-enter, .passenger-app :is(.tarhal-shell, .bookings-shell, .city-guide-main, .travel-main, .Stage) { animation: none; }
+}
+
+/* ===== 39. The chat in the look of Tariq's ChatWidget (origin/User-Fixes, components/ChatWidget.css and SideBar.css).
+   Look and position only: components/chat-assistant.tsx keeps all of Alwaleed's logic. His badge: a 44px navy circle with
+   the camel in grey (his filter); his window: a 320 x 420 light card, gradient header, bubbles and pill input. The same
+   in light and dark mode, as in his app. The selectors are long on purpose: they replace the older chat rules above. ===== */
+:root body .chat-launcher.chat-launcher.chat-launcher {
+  position: fixed; z-index: 31; inset-inline-start: 20px; inset-inline-end: auto; bottom: 20px;
+  width: 44px; height: 44px; min-width: 0; min-height: 0; padding: 0; display: grid; place-items: center; place-content: center;
+  border: 0; border-radius: 50%; background: #10263d; color: #ffffff; box-shadow: 0 6px 14px rgba(0, 0, 0, .3);
+  font-size: 23px; line-height: 1; cursor: pointer; filter: none;
+}
+:root body .chat-launcher-mobile.chat-launcher-mobile.chat-launcher-mobile { display: none; }
+.chat-camel { filter: grayscale(1) brightness(2); }
+:root body .chat-launcher.chat-launcher.chat-launcher:hover { animation: chat-badge-glow 1.2s ease-in-out infinite; }
+:root body .chat-launcher.chat-launcher.chat-launcher:focus-visible { outline: 3px solid #6a93c9; outline-offset: 3px; }
+@keyframes chat-badge-glow {
+  0%, 100% { box-shadow: 0 6px 14px rgba(16, 38, 61, .4), 0 0 6px rgba(16, 38, 61, .4); }
+  50% { box-shadow: 0 6px 14px rgba(16, 38, 61, .4), 0 0 22px rgba(16, 38, 61, .95); }
+}
+:root.accessibility-contrast body .chat-launcher.chat-launcher.chat-launcher { background: #000000; border: 2px solid #ffffff; box-shadow: none; }
+
+:root body .chat-panel.chat-panel.chat-panel {
+  position: fixed; z-index: 40; bottom: 76px; inset-inline-start: 20px; inset-inline-end: auto;
+  width: min(320px, calc(100vw - 40px)); height: min(420px, calc(100dvh - 40px)); max-height: none;
+  display: flex; flex-direction: column; overflow: hidden; border: 0; border-radius: 24px;
+  background: #f1f4fa; color: #10263d; box-shadow: 0 20px 40px rgba(0, 0, 0, .35); font-family: 'Inter', var(--app-font-sans);
+}
+:root body .chat-panel .chat-panel-header { padding: 14px 18px; background: linear-gradient(90deg, #10263d 0%, #6a93c9 100%); color: #ffffff; font-weight: 700; }
+[dir='rtl'] body .chat-panel .chat-panel-header { background: linear-gradient(270deg, #10263d 0%, #6a93c9 100%); }
+:root body .chat-panel .chat-panel-logo { display: none; }
+:root body .chat-panel .chat-panel-heading strong { font-size: calc(15px * var(--text-scale)); }
+:root body .chat-panel .chat-panel-heading span { color: #e6edf7; }
+:root body .chat-panel .chat-close { color: #ffffff; }
+:root body .chat-panel .chat-messages { flex: 1; min-height: 0; max-height: none; padding: 16px; gap: 10px; }
+:root body .chat-panel .chat-message { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: calc(14px * var(--text-scale)); font-weight: 600; line-height: 1.4; }
+:root body .chat-panel .chat-message.assistant { background: #e1e5f0; color: #10263d; border-end-start-radius: 4px; }
+:root body .chat-panel .chat-message.user { background: linear-gradient(90deg, #10263d 0%, #6a93c9 100%); color: #ffffff; border-end-end-radius: 4px; }
+:root body .chat-panel .chat-card { border: 2px solid #e1e5f0; border-radius: 16px; background: #ffffff; color: #10263d; }
+:root body .chat-panel .chat-card span:last-child { color: #10263d; }
+:root body .chat-panel .chat-status { color: #486983; }
+:root body .chat-panel .chat-error { color: #b4231f; }
+:root body .chat-panel .chat-quick-prompts button { border: 2px solid #e1e5f0; border-radius: 20px; background: #ffffff; color: #10263d; font-weight: 600; }
+:root body .chat-panel .chat-form { gap: 8px; padding: 10px; border-top: 2px solid #e1e5f0; }
+:root body .chat-panel .chat-input { height: 40px; padding: 10px 14px; border: 2px solid #e1e5f0; border-radius: 20px; background: #ffffff; color: #10263d; font-size: calc(14px * var(--text-scale)); font-weight: 600; }
+:root body .chat-panel .chat-input:focus { border-color: #3d5a80; outline: none; box-shadow: none; }
+:root body .chat-panel .chat-send { width: auto; min-width: 46px; padding: 0 14px; border-radius: 20px; background: linear-gradient(90deg, #10263d 0%, #6a93c9 100%); color: #ffffff; }
+:root.accessibility-contrast body .chat-panel.chat-panel.chat-panel { border: 2px solid #ffffff; }
+
+/* Traveler pages with his rail: the badge sits at the bottom of the rail, as in his app; the window opens beside the rail. */
+@media (min-width: 1101px) {
+  :root:has(.passenger-app .sidebar) body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: 73.5px; bottom: 30px; }
+  :root:has(.passenger-app .sidebar) body .chat-panel.chat-panel.chat-panel { inset-inline-start: 141px; bottom: 30px; }
+}
+/* His rail as a bottom bar (phones and tablets): the badge is the last item of the bar; the window opens above it. */
+@media (max-width: 1100px) {
+  :root:has(.passenger-app .sidebar) body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: auto; inset-inline-end: 12px; bottom: 10px; z-index: 35; }
+  :root:has(.passenger-app .sidebar) body .chat-panel.chat-panel.chat-panel { inset-inline: 12px; width: auto; max-width: 420px; bottom: 76px; height: min(420px, calc(100dvh - 96px)); }
+}
+/* Admin: the badge sits in the empty bottom of the admin sidebar (its footer keeps room for it); the window opens beside it. */
+:where(.app-shell) .sidebar-foot { min-height: 64px; }
+@media (min-width: 681px) {
+  :root[data-admin-sidebar] body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: calc(16px + var(--adm-sidebar) / 2 - 22px); bottom: 32px; }
+  :root[data-admin-sidebar] body .chat-panel.chat-panel.chat-panel { inset-inline-start: calc(var(--adm-sidebar) + 32px); bottom: 24px; }
+}
+@media (min-width: 681px) and (max-width: 1120px) { :root[data-admin-sidebar] body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: calc(8px + var(--adm-sidebar) / 2 - 22px); bottom: 24px; } }
+@media (min-width: 681px) and (max-width: 900px) { :root[data-admin-sidebar] body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: calc(var(--adm-sidebar) / 2 - 22px); bottom: 16px; } }
+/* High contrast (Senior Mode) keeps the sidebar flush with the edge (no outer margin), so the badge centre has no margin either. */
+@media (min-width: 681px) { :root.accessibility-contrast[data-admin-sidebar] body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: calc(var(--adm-sidebar) / 2 - 22px); } }
+/* Admin on phones (the sidebar is a menu): the badge in the bottom corner, the window above it. */
+@media (max-width: 680px) {
+  :root[data-admin-sidebar] body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: auto; inset-inline-end: 16px; bottom: 16px; }
+  :root[data-admin-sidebar] body .chat-panel.chat-panel.chat-panel { inset-inline: 12px; width: auto; bottom: 72px; height: min(420px, calc(100dvh - 92px)); }
+  :root[data-admin-sidebar] .page-wrap { padding-bottom: 72px; }
+}
+@media (prefers-reduced-motion: reduce) { :root body .chat-launcher.chat-launcher.chat-launcher:hover { animation: none; } }
+
+/* ===== 40. Arrows in text point the reading way (components/dir-arrow.tsx); Tariq's plane symbols fly that way too. ===== */
+.dir-arrow { display: inline-block; }
+[dir='rtl'] .dir-arrow { transform: scaleX(-1); }
+[dir='rtl'] .passenger-app :is(.Route-Plane, .booking-flight-line svg) { transform: scaleX(-1); }
+
+/* Admin currency dropdown (components/currency-select.tsx): the top-bar control, now a button with its own menu. */
+.currency-dd { position: relative; display: inline-flex; }
+button.currency-select { gap: 6px; padding: 0 9px 0 11px; font: inherit; font-size: calc(13px * var(--text-scale)); font-weight: 700; cursor: pointer; }
+button.currency-select:hover { border-color: hsl(var(--ring) / .6); }
+button.currency-select:focus-visible { outline: 0; border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / .25); }
+.currency-select .currency-mark { font-size: calc(14px * var(--text-scale)); }
+.currency-select .currency-chevron { opacity: .75; transition: transform .18s ease; }
+.currency-select[aria-expanded='true'] .currency-chevron { transform: rotate(180deg); }
+.currency-dd-admin .currency-menu {
+  position: absolute; z-index: 80; top: calc(100% + 6px); inset-inline-end: 0; min-width: 196px; display: grid; gap: 2px; padding: 6px;
+  border: 1px solid hsl(var(--border)); border-radius: 12px; color: hsl(var(--foreground)); background: hsl(var(--card)); box-shadow: 0 16px 40px rgb(6 23 45 / .22);
+}
+.currency-dd-admin .currency-option {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; border-radius: 8px;
+  color: inherit; background: transparent; font: inherit; text-align: start; cursor: pointer;
+}
+.currency-dd-admin .currency-option:hover { background: hsl(var(--muted)); }
+.currency-dd-admin .currency-option:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: -2px; }
+.currency-dd-admin .currency-option[aria-selected='true'] { background: hsl(var(--primary) / .12); }
+.currency-dd-admin .currency-option .currency-mark { display: grid; place-items: center; width: 22px; font-size: calc(16px * var(--text-scale)); font-weight: 800; color: hsl(var(--primary)); }
+.currency-dd-admin .currency-option-text { display: grid; flex: 1; line-height: 1.25; }
+.currency-dd-admin .currency-option-text strong { font-size: calc(13px * var(--text-scale)); font-weight: 800; }
+.currency-dd-admin .currency-option-text small { color: hsl(var(--muted-foreground)); font-size: calc(11px * var(--text-scale)); font-weight: 600; }
+.currency-dd-admin .currency-check { color: hsl(var(--primary)); }
+.mobile-currency .currency-dd, .mobile-currency .currency-select { width: 100%; }
+.mobile-currency .currency-select .currency-chevron { margin-inline-start: auto; }
+@media (prefers-reduced-motion: reduce) { .currency-select .currency-chevron { transition: none; } }
+
+/* ===== 41. Admin light mode in Tariq's feel, soft (no glare): the same palette as the traveler light mode. Dark mode (section 36) is unchanged.
+   The same soft tones as the traveler light mode (vite-plugins/passenger-css.ts): a grey-blue page (#e5ebf1), soft
+   off-white panels (#f4f6f9), his ink #203b55 and #486983, his blue #2b66a3 for actions and the active rail item,
+   his navy-to-blue section bars, and his navy rail. Only colours change: every page, table, filter and number stays. ===== */
+:root:not(.dark):not(.accessibility-contrast) .app-shell {
+  --background: 212 30% 92%; --foreground: 209 45% 23%;
+  --card: 212 40% 95.5%; --card-foreground: 209 45% 23%; --card-border: 213 30% 86%;
+  --border: 214 24% 86%; --input: 214 22% 78%;
+  --muted: 213 36% 91.5%; --muted-foreground: 209 32% 36%;
+  --secondary: 213 30% 93%; --secondary-foreground: 209 45% 23%;
+  --primary: 210 58% 40%; --primary-foreground: 0 0% 100%; --ring: 210 58% 40%;
+  --sidebar: 208 61% 16%; --sidebar-foreground: 228 54% 97%; --sidebar-border: 208 50% 22%; --sidebar-primary: 210 58% 40%;
+  --metric-surface: 212 40% 95.5%; --metric-text: 209 45% 23%; --section-surface: 212 40% 95.5%;
+  --adm-shadow: 0 10px 28px rgba(16, 38, 61, .08); --adm-shadow-lift: 0 14px 34px rgba(16, 38, 61, .13);
+  color: hsl(var(--foreground));
+  background: radial-gradient(ellipse at 80% 85%, rgba(107, 150, 196, .2) 0%, transparent 45%), linear-gradient(158deg, #eaf0f6 0%, #e2eaf3 55%, #d6e2ee 100%);
+  background-attachment: fixed;
+}
+:root:not(.dark):not(.accessibility-contrast) :where(.app-shell) :is(.metric-card, .section-card, .chart-panel, .setting-card, .filter-bar) { border-color: rgba(16, 38, 61, .07); }
+:root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .metric-card { color: hsl(var(--metric-text)); }
+:root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .metric-label { color: hsl(var(--muted-foreground)); opacity: 1; }
+/* His section bars (navy to blue, white text), as in dark mode. */
+:root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .section-title { background: linear-gradient(90deg, #10263d 0%, #2b66a3 100%); color: #ffffff; font-family: 'Manrope', var(--app-font-sans); font-weight: 700; border-radius: 16px 24px 0 0; }
+/* Page heading in his ink; the current page in his blue (his gold is for the dark page only: too pale on a light one). */
+:root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .page-header :is(h1, .page-title-row h1) { color: #203b55; font-weight: 800; }
+:root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .page-subtitle { color: #486983; }
+:root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .breadcrumb [aria-current='page'], :root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .breadcrumb a:hover { color: #2b66a3; }
+/* Top bar: a calm frosted strip of the page tone. */
+:root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .topbar { background: rgba(234, 240, 246, .85); border-bottom-color: rgba(16, 38, 61, .08); backdrop-filter: blur(8px); }
+:root:not(.dark):not(.accessibility-contrast) :where(.topbar) :is(.global-search, .currency-select, .lang-pill, .theme-pill, .top-action, .user-button, .menu-toggle) { border-color: rgba(16, 38, 61, .12); background: #edf2f8; color: #203b55; }
+:root:not(.dark):not(.accessibility-contrast) :where(.topbar) :is(.top-action, .user-button, .lang-pill, .menu-toggle, .currency-select):hover { background: #eaf0f6; }
+:root:not(.dark):not(.accessibility-contrast) :where(.topbar) .theme-pill span.selected, :root:not(.dark):not(.accessibility-contrast) :where(.topbar) .senior-toggle.active { background: #2b66a3; color: #ffffff; }
+/* Tables stay crisp on the soft panels: a slightly deeper header and zebra rows of the page tone. */
+:root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .data-table thead th { background: #e1e9f3; color: #3d5a75; }
+:root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .data-table td { color: #2a4560; }
+:root:not(.dark):not(.accessibility-contrast) .route-fallback { background: #eaf0f6; }
+
+/* ===== 42. Admin tables on laptop screens (up to 1440px): a little less side padding in every cell, so status pills,
+   short IDs and the Edit / Remove buttons stay inside their own column and headers break between words, not inside one. ===== */
+@media (max-width: 1440px) {
+  :where(.app-shell) .data-table :is(th, td) { padding-inline: 12px; }
+  :where(.app-shell) .row-actions .button { padding-inline: 9px; }
+}
+:where(.app-shell) .data-table th { overflow-wrap: normal; word-break: normal; hyphens: manual; }
+
+/* ===== 43. Light mode decorations, drawn on purpose (dark mode is Tariq's and unchanged). The automatic light colours
+   (vite-plugins/passenger-css.ts) would turn his beige-blue circle yellow and lose his pale dotted path and gold dots on
+   a light page, and flatten the greeting band to grey. The same drawings, in light-mode colours of his own blues.
+   (His stylesheets load after this file, so the selectors are a little longer on purpose.) ===== */
+html:not(.dark) body .passenger-app .orbit-sun.orbit-sun,
+html:not(.dark) body .passenger-app .hero-orbit-globe.hero-orbit-globe {
+  background: linear-gradient(145deg, #e9dfc8 0%, #b2c8e0 48%, #6f95bd 100%);
+  border-color: rgba(255, 255, 255, .7);
+  box-shadow: 0 10px 28px rgba(16, 38, 61, .16), inset 0 1px 8px rgba(255, 255, 255, .45);
+}
+html:not(.dark) body .passenger-app .hero-orbit-globe.hero-orbit-globe { color: #10263d; }
+html:not(.dark) body .passenger-app .orbit-ring.orbit-ring { border-color: rgba(43, 102, 163, .26); }
+html:not(.dark) body .passenger-app .orbit-ring.orbit-ring-small { border-color: rgba(43, 102, 163, .18); }
+html:not(.dark) body .passenger-app .hero-orbit-ring.hero-orbit-ring-outer { border-color: rgba(43, 102, 163, .22); }
+html:not(.dark) body .passenger-app .hero-orbit-ring.hero-orbit-ring-inner { border-color: rgba(43, 102, 163, .3); }
+html:not(.dark) body .passenger-app .orbit-route.orbit-route { border-color: rgba(43, 102, 163, .55) transparent transparent; }
+html:not(.dark) body .passenger-app .orbit-route.orbit-route::before,
+html:not(.dark) body .passenger-app .orbit-route.orbit-route::after,
+html:not(.dark) body .passenger-app .hero-orbit-dot.hero-orbit-dot { background: #c2954a; box-shadow: 0 0 6px rgba(194, 149, 74, .55); }
+html:not(.dark) body .passenger-app .orbit-ground.orbit-ground { background: linear-gradient(155deg, rgba(43, 102, 163, .13), rgba(43, 102, 163, .02)); }
+/* The greeting card's top band: his navy-to-blue band, as a soft light blue gradient. */
+html:not(.dark) body .passenger-app .PanelTop.PanelTop { background: linear-gradient(to right, #d3e1f0, #a6c2e1); box-shadow: 0 4px 10px rgba(16, 38, 61, .12); }
+
+/* ===== 44. Chat intro bubble (components/chat-intro.tsx): beside the camel on Tariq's rail, in the chat window's look
+   (#f1f4fa card, navy text, Inter), with a small pointer to the camel. The same in light and dark, like the chat. ===== */
+.chat-intro {
+  position: fixed; z-index: 30; bottom: 30px; inset-inline-start: 131px; width: max-content; max-width: 250px;
+  display: flex; align-items: flex-start; gap: 4px; padding: 10px 8px 10px 14px; padding-inline: 14px 8px;
+  border: 2px solid #e1e5f0; border-radius: 18px; border-end-start-radius: 6px; background: #f1f4fa; color: #10263d;
+  box-shadow: 0 12px 30px rgba(8, 27, 44, .28); font-family: 'Inter', var(--app-font-sans);
+  animation: chat-intro-in .35s ease-out both;
+}
+.chat-intro::before { /* pointer toward the camel, on the start side */
+  content: ''; position: absolute; bottom: 14px; inset-inline-start: -8px; width: 12px; height: 12px;
+  background: #f1f4fa; border-inline-start: 2px solid #e1e5f0; border-bottom: 2px solid #e1e5f0; transform: rotate(45deg);
+}
+[dir='rtl'] .chat-intro::before { transform: rotate(-45deg); }
+.chat-intro-text { flex: 1; padding: 0; border: 0; background: none; color: inherit; font: inherit; font-size: calc(13px * var(--text-scale)); font-weight: 600; line-height: 1.45; text-align: start; cursor: pointer; }
+.chat-intro-close { display: grid; place-items: center; flex: none; width: 24px; height: 24px; margin-top: -2px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #486983; cursor: pointer; }
+.chat-intro-close:hover { background: #e1e5f0; color: #10263d; }
+.chat-intro :is(.chat-intro-text, .chat-intro-close):focus-visible { outline: 2px solid #3d5a80; outline-offset: 2px; border-radius: 8px; }
+@keyframes chat-intro-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+/* Up to 1100px Tariq's rail is a bottom bar with the camel at its end: the bubble sits above the camel, pointing down. */
+@media (max-width: 1100px) {
+  .chat-intro { bottom: 76px; inset-inline-start: auto; inset-inline-end: 12px; max-width: min(250px, calc(100vw - 24px)); border-end-start-radius: 18px; border-end-end-radius: 6px; }
+  .chat-intro::before, [dir='rtl'] .chat-intro::before { bottom: -8px; inset-inline-start: auto; inset-inline-end: 16px; border-inline-start: 0; border-inline-end: 2px solid #e1e5f0; transform: rotate(45deg); }
+  [dir='rtl'] .chat-intro::before { transform: rotate(-45deg); }
+}
+.chat-intro.is-measuring { visibility: hidden; animation: none; }
+@media (prefers-reduced-motion: reduce) { .chat-intro { animation: none; } }
+
+/* ===== 45. Hotel and car photos (components/catalog-photo.tsx): the placeholder used when there is no photo, and the
+   admin thumbnails in the Hotels and Cars tables (inside the name column, so the column widths stay the same). ===== */
+.catalog-photo-empty { display: grid; place-items: center; width: 100%; height: 100%; color: #7f9db4; background: #e3ebf1; }
+.row-thumb-cell { display: inline-flex; align-items: center; gap: 10px; min-width: 0; vertical-align: middle; }
+.row-thumb-cell > span:last-child { min-width: 0; }
+.row-thumb { flex: none; display: block; width: 44px; height: 33px; border-radius: 6px; object-fit: cover; background: #e3ebf1; }
+.catalog-photo-empty.row-thumb { display: grid; }
+/* Bookings: "Mark paid" and "Cancel booking" stack when the column has no room for both side by side. */
+.data-table .row-actions.row-actions-wrap { flex-wrap: wrap; }

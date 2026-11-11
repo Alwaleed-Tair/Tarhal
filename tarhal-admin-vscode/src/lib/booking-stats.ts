@@ -2,22 +2,31 @@ import type { Booking, MonthlyRevenue, ResourceRow, RevenueKey, Service, Service
 import { isoToRiyadhLocal } from '@/i18n/format';
 
 // Every number on the dashboard, revenue and users pages is computed here from the lists the API returns:
-// GET /api/admin/bookings and GET /api/admin/flights (or the demo lists, with the Demo data badge, when the server cannot be reached).
+// GET /api/admin/bookings (flight, hotel and car bookings, each with its type) and GET /api/admin/flights (or the demo lists, with the Demo data badge, when the server cannot be reached).
 
-/** Cancelled bookings and failed or refunded payments bring in no money. Pending payments count: the app has no payment step yet. */
+/**
+ * Booked value: cancelled bookings and failed or refunded payments bring in no money; pending ones count, because they are still owed.
+ * What was really paid (paymentStatus PAID, after the simulated payment or "Mark paid") is shown next to it as "Paid so far".
+ */
 const earnsRevenue = (booking: Booking) => booking.status !== 'Cancelled' && booking.paymentStatus !== 'FAILED' && booking.paymentStatus !== 'REFUNDED';
 
-/** Bookings count, booked value (SAR), the part of it that is paid, and number of different customers with a booking that counts. */
+/**
+ * Bookings count (all of them) and how many are cancelled; booked value (SAR) and the part of it that is paid, without cancelled, failed or refunded bookings;
+ * customers with at least one such booking, and all customers. Two accounts can share a name, so customers are counted by account.
+ */
 export function bookingMetrics(bookings: Booking[], service: ServiceFilter = 'all') {
   const scoped = service === 'all' ? bookings : bookings.filter((booking) => booking.type === service);
   const earning = scoped.filter(earnsRevenue);
   return {
     bookings: scoped.length,
+    cancelled: scoped.filter((booking) => booking.status === 'Cancelled').length,
     revenue: earning.reduce((sum, booking) => sum + booking.price, 0),
     paid: earning.filter((booking) => booking.paymentStatus === 'PAID').reduce((sum, booking) => sum + booking.price, 0),
     users: new Set(earning.map((booking) => booking.userId ?? booking.customer)).size,
+    allCustomers: new Set(scoped.map((booking) => booking.userId ?? booking.customer)).size,
   };
 }
+
 
 /** Number of flights, how many have not left yet, and the average base price (SAR). */
 export function flightMetrics(flights: ResourceRow[], now = Date.now()) {
@@ -28,25 +37,41 @@ export function flightMetrics(flights: ResourceRow[], now = Date.now()) {
   };
 }
 
-/** Bookings, revenue and customers of each month of `year` so far (Riyadh time), for the dashboard's trend lines. */
-export function monthlyMetrics(bookings: Booking[], year: number, service: ServiceFilter = 'all') {
-  const scoped = service === 'all' ? bookings : bookings.filter((booking) => booking.type === service);
-  const months = Array.from({ length: new Date().getMonth() + 1 }, () => ({ bookings: 0, revenue: 0, users: new Set<string>() }));
-  for (const booking of scoped) {
-    const local = isoToRiyadhLocal(booking.date);
-    const month = months[Number(local.slice(5, 7)) - 1];
-    if (Number(local.slice(0, 4)) !== year || !month) continue;
-    month.bookings += 1;
-    if (earnsRevenue(booking)) { month.revenue += booking.price; month.users.add(booking.userId ?? booking.customer); }
+/** Days in a dashboard trend line, and on how many of them bookings must fall before a line is worth drawing. */
+export const TREND_DAYS = 14;
+export const MIN_ACTIVE_DAYS = 7;
+
+/**
+ * Bookings, booked value and customers of each of the last `days` days (Riyadh time, oldest first, today last), for the
+ * dashboard's trend lines, and on how many of those days there were bookings.
+ */
+export function dailyMetrics(bookings: Booking[], service: ServiceFilter = 'all', now = Date.now(), days = TREND_DAYS) {
+  const today = Date.parse(`${isoToRiyadhLocal(new Date(now).toISOString()).slice(0, 10)}T00:00:00Z`);
+  const keys = Array.from({ length: days }, (_, i) => new Date(today - (days - 1 - i) * 86_400_000).toISOString().slice(0, 10));
+  const index = new Map(keys.map((key, i) => [key, i]));
+  const rows = keys.map(() => ({ bookings: 0, revenue: 0, users: new Set<string>() }));
+  for (const booking of service === 'all' ? bookings : bookings.filter((row) => row.type === service)) {
+    const i = index.get(isoToRiyadhLocal(booking.date).slice(0, 10));
+    if (i === undefined) continue;
+    rows[i].bookings += 1;
+    if (earnsRevenue(booking)) { rows[i].revenue += booking.price; rows[i].users.add(booking.userId ?? booking.customer); }
   }
-  return { bookings: months.map((m) => m.bookings), revenue: months.map((m) => m.revenue), users: months.map((m) => m.users.size) };
+  return {
+    bookings: rows.map((r) => r.bookings), revenue: rows.map((r) => r.revenue), users: rows.map((r) => r.users.size),
+    activeDays: rows.filter((r) => r.bookings > 0).length,
+  };
 }
 
-/** Whole-number change from last month to this month, or null when last month is empty or there is no last month. */
-export function monthChange(series: number[]): number | null {
-  const previous = series[series.length - 2];
+/** The line only when it means something: bookings on at least MIN_ACTIVE_DAYS of the days, and values that really change. */
+export const meaningfulTrend = (series: number[], activeDays: number) => (activeDays >= MIN_ACTIVE_DAYS && new Set(series).size > 1 ? series : undefined);
+
+/** Whole-number change of the last 7 days against the 7 days before, or null when there is nothing to compare with. */
+export function weekChange(series: number[]): number | null {
+  if (series.length < 14) return null;
+  const sum = (values: number[]) => values.reduce((total, value) => total + value, 0);
+  const previous = sum(series.slice(-14, -7));
   if (!previous) return null;
-  return Math.round(((series[series.length - 1] - previous) / previous) * 100);
+  return Math.round(((sum(series.slice(-7)) - previous) / previous) * 100);
 }
 
 const SERIES: Record<Service, RevenueKey> = { flight: 'flights', hotel: 'hotels', car: 'cars' };

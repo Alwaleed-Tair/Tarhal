@@ -1,4 +1,6 @@
+import { currentSession, logout } from '@/store/authStore';
 import { USD_TO_SAR } from '@/store/currencyStore';
+import { notify } from '@/store/notificationStore';
 import axios from 'axios';
 
 export const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -14,7 +16,21 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export type Pagination = { page: number; pageSize: number; total: number; totalPages?: number };
+/**
+ * A 401 on any request that needs a login means the saved session is stale (expired cookie, server restarted with a
+ * new secret...). It is cleared once, here; the page's guard then sends the visitor to /login?next=... and back.
+ * The login, register and logout calls are left alone: their 401 means wrong details, not an old session.
+ */
+api.interceptors.response.use(undefined, (error) => {
+  const url = String(error?.config?.url ?? '');
+  if (axios.isAxiosError(error) && error.response?.status === 401 && !/\/auth\//.test(url) && currentSession()) {
+    logout();
+    notify({ tone: 'warning', titleKey: 'sessionExpiredTitle', messageKey: 'errUnauthorized' });
+  }
+  return Promise.reject(error);
+});
+
+export type Pagination ={ page: number; pageSize: number; total: number; totalPages?: number };
 export type Paginated<T> = { success?: boolean; data: T[]; pagination?: Pagination };
 export type Envelope<T> = { success?: boolean; data: T };
 export type Raw = Record<string, unknown>;
@@ -36,14 +52,15 @@ export function httpStatus(error: unknown): number | undefined {
 }
 
 /**
- * True only when no answer came from the API: no response at all, a gateway error, or the empty 500 that
- * Vite's dev proxy sends when the backend is down. Any other error is a real answer from the server.
+ * True only when the API truly cannot be reached: the connection failed, a gateway says it cannot reach the API (502, 504),
+ * or Vite's dev proxy sends its empty 500 because the backend is down. A timeout is not in this list: the server may be up but slow,
+ * so it gets an error message instead of demo data. Any other status (401, 403, 404, 500, 503...) is a real answer from the server.
  */
 export function isServerUnreachable(error: unknown): boolean {
   if (!axios.isAxiosError(error)) return false;
   const response = error.response;
-  if (!response) return true;
-  if ([502, 503, 504].includes(response.status)) return true;
+  if (!response) return error.code !== 'ECONNABORTED' && error.code !== 'ETIMEDOUT';
+  if (response.status === 502 || response.status === 504) return true;
   return import.meta.env.DEV && response.status === 500 && !response.data;
 }
 

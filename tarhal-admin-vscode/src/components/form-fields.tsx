@@ -13,13 +13,13 @@ type FieldProps = {
 const Label = ({ label, required }: { label: ReactNode; required: boolean }) => <span>{label}{required && ' *'}</span>;
 
 /** One labelled input of the admin forms. A message under the field is tied to it for screen readers. */
-export function Field({ label, value, onChange, type = 'text', min, step, inputMode, list, maxLength, hint, required = false, ltr = false, error, testId, disabled }: FieldProps & { type?: string; min?: string; step?: string; inputMode?: 'decimal' | 'numeric'; list?: string; maxLength?: number; hint?: string; ltr?: boolean }) {
+export function Field({ label, value, onChange, type = 'text', inputMode, list, maxLength, placeholder, hint, required = false, ltr = false, error, testId, disabled }: FieldProps & { type?: string; inputMode?: 'decimal' | 'numeric'; list?: string; maxLength?: number; placeholder?: string; hint?: string; ltr?: boolean }) {
   const id = useId();
   const noteId = error || hint ? `${id}-note` : undefined;
   return (
     <label className="modal-field">
       <Label label={label} required={required} />
-      <input className="input-control" type={type} min={min} step={step} inputMode={inputMode} list={list} maxLength={maxLength} data-testid={testId} value={value} onChange={(event) => onChange(event.target.value)} aria-required={required} aria-invalid={Boolean(error)} aria-describedby={noteId} dir={ltr ? 'ltr' : undefined} disabled={disabled} />
+      <input className="input-control" type={type} inputMode={inputMode} list={list} maxLength={maxLength} placeholder={placeholder} data-testid={testId} value={value} onChange={(event) => onChange(event.target.value)} aria-required={required} aria-invalid={Boolean(error)} aria-describedby={noteId} dir={ltr ? 'ltr' : undefined} disabled={disabled} />
       {error ? <small id={noteId} className="field-error" role="alert">{error}</small> : hint ? <small id={noteId} className="field-hint">{hint}</small> : null}
     </label>
   );

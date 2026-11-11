@@ -1,10 +1,10 @@
+import { CatalogPhoto } from '@/components/catalog-photo';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { CatalogFilterBar } from '@/components/catalog-filter-bar';
 import { DataTable, type Column } from '@/components/data-table';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
-import { Layout } from '@/components/layout';
 import { Ltr } from '@/components/ltr';
 import { Money } from '@/components/money';
 import { ContextBadge, PageHeader } from '@/components/page-header';
@@ -14,11 +14,12 @@ import { TableSkeleton } from '@/components/skeleton';
 import { StatCard } from '@/components/stat-card';
 import { SuggestSearch } from '@/components/suggest-search';
 import { initialResources, type ResourceRow, type Service } from '@/data/demoData';
+import { useAdminBookings } from '@/hooks/use-admin-bookings';
 import { useAdminData } from '@/hooks/use-admin-data';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { usePagination } from '@/hooks/use-pagination';
 import { isoToRiyadhLocal, type Formatters } from '@/i18n/format';
-import { translateValue } from '@/i18n/labels';
+import { translateCarCategory, translateValue } from '@/i18n/labels';
 import type { Language, TranslationKey } from '@/i18n/translations';
 import { useFormat, useT } from '@/i18n/use-i18n';
 import { flightMetrics } from '@/lib/booking-stats';
@@ -31,14 +32,13 @@ import { hotelService } from '@/services/hotelService';
 import { useDemoState } from '@/store/demoStore';
 
 /**
- * Which buttons each table offers. Only what the real API has (checked against app/api):
- * flights have POST and PATCH /api/admin/flights but no DELETE; hotels and cars only have GET.
- * The hotel and car forms are ready: set add and edit to true once POST and PATCH /api/admin/hotels and /api/admin/cars exist.
+ * Which buttons each table offers. Only what the real API has (app/api/admin/[...slug]/route.ts):
+ * flights, hotels and cars: POST, PATCH and DELETE (DELETE answers 409 while the record has bookings; the page explains it).
  */
 const WRITE_ACTIONS: Record<Service, Record<ModalMode, boolean>> = {
-  flight: { add: true, edit: true, remove: false },
-  hotel: { add: false, edit: false, remove: false },
-  car: { add: false, edit: false, remove: false },
+  flight: { add: true, edit: true, remove: true },
+  hotel: { add: true, edit: true, remove: true },
+  car: { add: true, edit: true, remove: true },
 };
 const NO_WRITES: Record<ModalMode, boolean> = { add: false, edit: false, remove: false };
 
@@ -77,11 +77,12 @@ function ResourcePage({ kind }: { kind: Service }) {
     setRequest((current) => (JSON.stringify(current.query) === JSON.stringify(query) ? current : { query, page: 1 }));
   }, [kind, settled]);
 
-  const { data, status: loadStatus, offline, reload } = useAdminData<Listing>(
+  const { data, status: loadStatus, offline, reload, error } = useAdminData<Listing>(
     () => {
       if (kind === 'flight') return flightService.adminList().then((rows) => ({ rows, total: rows.length, totalPages: 1 }));
       const params = { ...request.query, page: request.page, pageSize: PAGE_SIZE };
-      return (kind === 'hotel' ? hotelService.list(params) : carService.list(params)).then(toListing);
+      // Cars: GET /api/admin/cars, so cars switched off (isAvailable false) are listed too and can be switched back on.
+      return (kind === 'hotel' ? hotelService.list(params) : carService.adminList(params)).then(toListing);
     },
     () => ({ rows: initialResources[kind], total: initialResources[kind].length, totalPages: 1 }),
     NO_ROWS,
@@ -113,26 +114,45 @@ function ResourcePage({ kind }: { kind: Service }) {
   const filtered = Object.values(filters).some(Boolean);
 
   const loading = loadStatus === 'loading';
+  const dataState = { loading, noData: loadStatus === 'error', noDataLabel: t('couldNotLoad') };
   const count = (value: number) => format.number(value);
   const totals = useMemo(() => flightMetrics(data.rows), [data.rows]);
-  // Computed from what the API returns. Hotel and car booking APIs do not exist yet, and GET /api/cars only returns available cars,
-  // so everything it cannot answer is labelled, never shown as zero.
+  // Hotel and car numbers come from GET /api/admin/bookings (type "hotel" / "car"): paid revenue and guests of active stays.
+  const { bookings, status: bookingStatus } = useAdminBookings();
+  const stays = useMemo(() => {
+    const ofKind = bookings.filter((b) => b.type === kind);
+    return {
+      paid: ofKind.filter((b) => b.paymentStatus === 'PAID' && b.status !== 'Cancelled').reduce((sum, b) => sum + b.price, 0),
+      guests: ofKind.filter((b) => b.status !== 'Cancelled').reduce((sum, b) => sum + (b.guests ?? 0), 0),
+    };
+  }, [bookings, kind]);
+  const bookingState = { loading: bookingStatus === 'loading', noData: bookingStatus === 'error', noDataLabel: t('couldNotLoad') };
+  const availableOnPage = data.rows.filter((row) => row.isAvailable !== false).length;
   const metrics = kind === 'flight'
     ? [
-        { label: t('totalFlights'), value: totals.flights, render: count, loading },
-        { label: t('upcomingFlights'), value: totals.upcoming, render: count, loading },
-        { label: t('averageBasePrice'), value: totals.averagePrice, render: (value: number) => <Money sar={value} />, loading },
+        { label: t('totalFlights'), value: totals.flights, render: count, ...dataState },
+        { label: t('upcomingFlights'), value: totals.upcoming, render: count, ...dataState },
+        { label: t('averageBasePrice'), value: totals.averagePrice, render: (value: number) => <Money sar={value} />, ...dataState },
       ]
     : kind === 'hotel'
-      ? [{ label: t('hotelsFound'), value: data.total, render: count, loading }, { label: t('hotelRevenue'), noData: true }, { label: t('guests'), noData: true }]
-      : [{ label: t('availableCars'), value: data.total, render: count, loading }, { label: t('carsRevenue'), noData: true }, { label: t('totalCars'), noData: true }];
+      ? [
+          { label: t('hotelsFound'), value: data.total, render: count, ...dataState },
+          { label: t('paidHotelRevenue'), value: stays.paid, render: (value: number) => <Money sar={value} />, ...bookingState },
+          { label: t('hotelGuests'), value: stays.guests, render: count, ...bookingState },
+        ]
+      : [
+          { label: t('carsInFleet'), value: data.total, render: count, ...dataState },
+          // Available on this page of the list (all of them when the list fits one page).
+          { label: t('availableCars'), value: availableOnPage, render: count, ...dataState },
+          { label: t('paidCarRevenue'), value: stays.paid, render: (value: number) => <Money sar={value} />, ...bookingState },
+        ];
 
   const columns = resourceColumns({ kind, t, lang, format, can, onEdit: (key) => setModal({ mode: 'edit', key }), onRemove: (key) => setModal({ mode: 'remove', key }) });
   const subtitle: Record<Service, TranslationKey> = { flight: 'flightsSubtitle', hotel: can.add ? 'hotelsSubtitle' : 'hotelsReadOnlySubtitle', car: can.add ? 'carsSubtitle' : 'carsReadOnlySubtitle' };
   const noun = t(singular[kind]);
 
   return (
-    <Layout>
+    <>
       <section className="page-panel">
         <PageHeader
           section={t(sectionKey[kind])}
@@ -158,7 +178,7 @@ function ResourcePage({ kind }: { kind: Service }) {
 
         <section className="section-card">
           <div className="table-wrap overflow-x-auto w-full rounded-xl" tabIndex={0} role="region" aria-label={t(heading[kind])} aria-busy={loading}>
-            {loading ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={reload} /> : visible.length === 0
+            {loading ? <TableSkeleton columns={columns.length} /> : loadStatus === 'error' ? <ErrorState onRetry={reload} error={error} /> : visible.length === 0
               ? <EmptyState message={query || filtered ? t('noResults') : t(emptyKey[kind])} actionLabel={query ? t('clearSearch') : filtered ? t('clearFilters') : undefined} onAction={() => { setQuery(''); clearFilters(); }} />
               : <DataTable caption={t(heading[kind])} columns={columns} rows={visible} getKey={rowKey} minWidth={0} stackOnPhone />}
           </div>
@@ -167,7 +187,7 @@ function ResourcePage({ kind }: { kind: Service }) {
       </section>
 
       {modal && <ResourceModal kind={kind} mode={modal.mode} initialKey={modal.key} rows={data.rows} airlines={airlines} onClose={() => setModal(null)} onSaved={reload} />}
-    </Layout>
+    </>
   );
 }
 
@@ -195,37 +215,40 @@ function RowActions({ kind, row, t, can, onEdit, onRemove }: Pick<ColumnOptions,
 /** Columns of the three tables, from the real fields of each model. The header and the cells come from this one list. */
 function resourceColumns({ kind, t, lang, format, can, onEdit, onRemove }: ColumnOptions): Column<ResourceRow>[] {
   const hasActions = can.edit || can.remove;
-  const actions: Column<ResourceRow> = { key: 'actions', width: '16%', header: t('actions'), align: 'end', cell: (row) => <RowActions kind={kind} row={row} t={t} can={can} onEdit={onEdit} onRemove={onRemove} /> };
+  // With an Actions column the other columns give up 22% of the width (Edit and Remove side by side need about 175px).
+  // Without any button there is no such column.
+  const share = (full: number) => `${hasActions ? (full * 78) / 100 : full}%`;
+  const actions: Column<ResourceRow> = { key: 'actions', width: '22%', header: t('actions'), align: 'end', cell: (row) => <RowActions kind={kind} row={row} t={t} can={can} onEdit={onEdit} onRemove={onRemove} /> };
   const text = (value: string | undefined): ReactNode => (value ? translateValue(value, lang) : '—');
   const price = (width: string, header: string): Column<ResourceRow> => ({ key: 'price', width, header, align: 'end', cell: (row) => <Money sar={row.price} /> });
 
   if (kind === 'flight') {
     const airlineName = (row: ResourceRow) => (lang === 'ar' ? row.airlineAr || translateValue(row.airline ?? '', lang) : row.airline) || '—';
-    return [
-      { key: 'name', width: '14%', header: t('flightNumber'), cell: (row) => <Ltr>{row.id}</Ltr> },
-      { key: 'airline', width: '18%', header: t('airline'), cell: airlineName },
-      { key: 'details', width: '18%', header: t('route'), cell: (row) => <Ltr>{row.route ?? ''}</Ltr> },
-      { key: 'departure', width: '20%', header: t('departureTime'), muted: true, cell: (row) => (row.departureTime ? format.dateTime(isoToRiyadhLocal(row.departureTime)) : '—') },
-      price('14%', t('price')),
-      actions,
+    const flightColumns: Column<ResourceRow>[] = [
+      { key: 'name', width: share(17), header: t('flightNumber'), cell: (row) => <Ltr>{row.id}</Ltr> },
+      { key: 'airline', width: share(21), header: t('airline'), cell: airlineName },
+      { key: 'details', width: share(21), header: t('route'), cell: (row) => <Ltr>{row.route ?? ''}</Ltr> },
+      { key: 'departure', width: share(24), header: t('departureTime'), muted: true, cell: (row) => (row.departureTime ? format.dateTime(isoToRiyadhLocal(row.departureTime)) : '—') },
+      price(share(17), t('price')),
     ];
+    if (hasActions) flightColumns.push(actions);
+    return flightColumns;
   }
-  // With an Actions column (once WRITE_ACTIONS allows it) the other columns give up 16% of the width.
-  const share = (full: number) => `${hasActions ? (full * 84) / 100 : full}%`;
   const columns: Column<ResourceRow>[] = kind === 'hotel'
     ? [
-        { key: 'name', width: share(30), header: t('hotelName'), cell: (row) => text(row.id) },
+        { key: 'name', width: share(30), header: t('hotelName'), cell: (row) => <span className="row-thumb-cell"><CatalogPhoto className="row-thumb" src={row.imageUrl} kind="hotel" alt={t('photoHotel', { name: row.id })} sizes="48px" /><span>{text(row.id)}</span></span> },
         { key: 'city', width: share(18), header: t('city'), cell: (row) => text(row.city) },
         { key: 'room', width: share(20), header: t('roomType'), cell: (row) => text(row.roomType) },
         { key: 'rating', width: share(12), header: t('colRating'), align: 'center', cell: (row) => (row.rating === undefined ? '—' : format.rating(row.rating)) },
         price(share(20), t('nightlyPrice')),
       ]
     : [
-        { key: 'name', width: share(30), header: t('colCar'), cell: (row) => <span>{text(row.make)} {text(row.model)} <Ltr>{row.year ? String(row.year) : ''}</Ltr></span> },
-        { key: 'city', width: share(15), header: t('city'), cell: (row) => text(row.city) },
-        { key: 'type', width: share(25), header: t('colType'), cell: (row) => <span>{text(row.category)} · {t(row.transmission === 'MANUAL' ? 'manual' : 'automatic')}</span> },
-        { key: 'seats', width: share(10), header: t('colSeats'), align: 'center', cell: (row) => format.number(row.seats ?? 0) },
-        price(share(20), t('dailyPrice')),
+        { key: 'name', width: share(24), header: t('colCar'), cell: (row) => <span className="row-thumb-cell"><CatalogPhoto className="row-thumb" src={row.imageUrl} kind="car" alt={t('photoCar', { car: `${row.make ?? ''} ${row.model ?? ''}`.trim() })} sizes="48px" /><span>{text(row.make)} {text(row.model)} <Ltr>{row.year ? String(row.year) : ''}</Ltr></span></span> },
+        { key: 'city', width: share(12), header: t('city'), cell: (row) => text(row.city) },
+        { key: 'type', width: share(21), header: t('colType'), cell: (row) => <span>{row.category ? translateCarCategory(row.category, lang) : '—'} · {t(row.transmission === 'MANUAL' ? 'manual' : 'automatic')}</span> },
+        { key: 'seats', width: share(9), header: t('colSeats'), align: 'center', cell: (row) => format.number(row.seats ?? 0) },
+        { key: 'availability', width: share(19), header: t('availability'), align: 'center', cell: (row) => <span className={`status status-pill status-${row.isAvailable === false ? 'limited' : 'available'}`} data-testid={`car-availability-${row.apiId}`}>{t(row.isAvailable === false ? 'unavailableCar' : 'availableCar')}</span> },
+        price(share(15), t('dailyPrice')),
       ];
   if (hasActions) columns.push(actions);
   return columns;

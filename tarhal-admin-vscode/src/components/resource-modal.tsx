@@ -120,7 +120,7 @@ export function ResourceModal({ kind, mode, initialKey, rows, airlines, onClose,
   /** Sends the change. Returns false when an edit changed nothing, so there is nothing to announce. */
   async function send(): Promise<boolean> {
     const apiId = selected?.apiId ?? selected?.id ?? '';
-    if (mode === 'remove') { await flightService.remove(apiId); return true; }
+    if (mode === 'remove') { await (kind === 'flight' ? flightService : kind === 'hotel' ? hotelService : carService).remove(apiId); return true; }
     if (kind === 'flight') {
       if (mode === 'add') { await flightService.create(flightBody(draft)); return true; }
       const changes = flightChanges(draft, selected!);
@@ -198,10 +198,10 @@ export function ResourceModal({ kind, mode, initialKey, rows, airlines, onClose,
               <section className="modal-section">
                 <h3>{t('sectionFlight')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Field label={t('flightNumber')} value={draft.flightNumber} onChange={(value) => update('flightNumber', value)} error={fieldErrors.flightNumber} required ltr testId="input-flight-number" />
+                  <Field label={t('flightNumber')} value={draft.flightNumber} onChange={(value) => update('flightNumber', value)} error={fieldErrors.flightNumber} placeholder="SV1020" required ltr testId="input-flight-number" />
                   <SelectField label={t('airline')} value={draft.airlineId} onChange={(value) => update('airlineId', value)} options={airlines.map((a) => a.id)} getLabel={(id) => { const a = airlines.find((x) => x.id === id); return (lang === 'ar' ? a?.nameAr : a?.name) ?? id; }} placeholder={t('select')} error={fieldErrors.airlineId} required testId="select-flight-airline" />
-                  <Field label={t('fromAirport')} value={draft.from} onChange={(value) => update('from', value)} error={fieldErrors.from} maxLength={3} required ltr testId="input-flight-from" />
-                  <Field label={t('toAirport')} value={draft.to} onChange={(value) => update('to', value)} error={fieldErrors.to} maxLength={3} required ltr testId="input-flight-to" />
+                  <Field label={t('fromAirport')} value={draft.from} onChange={(value) => update('from', value)} error={fieldErrors.from} maxLength={3} placeholder="RUH" required ltr testId="input-flight-from" />
+                  <Field label={t('toAirport')} value={draft.to} onChange={(value) => update('to', value)} error={fieldErrors.to} maxLength={3} placeholder="JED" required ltr testId="input-flight-to" />
                 </div>
               </section>
             )}
@@ -223,7 +223,7 @@ export function ResourceModal({ kind, mode, initialKey, rows, airlines, onClose,
                 <legend>{t('flightSeats')} *</legend>
                 {draft.seats.map((seat, index) => (
                   <div className="modal-seat-row" key={seat.key}>
-                    <Field label={t('seatCode')} value={seat.seatCode} onChange={(value) => updateSeat(index, { seatCode: value })} error={fieldErrors[`seatCode${index}`]} required ltr testId={`input-seat-code-${index}`} />
+                    <Field label={t('seatCode')} value={seat.seatCode} onChange={(value) => updateSeat(index, { seatCode: value })} error={fieldErrors[`seatCode${index}`]} placeholder="1A" required ltr testId={`input-seat-code-${index}`} />
                     <SelectField label={t('ticketClass')} value={seat.ticketClass} onChange={(value) => updateSeat(index, { ticketClass: value as TicketClass })} options={options(TICKET_CLASSES)} getLabel={(v) => t(`ticket${v as TicketClass}`)} required testId={`select-seat-class-${index}`} />
                     <Field label={t('priceMultiplier')} inputMode="decimal" value={seat.priceMultiplier} onChange={(value) => updateSeat(index, { priceMultiplier: value })} error={fieldErrors[`priceMultiplier${index}`]} required ltr testId={`input-seat-multiplier-${index}`} />
                     <button type="button" className="button button-ghost button-ghost-danger modal-seat-remove" onClick={() => changeSeats(draft.seats.filter((_, i) => i !== index))} aria-label={`${t('removeSeat')} ${seat.seatCode}`} title={t('removeSeat')} data-testid={`button-remove-seat-${index}`}><Trash2 size={14} aria-hidden="true" /></button>

@@ -6,10 +6,11 @@ import { brand } from '@/config/branding';
 import { formatReply } from '@/lib/format-reply';
 import { useFormat } from '@/i18n/use-i18n';
 import type { TranslationKey } from '@/i18n/translations';
-import { api, sarToUsd } from '@/services/api';
+import { api } from '@/services/api';
 
 // Real assistant: POST /api/ai/chat (docs/api-documentation.md, section 6). The conversation is sent every time
 // (the API uses the last 24 messages, each up to 1000 characters). Flights, hotels and cars it found come back as cards.
+// Their prices are SAR, like everywhere in the API, and <Money sar> shows them in the currency the visitor picked.
 type FlightCard = { id: string; flightNumber: string; airline?: string; from: string; to: string; departureTime: string; lowestPrice: number; availableSeats: number };
 type HotelCard = { id: string; name: string; city: string; pricePerNight: number; rating: number; roomType: string };
 type CarCard = { id: string; make: string; model: string; year: number; seats: number; city: string; pricePerDay: number };
@@ -37,6 +38,8 @@ export default function ChatAssistant() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  // "From {price}" with the price drawn by <Money>, in the order of the page language.
+  const [fromBefore, fromAfter = ''] = t('fromPrice', { price: '\u0000' }).replace(/[\u2068\u2069]/g, '').split('\u0000');
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -89,8 +92,8 @@ export default function ChatAssistant() {
         aria-expanded={open}
         aria-controls="tarhal-chat-panel"
       >
-        <img className="chat-launcher-logo" src={brand.chatbotLogoSrc} alt="" />
-        <span>{t('chatbot')}</span>
+        {/* Look of Tariq's chat badge (his ChatWidget): the camel in a navy circle. The name is the aria-label. */}
+        <span className="chat-camel" aria-hidden="true">🐫</span>
       </button>
 
       <button
@@ -101,7 +104,7 @@ export default function ChatAssistant() {
         aria-expanded={open}
         aria-controls="tarhal-chat-panel"
       >
-        <img className="chat-launcher-logo" src={brand.chatbotLogoSrc} alt="" />
+        <span className="chat-camel" aria-hidden="true">🐫</span>
       </button>
 
       {open && (
@@ -143,21 +146,21 @@ export default function ChatAssistant() {
                   <div key={f.id} className="chat-card">
                     <strong dir="ltr">{f.from} → {f.to} · {f.airline ? `${f.airline} ` : ''}{f.flightNumber}</strong>
                     <span>{format.dateTime(f.departureTime)}</span>
-                    <span>{t('fromPrice', { price: format.currency(sarToUsd(f.lowestPrice)) })} · {t('seatsCount', { count: format.number(f.availableSeats) })}</span>
+                    <span>{fromBefore}<Money sar={f.lowestPrice} />{fromAfter} · {t('seatsCount', { count: format.number(f.availableSeats) })}</span>
                   </div>
                 ))}
                 {message.hotels?.map((h) => (
                   <div key={h.id} className="chat-card">
                     <strong>{h.name} · {h.city}</strong>
                     <span>★ {format.rating(h.rating)} · {h.roomType}</span>
-                    <span><Money usd={sarToUsd(h.pricePerNight)} /> {t('perNight')}</span>
+                    <span><Money sar={h.pricePerNight} /> {t('perNight')}</span>
                   </div>
                 ))}
                 {message.cars?.map((c) => (
                   <div key={c.id} className="chat-card">
                     <strong dir="ltr">{c.make} {c.model} {format.year(c.year)} · {c.city}</strong>
                     <span>{t('seatsCount', { count: format.number(c.seats) })}</span>
-                    <span><Money usd={sarToUsd(c.pricePerDay)} /> {t('perDay')}</span>
+                    <span><Money sar={c.pricePerDay} /> {t('perDay')}</span>
                   </div>
                 ))}
               </div>

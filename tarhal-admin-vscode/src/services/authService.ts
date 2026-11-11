@@ -45,7 +45,11 @@ export const authService = {
       await api.post<Raw>(PATHS.register, { ...input, phone: input.phone.replace(/[\s-]/g, '') });
     } catch (error) {
       if (httpStatus(error) === 409) throw new AuthError('emailTaken');
-      if (httpStatus(error) === 400) throw new AuthError('invalidField', str(((error as { response?: { data?: Raw } }).response?.data ?? {}).field) || undefined);
+      if (httpStatus(error) === 400) {
+        const body = (error as { response?: { data?: Raw } }).response?.data ?? {};
+        // Under 21: its own message, not the general "enter a valid date".
+        throw new AuthError('invalidField', str(body.code) === 'UNDER_21' ? 'underage' : str(body.field) || undefined);
+      }
       if (!useDemoAuth(error)) throw error;
       return mockRegister({ name: input.name, email: input.email });
     }

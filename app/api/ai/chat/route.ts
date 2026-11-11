@@ -8,6 +8,8 @@ import { catalogTools, type CarCard, type HotelCard } from '../../../../lib/ai/c
 import { isArabicOrEnglish, LANGUAGE_FALLBACK } from '../../../../lib/ai/language.ts';
 import { forceWebSearch } from '../../../../lib/ai/policy.ts';
 import { webSearchEnabled, webTool, type WebSource } from '../../../../lib/ai/web.ts';
+import { aiRequester, aiTimeoutMs, isTimeout, logAiUsage, takeAiRequest, tooManyRequests } from '../../../../lib/ai/limits.ts';
+import { getCurrentUser } from '../../../../lib/auth.ts';
 
 const headers = { 'Cache-Control': 'no-store' };
 
@@ -21,9 +23,18 @@ export async function POST(request: Request) {
   const messages = parseMessages(body);
   if (typeof messages === 'string') return fail('INVALID_MESSAGE', messages, 400);
 
+  // Guests can chat too (general travel questions); everyone is limited per user or per IP (429).
+  const started = Date.now();
+  const user = await getCurrentUser().catch(() => null);
+  const who = aiRequester(request, user?.id);
+  const wait = takeAiRequest(who.key, who.kind);
+  if (wait !== null) return tooManyRequests(wait);
+  const abortSignal = AbortSignal.timeout(aiTimeoutMs());
+
   const flights: FlightCard[] = [], hotels: HotelCard[] = [], cars: CarCard[] = [], sources: WebSource[] = [];
   const run = (force: boolean) => generateText({
       model: chatModel(),
+      abortSignal,
       system: systemPrompt(new Date().toISOString().slice(0, 10)),
       messages,
       tools: { ...flightTool(flights), ...catalogTools(hotels, cars), ...(webSearchEnabled() ? webTool(sources) : {}) },
@@ -51,9 +62,13 @@ export async function POST(request: Request) {
     const toolsUsed = (result.steps ?? []).flatMap((st: any) => (st.toolCalls ?? []).map((c: any) => c.toolName));
     const blocked = !isArabicOrEnglish(result.text);
     const reply = blocked ? LANGUAGE_FALLBACK : (result.text || '…') + (cut ? '\n\n[انقطع الرد بسبب الطول — اكتب «كمّل» وأكمله / reply cut off — type "continue"]' : '');
+    logAiUsage('chat', who.kind, result.totalUsage ?? result.usage, started, { tools: toolsUsed.length, truncated: cut });
     return NextResponse.json({ success: true, reply, truncated: cut && !blocked, toolsUsed, languageBlocked: blocked, flights, hotels, cars, searchedWeb: sources.length > 0, usage: result.totalUsage ?? result.usage }, { headers });
   } catch (e) {
-    console.error('[ai] chat failed:', e instanceof Error ? `${e.name}: ${e.message}` : e);
+    // Only the error name: provider messages can echo the user's text.
+    console.error('[ai] chat failed:', e instanceof Error ? e.name : 'unknown');
+    logAiUsage('chat', who.kind, undefined, started, { failed: e instanceof Error ? e.name : 'unknown' });
+    if (isTimeout(e)) return fail('AI_TIMEOUT', 'The assistant took too long to answer. Please try again.', 504);
     if (e instanceof AiConfigError) return fail('AI_NOT_CONFIGURED', 'The assistant is not configured yet.', 503);
     return fail('AI_UNAVAILABLE', 'The assistant could not answer right now. Please try again.', 502);
   }

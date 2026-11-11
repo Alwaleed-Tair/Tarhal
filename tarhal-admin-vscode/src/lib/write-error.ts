@@ -5,7 +5,7 @@ import type { useT } from '@/i18n/use-i18n';
 const RAW_TEXT = /prisma|invocation|constraint|\bP\d{4}\b|database|\bsql\b|\n/i;
 
 /**
- * Explains a failed save in the admin's language. A 400 or 409 also shows the server's own text, unless it is raw database text.
+ * Explains a failed admin request in the admin's language. A 400 or 409 also shows the server's own text, unless it is raw database text.
  * A 5xx only ever shows the translated message.
  */
 export function friendlyWriteError(error: unknown, t: ReturnType<typeof useT>): string {

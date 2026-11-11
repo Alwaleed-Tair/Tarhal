@@ -1,0 +1,448 @@
+/*
+ * Added for the API connection (Omar), not part of Tariq's original styles: loading, empty and error states,
+ * "not available yet" notes, the traveler form, the cancel button. Same colours as his pages.
+ * Like his files, it is scoped to .passenger-app and gets dark mode, RTL and Senior Mode from vite-plugins/passenger-css.ts.
+ */
+.passenger-state {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin: 18px 0;
+  padding: 22px 16px;
+  border: 1px dashed #dfe8ee;
+  border-radius: 16px;
+  color: #203b55;
+  background: #f7f8fc;
+  font-size: 14px;
+  text-align: center;
+}
+.passenger-state p { margin: 0; }
+
+.passenger-note {
+  margin: 12px 0 16px;
+  padding: 10px 14px;
+  border-left: 3px solid #e9d6aa;
+  border-radius: 10px;
+  color: #203b55;
+  background: #eef3f8;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.passenger-seat-total { margin: 12px 0 0; color: #203b55; font-size: 13px; }
+
+.seat-button.other-class { opacity: .45; }
+
+.traveler-card {
+  margin: 0 0 16px;
+  padding: 14px;
+  border: 1px solid #e2e7ef;
+  border-radius: 16px;
+  background: #ffffff;
+  min-width: 0;
+}
+.traveler-card legend { padding: 0 6px; }
+.traveler-card .rental-fields { margin: 0; }
+.traveler-error { display: block; margin-top: 6px; color: #2b66a3; font-size: 12px; font-weight: 700; }
+
+.booking-status.booking-status-cancelled { opacity: .75; }
+.bookings-loading { margin: 24px 0; color: #f8f9fc; font-size: 14px; }
+.booking-cancel-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(227, 237, 246, .25);
+  font-size: 13px;
+}
+.booking-cancel-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid rgba(233, 214, 170, .7);
+  border-radius: 999px;
+  color: #f8f9fc;
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.booking-cancel-button.danger { border-color: transparent; background: linear-gradient(90deg, #10263d 0%, #6a93c9 100%); color: #ffffff; }
+.booking-cancel-button:disabled { opacity: .6; cursor: progress; }
+.booking-cancel-error { flex-basis: 100%; margin: 0; color: #f4e4bc; }
+
+.summary-entry-plan { opacity: .92; }
+.summary-not-booked { color: #486983; font-weight: 700; }
+.summary-plan-note { margin: 8px 0 0; color: #61758a; font-size: 12px; }
+.summary-error { margin: 12px 0 0; padding: 10px 12px; border-left: 3px solid #e9d6aa; border-radius: 10px; color: #203b55; background: #eef3f8; font-size: 13px; font-weight: 600; }
+.complete-reference { margin: 6px 0 0; color: #61758a; font-size: 13px; }
+.complete-actions { display: flex; grid-column: 1 / -1; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.complete-actions .restart-button { white-space: nowrap; }
+.complete-actions .restart-button { text-decoration: none; }
+
+/*
+ * Tariq's rail is the navigation of the whole traveler site. Desktop: his rail as he made it, with Hotels and Car Rentals
+ * added, his settings gear (site controls) and the chat button over his camel spot (see index.css section 35).
+ */
+/* His styles were written without this app's base reset, which caps every image at its box (max-width: 100%):
+   his login airplane is meant to be larger than its panel. */
+img { max-width: none; }
+.Flight-Row > .Panel-Note { grid-column: 1 / -1; }
+/*
+ * His rail, as in his app (bottom 16px); the chat badge sits at its bottom like his camel (index.css section 39).
+ * Pages keep a little room at the bottom.
+ */
+.sidebar.sidebar { bottom: 16px; }
+.tarhal-page.tarhal-page, .bookings-page.bookings-page, .Whole-Container.Whole-Container, .city-guide-page.city-guide-page { padding-bottom: 90px; }
+
+/* The site controls in his header (HeaderControls): small pills in the style of his header note. */
+.header-end { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px 14px; }
+.hc { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; }
+.hc-pill {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 11px;
+  border: 1px solid rgba(231, 241, 249, .32); border-radius: 999px; color: #f8f9fc; background: rgba(255, 255, 255, .08);
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; text-decoration: none; cursor: pointer;
+}
+.hc-pill:hover { background: rgba(255, 255, 255, .16); }
+.hc-icon { width: 32px; padding: 0; justify-content: center; }
+.hc-on.hc-on { color: #ffffff; border-color: transparent; background: #2b66a3; }
+.hc-aa { font-family: 'Manrope', sans-serif; font-weight: 800; }
+.hc-currency select { appearance: none; padding: 0 2px; border: 0; color: inherit; background: transparent; font: inherit; cursor: pointer; }
+.hc-currency option { color: #203b55; background: #f7f8fc; }
+.hc-label { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hc-account { position: relative; }
+.hc-menu {
+  position: absolute; z-index: 60; top: calc(100% + 8px); right: 0; min-width: 220px; display: grid; gap: 2px; padding: 8px;
+  border: 1px solid #e2e7ef; border-radius: 15px; color: #203b55; background: #f7f8fc; box-shadow: 0 21px 54px rgba(8, 27, 44, .35);
+}
+.hc-item { display: block; padding: 9px 12px; border: 0; border-radius: 10px; color: #203b55; background: transparent; font: inherit; font-size: 13px; font-weight: 700; text-align: start; text-decoration: none; cursor: pointer; }
+.hc-item:hover { background: #eef3f8; }
+.hc-user { display: grid; margin: 0 0 4px; padding: 6px 12px 8px; border-bottom: 1px solid #e2e7ef; font-size: 12px; }
+.hc-user span { color: #486983; overflow-wrap: anywhere; }
+.home-controls { position: absolute; z-index: 3; top: 44px; right: 90px; }
+@media (max-width: 600px) {
+  .hc .hc-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+}
+
+/* Up to 1100px the rail becomes a bar at the bottom of the screen, and pages drop the room they kept for it. */
+@media (max-width: 1100px) {
+  .sidebar.sidebar.sidebar {
+    top: auto; bottom: 0; left: 0; right: 0; width: auto; height: 64px; z-index: 30;
+    flex-direction: row; align-items: center; justify-content: center;
+    padding: 0 10px; border-radius: 22px 22px 0 0; box-shadow: 0 -8px 24px rgba(8, 27, 44, .3);
+  }
+  .sidebar.sidebar.sidebar .sidebar-links { flex: 1; max-width: 420px; flex-direction: row; justify-content: space-around; gap: 2px; }
+  .sidebar.sidebar.sidebar .sidebar-bottom { display: none; }
+  /* Room at the end of the bar for the chat badge (index.css section 39), so it never sits on a link. */
+  .sidebar.sidebar.sidebar.sidebar { padding-inline-end: 66px; }
+  .tarhal-page.tarhal-page, .bookings-page.bookings-page, .Whole-Container.Whole-Container, .city-guide-page.city-guide-page { padding-bottom: 150px; }
+  .travel-layout.travel-layout, .city-guide-layout.city-guide-layout { grid-template-columns: minmax(0, 1fr); }
+  .travel-main.travel-main, .city-guide-main.city-guide-main { grid-column: 1; }
+  .Stage.Stage { padding-left: 32px; }
+  .home-controls { top: 24px; right: 32px; }
+}
+@media (max-width: 760px) {
+  .Stage.Stage { padding-left: 20px; }
+  .tarhallogo.tarhallogo { left: 4px; width: 150px; height: 150px; top: -20px; }
+  .home-controls { top: 14px; right: 16px; max-width: calc(100% - 170px); }
+}
+@media (max-width: 480px) {
+  .Stage.Stage { padding-left: 14px; }
+}
+
+/* Login and register in his card. */
+/*
+ * Login and register: a header row above his card (the site logo at its usual size, language and theme), then his card.
+ * The row is part of the page, so the card can never slide under it on a short or narrow screen.
+ */
+.login-page.login-page { position: relative; flex-direction: column; justify-content: flex-start; gap: 20px; padding-top: 20px; padding-bottom: 84px; }
+.login-page.login-page > .login-container { margin-block: auto; }
+.auth-corner { position: static; align-self: stretch; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.auth-logo { display: inline-flex; line-height: 0; }
+/* Bottom room so the chat badge (bottom corner) never sits on the card. */
+@media (max-width: 480px) { .login-page.login-page { padding: 14px 14px 80px; gap: 14px; } }
+.auth-field { display: grid; gap: 4px; text-align: start; }
+.auth-error { color: #2b66a3; font-size: 12px; font-weight: 700; }
+.auth-label { padding-inline-start: 14px; color: #314c69; font-size: 12px; font-weight: 700; }
+.auth-hint { padding-inline-start: 14px; color: #486983; font-size: 12px; }
+.auth-form-error { margin: 0; padding: 10px 12px; border-left: 3px solid #e9d6aa; border-radius: 14px; color: #203b55; background: #eef3f8; font-size: 13px; font-weight: 600; text-align: start; }
+.auth-terms { display: flex; align-items: flex-start; gap: 8px; color: #314c69; font-size: 13px; font-weight: 600; text-align: start; }
+.login-form .auth-terms input { flex: none; width: 18px; height: 18px; margin-top: 1px; padding: 0; accent-color: #2b66a3; }
+.login-form button:disabled { opacity: .7; cursor: progress; }
+/* Readable text (WCAG AA): his light grey #9FB0C4 is too pale on his card; his own #486983 is used instead, and links in a
+   sentence are underlined (his own hover style) so they stand out in dark mode too. */
+.login-subtitle.login-subtitle, .login-signup.login-signup { color: #486983; }
+.login-signup.login-signup a { text-decoration: underline; }
+
+/*
+ * Six steps now (Travelers was added), which no longer fit his 790px column below 900px: there only the current step keeps
+ * its label (the others stay readable by screen readers) and the lines are shorter.
+ */
+@media (max-width: 900px) {
+  .progress-item:not(.current) .progress-label {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  .journey-progress .progress-line { width: 18px; }
+}
+@media (max-width: 420px) {
+  .journey-progress { gap: 3px; }
+  .journey-progress .progress-step-pair { gap: 3px; }
+  .journey-progress .progress-line { width: 8px; }
+}
+
+/*
+ * Readable contrast (WCAG AA, 4.5:1) for his muted greys on light panels. Same blue-grey hue, a little darker.
+ * The doubled class only outranks his light colour; his dark-mode colours still apply in dark mode.
+ */
+.tarhal-page.tarhal-page { --ink-soft: #486983; }
+.Route-Endpoint.Route-Endpoint small, .Flight-Place.Flight-Place small,
+.dialog-eyebrow.dialog-eyebrow, .flight-results-route.flight-results-route span:last-child,
+.flight-results-summary.flight-results-summary span,
+.flight-airline-row.flight-airline-row span, .flight-time-row.flight-time-row span, .flight-result-fare.flight-result-fare small,
+.flight-result-fare.flight-result-fare span, .step-kicker.step-kicker, .seat-map-topline.seat-map-topline span, .seat-legend.seat-legend span,
+.seat-selection-summary.seat-selection-summary > strong span, .seat-selection-summary.seat-selection-summary > p, .passenger-seat-total.passenger-seat-total,
+.back-button.back-button, .sample-price-note.sample-price-note, .hotel-price.hotel-price, .hotel-body.hotel-body small,
+.hotel-total.hotel-total small, .rental-total.rental-total small, .car-copy.car-copy span, .car-copy.car-copy small, .car-price.car-price span { color: #486983; }
+.car-option.car-option .car-price span, .confirmation-dialog.confirmation-dialog .dialog-intro,
+.summary-entry.summary-entry > div > small { color: #486983; }
+.summary-entry.summary-entry > .summary-icon { color: #2b66a3; }
+.form-message.form-message.visible { color: #2b66a3; }
+.hotel-rating.hotel-rating { color: #486983; }
+
+/*
+ * His decorative orbit art is wider than a phone screen and is cut off by overflow: hidden. A hidden box can still be
+ * scrolled when a button inside it gets focus, which moved the whole step sideways. "clip" cuts it off the same way but never scrolls.
+ */
+.tarhal-page.tarhal-page, .bookings-page.bookings-page { overflow: clip; }
+
+/* Seat hold countdown above the steps, in his flight-chip style (light text on the blue page). */
+.hold-chip.hold-chip { display: inline-flex; align-items: center; gap: 7px; width: fit-content; margin: 0 0 12px; font-variant-numeric: tabular-nums; }
+.hold-chip.hold-chip-ending { border-color: #e9d6aa; }
+
+/*
+ * His home greeting: one line that stops before his airplane, ending in "…" for a long name (the full text stays in the page
+ * for screen readers and in the tooltip). His plane keeps its 237px, and only shrinks on narrow cards (at most 42% of the card)
+ * so a phone still has room for the greeting. 0.82 of the plane box is its drawn part; 14px is his offset from the edge.
+ */
+.First-Container.First-Container { --plane: 237px; --reserve: calc(var(--plane) * 0.82 + 14px); }
+.Dashboard-Airplane.Dashboard-Airplane { width: var(--plane); height: auto; aspect-ratio: 1; }
+.Panelfirst.Panelfirst h2 { max-width: calc(100% - 22px - var(--reserve)); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; line-height: 1.25; }
+/* With a name: the greeting words and "!" stay whole and only the name shortens, inside its own isolated box. */
+.Panelfirst.Panelfirst h2.greeting-line { display: flex; }
+.greeting-line > span { flex: none; white-space: pre; }
+.greeting-line .greeting-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Narrow cards: his top band a little shorter, so the greeting and the wish line both fit in the card. */
+/*
+ * Narrow layouts (his own 1100px and 760px steps): the plane is sized so its drawn part ends above the greeting line, inside his
+ * top band, and the greeting gets the whole width of the card. On phones his top band is a little shorter so the wish line fits.
+ */
+@media (max-width: 1100px) { .First-Container.First-Container { --plane: 150px; --reserve: 22px; } }
+@media (max-width: 760px) { .First-Container.First-Container { --plane: 128px; } .PanelTop.PanelTop { height: 84px; } .Panelfirst.Panelfirst h2 { margin-top: 12px; } }
+
+.Panel-Note { color: inherit; font-size: 14px; opacity: .85; }
+a.Panel-Note { text-decoration: underline; }
+
+/* ── Round trip, Ready step, payment (light panels: his #29455f / #527d9b / #f1f4f8 palette) ── */
+.trip-item-end { display: flex; flex: 0 0 auto; flex-direction: column; align-items: flex-end; gap: 6px; margin-inline-start: auto; }
+.trip-item-end b { color: #29455f; font-size: 12px; white-space: nowrap; }
+.complete-itinerary > div > .trip-item-end { flex-direction: column; }
+.trip-status { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border: 1px solid #d5e0e8; border-radius: 999px; color: #486983; background: #f2f6f9; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.trip-status.trip-status-paid { color: #f8f9fc; border-color: #2b66a3; background: #2b66a3; }
+.trip-status.trip-status-problem { border-color: #e9d6aa; }
+.trip-problem.trip-problem { color: #2b66a3; font-size: 11px; font-weight: 700; }
+.trip-payment { display: grid; grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px 16px; margin-top: 14px; padding: 16px; border: 1px solid #e3e8ee; border-radius: 13px; background: #f1f4f8; }
+.trip-payment > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.trip-payment .field-label { display: inline-flex; align-items: center; gap: 6px; }
+.trip-payment strong { color: #29455f; font-family: 'Manrope', sans-serif; font-size: 20px; }
+.trip-payment small { color: #486983; font-size: 11px; }
+.trip-payment .finish-button { margin: 0; }
+.trip-payment .summary-error { grid-column: 1 / -1; margin: 0; }
+.form-message.form-message-ok.form-message-ok { color: #486983; }
+@media (max-width: 600px) { .trip-payment { grid-template-columns: 1fr; } }
+
+/* ── Boarding pass: his "Last booking" panel (Booking-Panel, Booking-Tab, Booking-Route), a QR code where his barcode is ── */
+.boarding-passes { display: grid; grid-column: 1 / -1; gap: 14px; margin-top: 16px; }
+.boarding-pass.Booking-Panel { border-radius: 26px; }
+.boarding-pass .Booking-Tab { justify-content: space-between; padding-inline-end: 18px; }
+.boarding-airline { color: #f1f4fa; font-size: 12px; font-weight: 600; }
+.boarding-body { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 18px; padding: 16px 22px 20px; }
+.boarding-main { display: grid; gap: 14px; min-width: 0; }
+.boarding-details { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 16px; margin: 0; }
+.boarding-details div { min-width: 0; }
+.boarding-details .boarding-wide { grid-column: 1 / -1; }
+.boarding-details dt { color: #7c8da2; font-size: 11px; }
+.boarding-details dd { margin: 2px 0 0; color: #344d68; font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+.boarding-qr { width: 132px; height: 132px; border-radius: 12px; background: #ffffff; }
+.boarding-print.restart-button { justify-self: end; margin: 0; }
+@media (max-width: 600px) {
+  .boarding-body { grid-template-columns: 1fr; justify-items: center; }
+  .boarding-main { width: 100%; }
+  .boarding-details { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .boarding-pass .Booking-Tab { height: auto; min-height: 44px; flex-wrap: wrap; gap: 6px; padding-block: 6px; }
+}
+
+/* ── My bookings (his dark glass cards: light text) ── */
+.booking-service-detail { display: block; margin-top: 4px; color: rgba(248, 249, 252, .78); font-size: 12px; line-height: 1.45; }
+.booking-part-status { font-weight: 700; }
+.booking-service .booking-cancel-row { justify-content: flex-start; margin-top: 10px; padding-top: 10px; }
+.booking-pay-row, .booking-pass-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px 14px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(227, 237, 246, .25); color: rgba(248, 249, 252, .85); font-size: 13px; }
+.booking-pay-row strong { color: #f8f9fc; font-size: 15px; }
+.booking-card .boarding-passes { margin-top: 14px; }
+.booking-card-skeleton { min-height: 220px; }
+.profile-skeleton { min-height: 320px; }
+.booking-card-skeleton, .ai-skeleton span { position: relative; overflow: hidden; }
+.booking-card-skeleton::after, .ai-skeleton span::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .08), transparent); transform: translateX(-100%); animation: shimmer 1.4s ease-in-out infinite; }
+@keyframes shimmer { to { transform: translateX(100%); } }
+
+/* ── Profile (his booking card and traveler card fields) ── */
+.profile-card.booking-card { max-width: 760px; }
+/* On his dark glass card the fields sit on the same glass (his white traveler card is for the light booking panels). */
+.profile-card .traveler-card.traveler-card { margin-bottom: 8px; border-color: rgba(231, 241, 249, .2); background: transparent; }
+.profile-note { display: block; margin-top: 6px; color: #486983; font-size: 12px; }
+/* Larger text on a phone: the "Member since" pill wraps under the title instead of running off the screen. */
+.bookings-intro.bookings-intro { flex-wrap: wrap; }
+.bookings-count.bookings-count { max-width: 100%; white-space: normal; }
+
+/* ── AI destination guide and day plan, below his city page sections ── */
+.ai-guide.city-guide-recommendations { margin-top: 22px; }
+.ai-guide .city-guide-section-heading { align-items: center; }
+.ai-label { display: inline-flex; align-items: center; gap: 6px; width: fit-content; margin: 0 0 6px; padding: 4px 10px; border: 1px solid #e9d6aa; border-radius: 999px; color: #e9d6aa; font-size: 12px; font-weight: 700; }
+.ai-result { display: grid; gap: 8px; color: #f8f9fc; font-size: 14px; line-height: 1.6; }
+.ai-result h3 { margin: 10px 0 0; color: #f8f9fc; font-size: 15px; }
+.ai-result p { margin: 0; color: rgba(248, 249, 252, .86); }
+.ai-result .ai-summary { font-size: 15px; }
+.ai-places, .ai-tips, .ai-days { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.ai-places li { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid rgba(231, 241, 249, .2); border-radius: 14px; background: rgba(255, 255, 255, .06); }
+.ai-places span, .ai-tips li { color: rgba(248, 249, 252, .82); }
+.ai-tips li { position: relative; padding-inline-start: 14px; }
+.ai-tips li::before { content: ""; position: absolute; inset-inline-start: 0; top: .7em; width: 6px; height: 6px; border-radius: 50%; background: #e9d6aa; }
+.ai-days { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.ai-day { padding: 14px; border: 1px solid rgba(231, 241, 249, .2); border-radius: 17px 25px 25px 25px; background: rgba(255, 255, 255, .06); }
+.ai-day h3 { margin: 2px 0 8px; }
+.ai-day dl { display: grid; gap: 6px; margin: 0; }
+.ai-day dt { color: #e9d6aa; font-size: 12px; font-weight: 700; }
+.ai-day dd { margin: 0; color: rgba(248, 249, 252, .86); font-size: 13px; }
+.ai-plan-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px 22px; margin-bottom: 14px; }
+.ai-interests > div { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.ai-chip { min-height: 34px; padding: 6px 12px; border: 1px solid rgba(231, 241, 249, .32); border-radius: 999px; color: #f8f9fc; background: rgba(255, 255, 255, .08); font: inherit; font-size: 13px; cursor: pointer; transition: background 160ms ease, transform 120ms ease; }
+.ai-chip.chosen { border-color: #2b66a3; color: #f8f9fc; background: #2b66a3; }
+/* His hero title sits on the photo and takes the page's light text; it keeps it in light mode too. */
+.city-guide-hero-copy.city-guide-hero-copy { color: #f8f9fc; }
+.ai-chip:active { transform: scale(.97); }
+.ai-error { margin: 6px 0 0; padding: 10px 14px; border-inline-start: 3px solid #e9d6aa; border-radius: 10px; color: #f8f9fc; background: rgba(255, 255, 255, .08); font-size: 13px; }
+.ai-skeleton { display: grid; gap: 8px; }
+.ai-skeleton span { display: block; height: 14px; border-radius: 7px; background: rgba(255, 255, 255, .1); }
+.ai-skeleton span:nth-child(2) { width: 82%; }
+.ai-skeleton span:nth-child(3) { width: 64%; }
+
+/* ── Smooth: each booking step fades and slides in (from the reading side, also in RTL), gentle press feedback ── */
+.stage-view { display: contents; }
+.stage-view > * { animation: step-in 220ms ease-out both; }
+.stage-view > *:dir(rtl) { animation-name: step-in-rtl; }
+@keyframes step-in { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+@keyframes step-in-rtl { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
+.search-button:active, .finish-button:active, .bookings-button:active, .restart-button:active, .hc-pill:active, .booking-cancel-button:active { transform: scale(.98); }
+@media (prefers-reduced-motion: reduce) {
+  .stage-view > *, .booking-card-skeleton::after, .ai-skeleton span::after { animation: none; }
+  .search-button:active, .finish-button:active, .bookings-button:active, .restart-button:active, .hc-pill:active, .booking-cancel-button:active, .ai-chip:active { transform: none; }
+}
+
+/* ── Print: only the boarding passes that were asked for (the printing-pass class is set just before printing) ── */
+@media print {
+  .boarding-print { display: none; }
+}
+
+/* Addition for Tariq's review: a place with a checked location is one link to it in Hudhud. Its name and an
+   "Open in Hudhud" button fade in over the photo on hover, focus or a first tap (components/place-grid.tsx).
+   His card, image and title strip stay as they are. */
+.city-guide-place-located.city-guide-place-located { position: relative; display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.city-guide-place-located .city-guide-place-title { display: block; }
+.city-guide-place-located .city-guide-place-image { transition: transform .3s ease; }
+.city-guide-place-located[data-active] .city-guide-place-image { transform: scale(1.04); }
+.city-guide-place-located:focus-visible { outline: 2px solid #9cc0ea; outline-offset: 2px; }
+.city-guide-place-reveal.city-guide-place-reveal {
+  position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 8px;
+  padding: 14px; color: #f8f9fc; text-align: center; pointer-events: none;
+  background: rgba(16, 38, 61, .82); opacity: 0; visibility: hidden; transition: opacity .22s ease, visibility .22s ease;
+}
+.city-guide-place-located[data-active] .city-guide-place-reveal { opacity: 1; visibility: visible; }
+.city-guide-place-reveal strong { font-family: "Manrope", sans-serif; font-size: 16px; font-weight: 800; line-height: 1.25; text-shadow: 0 1px 6px rgba(0, 0, 0, .45); }
+.city-guide-place-reveal small { color: #dbe7f3; font-size: 11px; font-weight: 600; }
+.city-guide-place-hudhud {
+  display: inline-flex; align-items: center; gap: 6px; max-width: 100%; margin-top: 4px; padding: 7px 11px; border-radius: 999px;
+  background: #f8f9fc; color: #10263d; font-size: 12px; font-weight: 700; white-space: nowrap;
+}
+@media (max-width: 480px) { .city-guide-place-hudhud { gap: 4px; padding: 6px 9px; font-size: 11px; } .city-guide-place-reveal strong { font-size: 14px; } }
+@media (prefers-reduced-motion: reduce) {
+  .city-guide-place-reveal.city-guide-place-reveal, .city-guide-place-located .city-guide-place-image { transition: none; }
+  .city-guide-place-located[data-active] .city-guide-place-image { transform: none; }
+}
+
+/* Flight page orbit in Arabic: his rings and plane circle sit at "start: 54%" and are centred with
+   translate(-50%). In Arabic, start is the right edge, so the centring shift must point the other way,
+   or each piece moves by half its own width and the rings drift off the plane circle. */
+.hero-art-reserved .hero-orbit-ring.hero-orbit-ring:dir(rtl),
+.hero-art-reserved .hero-orbit-globe.hero-orbit-globe:dir(rtl) { transform: translate(50%, -50%); }
+
+/* Currency dropdown in the header pills: the symbol, the code and a chevron, with a menu like the account menu. */
+.currency-dd { position: relative; }
+.currency-trigger .currency-mark { font-size: 13px; }
+.currency-trigger .currency-chevron { opacity: .85; transition: transform .18s ease; }
+.currency-trigger[aria-expanded='true'] .currency-chevron { transform: rotate(180deg); }
+.currency-menu {
+  position: absolute; z-index: 60; top: calc(100% + 8px); right: 0; min-width: 196px; display: grid; gap: 2px; padding: 6px;
+  border: 1px solid #e2e7ef; border-radius: 15px; color: #203b55; background: #f7f8fc; box-shadow: 0 21px 54px rgba(8, 27, 44, .35);
+}
+.currency-option {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; border-radius: 10px;
+  color: #203b55; background: transparent; font-family: 'DM Sans', sans-serif; text-align: start; cursor: pointer;
+}
+.currency-option:hover { background: #eef3f8; }
+.currency-option:focus-visible { outline: 2px solid #2b66a3; outline-offset: -2px; }
+.currency-option[aria-selected='true'] { background: #e4edf8; }
+.currency-option .currency-mark { display: grid; place-items: center; width: 22px; font-size: 16px; font-weight: 800; color: #2b66a3; }
+.currency-option-text { display: grid; flex: 1; line-height: 1.25; }
+.currency-option-text strong { font-size: 13px; font-weight: 800; }
+.currency-option-text small { color: #486983; font-size: 11px; font-weight: 600; }
+.currency-check { color: #2b66a3; }
+@media (prefers-reduced-motion: reduce) { .currency-trigger .currency-chevron { transition: none; } }
+
+/* On the city photo the small "Discover Saudi Arabia" line keeps his light colour in light mode too (it sits on the photo). */
+.city-guide-hero .city-guide-hero-copy .city-guide-eyebrow { color: rgba(234, 242, 247, .86); text-shadow: 0 1px 4px rgba(0, 0, 0, .45); }
+
+/* Shared page frame (components/frame-header.tsx). Tariq's home page is the reference: every traveler page has his logo,
+   the controls group and the rail in the same place, and its content in the same box as his home .Stage (the same max
+   width, side padding and top line). Inside that box each page keeps his own layout. Built once; pages only add the
+   classes tframe (page root), tframe-content (content box) and render <FrameHeader />. */
+.tframe.tframe { position: relative; }
+.tframe-logo-link { display: contents; }
+.tframe .tarhallogo.tarhallogo { z-index: 4; }
+.tframe .home-controls.tframe-end { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px 14px; }
+.tframe-note { display: inline-flex; align-items: center; gap: 8px; color: rgba(227, 237, 246, .82); font-size: 11px; letter-spacing: .02em; white-space: nowrap; }
+.tframe-dot { width: 6px; height: 6px; border-radius: 50%; background: #e9d6aa; }
+.tframe-content.tframe-content.tframe-content { box-sizing: border-box; width: 100%; max-width: 1440px; margin: 0 auto; padding: 122px 90px 48px 200px; }
+/* The travel guide and city pages put his rail in a grid column; the rail is fixed, so the frame does the spacing. */
+.travel-layout.travel-layout.travel-layout, .city-guide-layout.city-guide-layout.city-guide-layout { display: block; width: 100%; max-width: none; min-height: 0; margin: 0; padding: 0; }
+/* Login and register: no rail; his card sits in the middle of the same content box. */
+.login-page.login-page.tframe { display: block; padding: 0 0 84px; }
+.tframe-auth.tframe-auth { display: flex; justify-content: center; }
+/* Up to 1100px his logo at 100px ran under the controls (also on his home page): it lines up with the content edge
+   (32px) at his smaller phone size (150px) instead, and the tagline makes room for the controls. */
+@media (max-width: 1100px) { .tframe-content.tframe-content.tframe-content { padding: 100px 32px 36px 32px; } .tframe .tarhallogo.tarhallogo { left: 32px; width: 150px; height: 150px; top: -20px; } .tframe-note.tframe-note { display: none; } }
+@media (max-width: 760px) { .tframe-content.tframe-content.tframe-content { padding: 96px 20px 32px 20px; } .tframe .tarhallogo.tarhallogo { left: 4px; } }
+@media (max-width: 480px) { .tframe-content.tframe-content.tframe-content { padding: 90px 14px 28px 14px; } }
+
+/* Hotel and car photos (components/catalog-photo.tsx) in his cards: his photo box on the hotel cards, his 64 x 51 car box
+   on the car cards, his small icon tile on the Ready step, and a short photo strip in My bookings. */
+.car-art.car-art-photo { padding: 0; }
+.car-art.car-art-photo::after { display: none; }
+.car-art-photo > img, .car-art-photo > .catalog-photo-empty { display: block; width: 100%; height: 100%; object-fit: cover; }
+.trip-thumb.trip-thumb { width: 44px; height: 33px; overflow: hidden; padding: 0; }
+.trip-thumb > img, .trip-thumb > .catalog-photo-empty { display: block; width: 100%; height: 100%; object-fit: cover; }
+.booking-service .booking-thumb { display: block; width: 100%; height: 84px; margin: 2px 0 8px; object-fit: cover; border-radius: 10px; }
+.hotel-photo > .catalog-photo-empty { height: 100%; }

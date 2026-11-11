@@ -3,7 +3,7 @@ import { TrendingDown, TrendingUp } from 'lucide-react';
 import { Sparkline } from '@/components/sparkline';
 import { useCountUp } from '@/hooks/use-count-up';
 import { useT } from '@/i18n/use-i18n';
-import { monthChange } from '@/lib/booking-stats';
+import { weekChange } from '@/lib/booking-stats';
 
 type StatCardProps = {
   label: string;
@@ -20,10 +20,10 @@ type StatCardProps = {
   hint?: ReactNode;
 };
 
-/** The admin's one stat card: label, counted-up value, optional sparkline and month-on-month change. */
+/** The admin's one stat card: label, counted-up value, and (when the dashboard has a meaningful daily line) the line and the change on the week before. */
 export function StatCard({ label, value = 0, render = String, series, loading = false, noData = false, noDataLabel, hint }: StatCardProps) {
   const t = useT();
-  const change = noData || !series ? null : monthChange(series);
+  const change = noData || !series ? null : weekChange(series);
   return (
     <div className="metric-card h-auto overflow-visible py-6" data-testid={`metric-${label}`}>
       <span className="metric-label">{label}</span>
@@ -33,13 +33,15 @@ export function StatCard({ label, value = 0, render = String, series, loading = 
         </strong>
         {!loading && !noData && series && <Sparkline values={series} />}
       </div>
-      {!loading && !noData && hint && <span className="metric-hint">{hint}</span>}
-      {!loading && change !== null && (
-        <span className={`metric-change ${change >= 0 ? 'is-up' : 'is-down'}`}>
-          {change >= 0 ? <TrendingUp size={13} aria-hidden="true" /> : <TrendingDown size={13} aria-hidden="true" />}
-          {t('vsLastMonth', { change: `⁦${change > 0 ? '+' : ''}${change}%⁩` })}
-        </span>
-      )}
+      <div className="metric-foot">
+        {!loading && !noData && hint && <span className="metric-hint">{hint}</span>}
+        {!loading && change !== null && (
+          <span className={`metric-change ${change >= 0 ? 'is-up' : 'is-down'}`}>
+            {change >= 0 ? <TrendingUp size={13} aria-hidden="true" /> : <TrendingDown size={13} aria-hidden="true" />}
+            {t('vsLastWeek', { change: `⁦${change > 0 ? '+' : ''}${change}%⁩` })}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

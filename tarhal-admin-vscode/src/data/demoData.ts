@@ -3,7 +3,6 @@ export type ServiceFilter = 'all' | Service;
 export type BookingStatus = 'Confirmed' | 'Pending' | 'Cancelled';
 export type UserStatus = 'Active' | 'Inactive' | 'Deleted';
 
-// INTEGRATION POINT: Connect Saud's Flight & Booking APIs here
 // Dashboard totals come from the bookings API (see `@/lib/booking-stats`). Amounts in this file are SAR, like the API.
 
 /** One row of the Flights / Hotels / Cars tables. `id` is what the table shows first: flight number, hotel name, or "make model year". */
@@ -69,9 +68,12 @@ export type Booking = {
   email?: string;
   phone?: string;
   paymentStatus?: string;
+  /** Hotel bookings: number of guests. */
+  guests?: number;
+  /** What was booked: flight number and route, hotel and city, or car and city. */
+  detail?: string;
 };
 
-// INTEGRATION POINT: Connect Saud's Flight & Booking APIs here
 export const bookings: Booking[] = [
   { id: 'BK-1001', type: 'flight', customer: 'Sara Al-Otaibi', date: '2026-09-12T08:30', price: 267, status: 'Cancelled' },
   { id: 'BK-1002', type: 'car', customer: 'Khalid Al-Ghamdi', date: '2026-09-21T19:10', price: 300, status: 'Pending' },
@@ -87,21 +89,21 @@ export type User = {
   date: string;
   bookings: number;
   status: UserStatus;
-  /** Only on rows built from GET /api/admin/bookings. */
+  /** Only on live rows (GET /api/admin/users). */
   phone?: string;
+  /** "ADMIN" or "TRAVELER", on live rows. */
+  role?: string;
 };
 
-// INTEGRATION POINT: Connect Mohammed's Auth, Hotel & Car APIs here
 // Users belong to the auth service.
 export const users: User[] = [
-  { id: '6738', name: 'Sara Al-Otaibi', email: 'sara@tarhal.com', date: '2026-09-12', bookings: 7, status: 'Inactive' },
-  { id: '26252', name: 'Khalid Al-Ghamdi', email: 'khalid@tarhal.com', date: '2026-09-21', bookings: 3, status: 'Deleted' },
-  { id: '2637', name: 'Zayn Malik', email: 'zayn@tarhal.com', date: '2026-09-12', bookings: 5, status: 'Active' },
-  { id: '26372', name: 'Omar Faraj', email: 'omar@tarhal.com', date: '2026-10-11', bookings: 9, status: 'Active' },
+  { id: '6738', name: 'Sara Al-Otaibi', email: 'sara@tarhal.com', date: '2026-09-12', bookings: 1, status: 'Inactive' },
+  { id: '26252', name: 'Khalid Al-Ghamdi', email: 'khalid@tarhal.com', date: '2026-09-21', bookings: 1, status: 'Deleted' },
+  { id: '2637', name: 'Zayn Malik', email: 'zayn@tarhal.com', date: '2026-09-12', bookings: 1, status: 'Active' },
+  { id: '26372', name: 'Omar Faraj', email: 'omar@tarhal.com', date: '2026-10-11', bookings: 1, status: 'Active' },
 ];
 
 export type RevenueKey = 'cars' | 'flights' | 'hotels';
 export type MonthlyRevenue = { monthIndex: number } & Record<RevenueKey, number>;
 
-// INTEGRATION POINT: Connect Saud's Flight & Booking APIs here
 // Monthly revenue is an aggregate of bookings (see `monthlyRevenue` in `@/lib/booking-stats`).

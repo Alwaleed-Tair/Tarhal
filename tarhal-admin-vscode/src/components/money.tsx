@@ -1,10 +1,11 @@
 import { useFormat, useT } from '@/i18n/use-i18n';
-import { USD_TO_SAR, useCurrency } from '@/store/currencyStore';
+import { useCurrency } from '@/store/currencyStore';
 
 /**
  * Official Saudi Riyal symbol. The shapes are copied unchanged from public/Saudi_Riyal_Symbol-2.svg; they are inline so the
  * symbol takes the color of the surrounding text (dark mode, muted text) and prints, which an <img> of that file cannot do.
- * SAMA's rules: left of the number in every language, a space between them, same height as the text. See .sar-symbol in index.css.
+ * Left of the number in every language, with a space between them (SAMA). Its size matches the $ sign (0.9em, set 0.1em
+ * below the baseline like the $), so SAR and USD amounts look the same size. See .sar-symbol in index.css.
  */
 export function SarSymbol({ className = '' }: { className?: string }) {
   const t = useT();
@@ -22,11 +23,10 @@ function SarAmount({ children }: { children: string }) {
 }
 
 /** SAR amount (how the API and the demo data store it): 420 shows as the symbol and 420, or converted when the user picks USD. */
-export function Money({ sar, usd }: { sar: number; usd?: never } | { usd: number; sar?: never }) {
+export function Money({ sar }: { sar: number }) {
   const format = useFormat();
   const currency = useCurrency();
-  // `usd` only exists for the chat assistant, which still passes USD amounts.
-  const amount = sar ?? usd * USD_TO_SAR;
+  const amount = sar;
   if (currency === 'USD') return <bdi dir="ltr" className="whitespace-nowrap">{format.currency(amount)}</bdi>;
   return <SarAmount>{format.amount(amount)}</SarAmount>;
 }

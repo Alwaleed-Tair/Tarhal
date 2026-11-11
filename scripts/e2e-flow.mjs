@@ -129,6 +129,55 @@ async function main() {
     check('Admin bookings list does not expose password hashes', ab.status === 200 && !leaked, leaked ? 'response contains "password"' : `status ${ab.status}`);
   }
 
+  // Session check, simulated payment, hotel and car bookings
+  const me = await a.c.get('/api/auth/me');
+  check('/api/auth/me returns the logged-in user', me.status === 200 && me.json?.user?.email === a.email && me.json.user.role === 'TRAVELER', `status ${me.status}`);
+  check('/api/auth/me without login is 401', (await anon.get('/api/auth/me')).status === 401);
+  const seat2 = seatsOf((await a.c.get(`/api/flights/${flight.id}`)).json?.data).find((s) => s.free);
+  check('Flight details do not expose who holds a seat', !JSON.stringify(details.json).includes('heldByUserId'));
+  if (seat2) {
+    const paid = await a.c.post('/api/bookings', { flightId: flight.id, travelers: [{ ...traveler, seatId: seat2.id }] });
+    const pay = await a.c.post('/api/payments', { type: 'flight', bookingId: paid.json?.data?.id });
+    check('Simulated payment marks the booking PAID', pay.status === 200 && pay.json?.data?.paymentStatus === 'PAID', `status ${pay.status}`);
+    check('Paying twice is refused (409)', (await a.c.post('/api/payments', { type: 'flight', bookingId: paid.json?.data?.id })).status === 409);
+    await a.c.post(cancelUrl.replace(booking.id, paid.json?.data?.id));
+  }
+  const day = (n) => new Date(Date.now() + 3 * 3600e3 + n * 86400e3).toISOString().slice(0, 10);
+  const hotel = (await anon.get('/api/hotels?pageSize=1')).json?.data?.[0];
+  if (hotel) {
+    const hb = await a.c.post('/api/hotel-bookings', { hotelId: hotel.id, checkIn: day(30), checkOut: day(32), guests: 2 });
+    check('Hotel booking is priced on the server (2 nights)', hb.status === 201 && Math.abs(Number(hb.json?.data?.totalPrice) - 2 * Number(hotel.pricePerNight)) < 0.01, `status ${hb.status}`);
+    check('Hotel booking in the past is refused (400)', (await a.c.post('/api/hotel-bookings', { hotelId: hotel.id, checkIn: day(-3), checkOut: day(-1) })).status === 400);
+    check('My hotel bookings lists it', (await a.c.get('/api/hotel-bookings')).json?.data?.some((x) => x.id === hb.json?.data?.id));
+    check("A traveler cannot cancel someone else's hotel booking (404)", (await b.c.post(`/api/hotel-bookings/${hb.json?.data?.id}/cancel`)).status === 404);
+    check('Owner cancels the hotel booking', (await a.c.post(`/api/hotel-bookings/${hb.json?.data?.id}/cancel`)).status === 200);
+  }
+  const car = (await anon.get('/api/cars?pageSize=1')).json?.data?.[0];
+  if (car) {
+    // A random far-off day, so repeated runs do not overlap an earlier rental of the same car.
+    let rental;
+    for (let i = 0; i < 4 && rental?.status !== 201; i++) {
+      const start = 60 + Math.floor(Math.random() * 280);
+      rental = await a.c.post('/api/car-rentals', { carId: car.id, pickupDate: day(start), returnDate: day(start + 1), withInsurance: true });
+      rental.start = start;
+    }
+    check('Car rental is priced on the server (1 day with insurance)', rental.status === 201 && Math.abs(Number(rental.json?.data?.totalPrice) - Number(car.pricePerDay) - Number(car.insurancePricePerDay)) < 0.01, `status ${rental.status}`);
+    if (rental.status === 201) {
+      const clash = await b.c.post('/api/car-rentals', { carId: car.id, pickupDate: day(rental.start), returnDate: day(rental.start + 1) });
+      check('The same car cannot be rented twice for the same day (409)', clash.status === 409, `status ${clash.status}`);
+      check('Owner cancels the car rental', (await a.c.post(`/api/car-rentals/${rental.json.data.id}/cancel`)).status === 200);
+    }
+  }
+  if (adminLogin.status === 200) {
+    const types = new Set(((await admin.get('/api/admin/bookings')).json ?? []).map((x) => x.type));
+    check('Admin bookings include flight, hotel and car types', types.has('flight') && (!hotel || types.has('hotel')) && (!car || types.has('car')), [...types].join(','));
+    const users = await admin.get('/api/admin/users?page=1&pageSize=5');
+    check('Admin users list is paged and has no passwords', users.status === 200 && users.json?.data?.length <= 5 && users.json?.pagination?.total > 0 && !JSON.stringify(users.json).includes('password'), `status ${users.status}`);
+    check('Unknown admin path is 404', (await admin.get('/api/admin/nothing-here')).status === 404);
+    if (hotel) check('A hotel with bookings cannot be deleted (409)', (await admin.call('DELETE', `/api/admin/hotels/${hotel.id}`)).status === 409);
+    check('Admin POST to a path without a handler is 404 (no flight is created)', (await admin.post('/api/admin/airlines', {})).status === 404);
+  }
+
   // Security and logout
   const evil = await fetch(BASE + '/api/auth/login', { method: 'POST', headers: { origin: 'https://evil.example', 'content-type': 'application/json' }, body: JSON.stringify({ email: a.email, password: 'e2e-password-123' }) });
   check('Cross-origin login is rejected (403)', evil.status === 403, `status ${evil.status}`);

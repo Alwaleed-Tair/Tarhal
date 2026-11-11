@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       });
       if (upgraded.count !== 1) return authError('CREDENTIALS_CHANGED', 'Your sign-in details changed during this request. Sign in again with your current password.', 401);
     }
-    const response = authResponse({ success: true, message: 'Login successful!', user: { id: user.id, name: user.name, role: user.role } });
+    const response = authResponse({ success: true, message: 'Login successful!', user: { id: user.id, name: user.name, email: user.email, role: user.role } });
     response.cookies.set(SESSION_COOKIE, issueSession({ id: user.id, password: currentPassword }, secret), sessionCookieOptions());
     return response;
   } catch {
