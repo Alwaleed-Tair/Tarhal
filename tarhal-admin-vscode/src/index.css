@@ -1366,22 +1366,22 @@ button.currency-select:focus-visible { outline: 0; border-color: hsl(var(--ring)
 .mobile-currency .currency-select .currency-chevron { margin-inline-start: auto; }
 @media (prefers-reduced-motion: reduce) { .currency-select .currency-chevron { transition: none; } }
 
-/* ===== 41. Admin light mode in Tariq's feel, soft (no glare). Dark mode (section 36) is unchanged.
+/* ===== 41. Admin light mode in Tariq's feel, soft (no glare): the same palette as the traveler light mode. Dark mode (section 36) is unchanged.
    The same soft tones as the traveler light mode (vite-plugins/passenger-css.ts): a grey-blue page (#e5ebf1), soft
    off-white panels (#f4f6f9), his ink #203b55 and #486983, his blue #2b66a3 for actions and the active rail item,
    his navy-to-blue section bars, and his navy rail. Only colours change: every page, table, filter and number stays. ===== */
 :root:not(.dark):not(.accessibility-contrast) .app-shell {
   --background: 212 30% 92%; --foreground: 209 45% 23%;
-  --card: 214 33% 97%; --card-foreground: 209 45% 23%; --card-border: 214 24% 87%;
+  --card: 212 40% 95.5%; --card-foreground: 209 45% 23%; --card-border: 213 30% 86%;
   --border: 214 24% 86%; --input: 214 22% 78%;
-  --muted: 213 30% 93%; --muted-foreground: 209 32% 36%;
+  --muted: 213 36% 91.5%; --muted-foreground: 209 32% 36%;
   --secondary: 213 30% 93%; --secondary-foreground: 209 45% 23%;
   --primary: 210 58% 40%; --primary-foreground: 0 0% 100%; --ring: 210 58% 40%;
   --sidebar: 208 61% 16%; --sidebar-foreground: 228 54% 97%; --sidebar-border: 208 50% 22%; --sidebar-primary: 210 58% 40%;
-  --metric-surface: 214 33% 97%; --metric-text: 209 45% 23%; --section-surface: 214 33% 97%;
+  --metric-surface: 212 40% 95.5%; --metric-text: 209 45% 23%; --section-surface: 212 40% 95.5%;
   --adm-shadow: 0 10px 28px rgba(16, 38, 61, .08); --adm-shadow-lift: 0 14px 34px rgba(16, 38, 61, .13);
   color: hsl(var(--foreground));
-  background: radial-gradient(ellipse at 80% 85%, rgba(107, 150, 196, .16) 0%, transparent 45%), linear-gradient(158deg, #e9eef4 0%, #e4eaf1 55%, #dce5ee 100%);
+  background: radial-gradient(ellipse at 80% 85%, rgba(107, 150, 196, .2) 0%, transparent 45%), linear-gradient(158deg, #eaf0f6 0%, #e2eaf3 55%, #d6e2ee 100%);
   background-attachment: fixed;
 }
 :root:not(.dark):not(.accessibility-contrast) :where(.app-shell) :is(.metric-card, .section-card, .chart-panel, .setting-card, .filter-bar) { border-color: rgba(16, 38, 61, .07); }
@@ -1394,14 +1394,14 @@ button.currency-select:focus-visible { outline: 0; border-color: hsl(var(--ring)
 :root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .page-subtitle { color: #486983; }
 :root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .breadcrumb [aria-current='page'], :root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .breadcrumb a:hover { color: #2b66a3; }
 /* Top bar: a calm frosted strip of the page tone. */
-:root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .topbar { background: rgba(233, 238, 244, .82); border-bottom-color: rgba(16, 38, 61, .08); backdrop-filter: blur(8px); }
-:root:not(.dark):not(.accessibility-contrast) :where(.topbar) :is(.global-search, .currency-select, .lang-pill, .theme-pill, .top-action, .user-button, .menu-toggle) { border-color: rgba(16, 38, 61, .12); background: #f4f6f9; color: #203b55; }
+:root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .topbar { background: rgba(234, 240, 246, .85); border-bottom-color: rgba(16, 38, 61, .08); backdrop-filter: blur(8px); }
+:root:not(.dark):not(.accessibility-contrast) :where(.topbar) :is(.global-search, .currency-select, .lang-pill, .theme-pill, .top-action, .user-button, .menu-toggle) { border-color: rgba(16, 38, 61, .12); background: #edf2f8; color: #203b55; }
 :root:not(.dark):not(.accessibility-contrast) :where(.topbar) :is(.top-action, .user-button, .lang-pill, .menu-toggle, .currency-select):hover { background: #eaf0f6; }
 :root:not(.dark):not(.accessibility-contrast) :where(.topbar) .theme-pill span.selected, :root:not(.dark):not(.accessibility-contrast) :where(.topbar) .senior-toggle.active { background: #2b66a3; color: #ffffff; }
 /* Tables stay crisp on the soft panels: a slightly deeper header and zebra rows of the page tone. */
-:root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .data-table thead th { background: #e9eef4; color: #3d5a75; }
+:root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .data-table thead th { background: #e1e9f3; color: #3d5a75; }
 :root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .data-table td { color: #2a4560; }
-:root:not(.dark):not(.accessibility-contrast) .route-fallback { background: #e5ebf1; }
+:root:not(.dark):not(.accessibility-contrast) .route-fallback { background: #eaf0f6; }
 
 /* ===== 42. Admin tables on laptop screens (up to 1440px): a little less side padding in every cell, so status pills,
    short IDs and the Edit / Remove buttons stay inside their own column and headers break between words, not inside one. ===== */
@@ -1410,3 +1410,4 @@ button.currency-select:focus-visible { outline: 0; border-color: hsl(var(--ring)
   :where(.app-shell) .row-actions .button { padding-inline: 9px; }
 }
 :where(.app-shell) .data-table th { overflow-wrap: normal; word-break: normal; hyphens: manual; }
+

@@ -57,7 +57,7 @@ function lightSelector(scoped: string): string {
 }
 
 /** Rules that keep his colours in light mode too: his rail, and text and panels laid over photos. */
-const KEEP_IN_LIGHT = /\.(sidebar|Travel-Card|Destination|card-copy|card-arrow|card-visual|card-photo|city-guide-hero|login-image-panel|login-airplane|login-form button|Dashboard-Airplane|Booking-Tab|boarding-airline|city-guide-place-reveal)\b/;
+const KEEP_IN_LIGHT = /\.(sidebar|Travel-Card|Destination|card-copy|card-arrow|card-visual|card-photo|city-guide-hero|login-image-panel|login-airplane|login-form button|Dashboard-Airplane|Booking-Tab|boarding-airline|city-guide-place-reveal|city-card)\b/;
 
 // ---------- colours ----------
 type Rgba = { r: number; g: number; b: number; a: number };
@@ -115,14 +115,15 @@ export function lightColor(token: string, role: Role, inGradient = false): strin
   if (!inGradient && isAccent(token)) return null;
   // Faint white overlays (glass chips, pills, hairlines) would vanish on a pale page: the same faint touch in navy.
   if (l >= 0.85 && c.a < 0.5) return hsla(210, 0.45, 0.2, Math.min(0.14, c.a * 1.2 + 0.02));
-  // Soft light mode (no glare): his light panels (#f7f8fc, #f8f9fc) and plain white panels become a soft off-white
-  // (#f4f6f9), the same tone as the admin's light panels. Faint white (alpha < .5) was handled above.
-  if (l >= 0.97) return hsla(214, 0.33, 0.97, c.a);
+  // Light mode is a calm, light version of his blue design (no pure white, no flat grey):
+  // - his light panels (#f7f8fc, #f8f9fc) and plain white become a soft blue-tinted panel (#edf2f8);
+  if (l >= 0.97) return hsla(212, 0.4, 0.955, c.a);
   if (l >= 0.5) return null; // Other light colours stay.
-  // His translucent dark glass becomes a calm off-white panel; his solid dark page colours become a soft grey-blue page
-  // tone (about #e5ebf1), the same as the admin's light page.
-  if (c.a < 1) return hsla(h, Math.min(s, 0.3), 0.965, Math.max(c.a, 0.86));
-  return hsla(h, Math.min(s, 0.3), 0.915 + (1 - l) * 0.025, c.a);
+  // - his translucent dark glass becomes a tinted panel of the same hue;
+  if (c.a < 1) return hsla(h, Math.min(s, 0.35), 0.955, Math.max(c.a, 0.86));
+  // - his solid dark page colours become a soft blue-grey: his darkest navy the lightest (#eaf0f6), his mid blue a
+  //   little deeper (#dce6f0), so his page gradient keeps its direction as a gentle light gradient.
+  return hsla(h, Math.min(s, 0.42), 0.955 - l * 0.12, c.a);
 }
 
 const COLOR_TOKEN = /#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)|\b(?:white|black)\b/g;
