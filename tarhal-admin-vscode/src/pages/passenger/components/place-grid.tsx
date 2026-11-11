@@ -4,6 +4,7 @@ import { useT } from '@/i18n/use-i18n';
 import { useDemoState } from '@/store/demoStore';
 import { cityPlaces, hudhudLink } from '../data/city-places';
 import { isPlaceholderTitle, placeTitleAr } from '../data/cities-ar';
+import { photoProps } from '../data/photo-sizes';
 
 type Place = { id: string; title: string; photo?: string };
 
@@ -42,7 +43,7 @@ export function PlaceGrid({ places, cityName }: { places: Place[]; cityName: str
         const area = located && (language === 'ar' ? located.areaAr : located.area);
         const src = located?.photo ?? place.photo;
         const photo = src ? (
-          <img className="city-guide-place-image" src={src} alt={title || cityName} loading="lazy" />
+          <img className="city-guide-place-image" {...photoProps(src, '(max-width: 760px) 46vw, 260px')} alt={title || cityName} />
         ) : (
           <div className="city-guide-place-placeholder"><ImageIcon size={20} /><span>{t('tpAddPlacePhoto')}</span></div>
         );

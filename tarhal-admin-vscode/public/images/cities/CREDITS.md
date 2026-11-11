@@ -1,7 +1,10 @@
 # City place photos: credits
 
 Photos added for the city places (an addition for Tariq's review; see src/pages/passenger/data/city-places.ts).
-All are from Wikimedia Commons under a free licence. Every photo was resized to 800px wide and saved as WebP; any other change is listed per photo. Tariq's own photos (place-1.webp to place-4.webp) are unchanged.
+All are from Wikimedia Commons under a free licence. Each was resized and saved as WebP in two sizes: `name.webp`
+(normal screens) and `name-2x.webp` (high-resolution screens); any other change is listed per photo.
+Tariq's own photos (card.webp, hero.webp, place-1.webp to place-4.webp) are his pictures, re-exported from his original
+files on User-Fixes in the same two sizes; their content is unchanged.
 
 | File | Place | Author | Licence | Source | Changes |
 |---|---|---|---|---|---|
