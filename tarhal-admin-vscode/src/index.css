@@ -1315,6 +1315,8 @@ html.dark .route-fallback { background: linear-gradient(158deg, #142c43 0%, #1c4
 }
 @media (min-width: 681px) and (max-width: 1120px) { :root[data-admin-sidebar] body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: calc(8px + var(--adm-sidebar) / 2 - 22px); bottom: 24px; } }
 @media (min-width: 681px) and (max-width: 900px) { :root[data-admin-sidebar] body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: calc(var(--adm-sidebar) / 2 - 22px); bottom: 16px; } }
+/* High contrast (Senior Mode) keeps the sidebar flush with the edge (no outer margin), so the badge centre has no margin either. */
+@media (min-width: 681px) { :root.accessibility-contrast[data-admin-sidebar] body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: calc(var(--adm-sidebar) / 2 - 22px); } }
 /* Admin on phones (the sidebar is a menu): the badge in the bottom corner, the window above it. */
 @media (max-width: 680px) {
   :root[data-admin-sidebar] body .chat-launcher.chat-launcher.chat-launcher { inset-inline-start: auto; inset-inline-end: 16px; bottom: 16px; }
