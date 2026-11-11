@@ -51,7 +51,7 @@ function BookingActions({ row, onChanged }: { row: Booking; onChanged: () => voi
   };
   if (confirming) {
     return (
-      <div className="row-actions flex flex-row flex-wrap items-center justify-end gap-2">
+      <div className="row-actions row-actions-wrap flex flex-row flex-wrap items-center justify-end gap-2">
         <span className="cell-muted">{t('confirmCancelBooking')}</span>
         <button className="button button-ghost" onClick={() => setConfirming(false)} disabled={busy}>{t('keepBooking')}</button>
         <button className="button button-ghost button-ghost-danger" onClick={() => void run('cancel')} disabled={busy} data-testid={`button-confirm-cancel-booking-${row.id}`}>{t('cancelBookingAction')}</button>
@@ -59,7 +59,7 @@ function BookingActions({ row, onChanged }: { row: Booking; onChanged: () => voi
     );
   }
   return (
-    <div className="row-actions flex flex-row flex-wrap items-center justify-end gap-2">
+    <div className="row-actions row-actions-wrap flex flex-row flex-wrap items-center justify-end gap-2">
       {problem && <span className="field-error" role="alert">{problem}</span>}
       {row.paymentStatus === 'PENDING' && <button className="button button-ghost" onClick={() => void run('markPaid')} disabled={busy} data-testid={`button-mark-paid-${row.id}`}>{t('markPaid')}</button>}
       <button className="button button-ghost button-ghost-danger" onClick={() => setConfirming(true)} disabled={busy} data-testid={`button-cancel-booking-${row.id}`}>{t('cancelBookingAction')}</button>

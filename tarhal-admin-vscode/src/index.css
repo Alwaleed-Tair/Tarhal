@@ -1469,3 +1469,5 @@ html:not(.dark) body .passenger-app .PanelTop.PanelTop { background: linear-grad
 .row-thumb-cell > span:last-child { min-width: 0; }
 .row-thumb { flex: none; display: block; width: 44px; height: 33px; border-radius: 6px; object-fit: cover; background: #e3ebf1; }
 .catalog-photo-empty.row-thumb { display: grid; }
+/* Bookings: "Mark paid" and "Cancel booking" stack when the column has no room for both side by side. */
+.data-table .row-actions.row-actions-wrap { flex-wrap: wrap; }
