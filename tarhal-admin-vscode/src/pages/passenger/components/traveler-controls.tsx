@@ -7,7 +7,7 @@ import { useSignOut } from '@/hooks/use-sign-out';
 import { useT } from '@/i18n/use-i18n';
 import { withNext } from '@/lib/next-path';
 import { canUseAdmin, useAuth } from '@/store/authStore';
-import { setCurrency, useCurrency, type Currency } from '@/store/currencyStore';
+import { CurrencySelect } from '@/components/currency-select';
 import { updateSettings, useDemoState } from '@/store/demoStore';
 
 /**
@@ -19,7 +19,6 @@ import { updateSettings, useDemoState } from '@/store/demoStore';
 export function HeaderControls({ auth = false }: { auth?: boolean }) {
   const t = useT();
   const { settings } = useDemoState();
-  const currency = useCurrency();
   const { user } = useAuth();
   const signOut = useSignOut();
   const [location] = useLocation();
@@ -45,13 +44,7 @@ export function HeaderControls({ auth = false }: { auth?: boolean }) {
         onClick={() => updateSettings({ largerText: !settings.largerText })} data-testid="hc-larger-text">
         <span aria-hidden="true" className="hc-aa">A+</span><span className="hc-label">{t('largerText')}</span>
       </button>
-      {!auth && <label className="hc-pill hc-currency">
-        <span className="sr-only">{t('currency')}</span>
-        <select value={currency} onChange={(event) => setCurrency(event.target.value as Currency)} data-testid="hc-currency">
-          <option value="SAR">SAR</option>
-          <option value="USD">USD ($)</option>
-        </select>
-      </label>}
+      {!auth && <CurrencySelect variant="traveler" />}
       {!auth && <div className="hc-account" ref={ref}>
         <button type="button" className="hc-pill" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen((current) => !current)} data-testid="hc-account">
           <UserRound size={14} aria-hidden="true" /><span className="hc-label">{user ? user.name : t('login')}</span><ChevronDown size={13} aria-hidden="true" />

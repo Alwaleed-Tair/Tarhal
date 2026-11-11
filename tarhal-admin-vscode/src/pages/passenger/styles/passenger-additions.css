@@ -392,3 +392,26 @@ a.Panel-Note { text-decoration: underline; }
    or each piece moves by half its own width and the rings drift off the plane circle. */
 .hero-art-reserved .hero-orbit-ring.hero-orbit-ring:dir(rtl),
 .hero-art-reserved .hero-orbit-globe.hero-orbit-globe:dir(rtl) { transform: translate(50%, -50%); }
+
+/* Currency dropdown in the header pills: the symbol, the code and a chevron, with a menu like the account menu. */
+.currency-dd { position: relative; }
+.currency-trigger .currency-mark { font-size: 13px; }
+.currency-trigger .currency-chevron { opacity: .85; transition: transform .18s ease; }
+.currency-trigger[aria-expanded='true'] .currency-chevron { transform: rotate(180deg); }
+.currency-menu {
+  position: absolute; z-index: 60; top: calc(100% + 8px); right: 0; min-width: 196px; display: grid; gap: 2px; padding: 6px;
+  border: 1px solid #e2e7ef; border-radius: 15px; color: #203b55; background: #f7f8fc; box-shadow: 0 21px 54px rgba(8, 27, 44, .35);
+}
+.currency-option {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; border-radius: 10px;
+  color: #203b55; background: transparent; font-family: 'DM Sans', sans-serif; text-align: start; cursor: pointer;
+}
+.currency-option:hover { background: #eef3f8; }
+.currency-option:focus-visible { outline: 2px solid #2b66a3; outline-offset: -2px; }
+.currency-option[aria-selected='true'] { background: #e4edf8; }
+.currency-option .currency-mark { display: grid; place-items: center; width: 22px; font-size: 16px; font-weight: 800; color: #2b66a3; }
+.currency-option-text { display: grid; flex: 1; line-height: 1.25; }
+.currency-option-text strong { font-size: 13px; font-weight: 800; }
+.currency-option-text small { color: #486983; font-size: 11px; font-weight: 600; }
+.currency-check { color: #2b66a3; }
+@media (prefers-reduced-motion: reduce) { .currency-trigger .currency-chevron { transition: none; } }
