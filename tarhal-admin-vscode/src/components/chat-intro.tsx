@@ -17,7 +17,7 @@ const ADMIN_PATHS = new Set<string>(Object.values(routes.admin as Record<string,
 // storage is blocked.
 let shownThisVisit = false;
 
-// What the visitor may be about to press: the header controls, the rail, and anything clickable on the page.
+// What the visitor may be about to press: the header controls, the rail, and the buttons, fields and small links on the page.
 const CONTROLS = 'a[href], button, input, select, textarea, label, summary, [role="button"], [role="radio"], [role="tab"], [role="option"], [role="link"], [tabindex]:not([tabindex="-1"])';
 
 /** How many controls (with an 8px margin around the bubble) a box at this place would sit on. */
@@ -28,6 +28,9 @@ function controlsUnder(r: DOMRect): number {
     if (el.closest('.chat-intro, .chat-launcher, .sr-only')) continue;
     const x = el.getBoundingClientRect();
     if (!x.width || !x.height || x.left >= right || x.right <= left || x.top >= bottom || x.bottom <= top) continue;
+    // A whole card that is a link (a city or booking card, taller than 120px) is content the bubble may briefly sit on;
+    // buttons, fields, pills and small links are what it keeps clear of.
+    if (x.height > 120) continue;
     const cs = getComputedStyle(el);
     if (cs.visibility !== 'hidden' && cs.display !== 'none') n++;
   }
