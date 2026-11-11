@@ -636,7 +636,8 @@ html.accessibility-large { font-size: 125%; }
 .navbar-currency-menu, .mobile-currency { display: none; }
 @media (max-width: 639px) { .navbar-currency { display: none; } .navbar-currency-menu { display: block; } }
 @media (max-width: 680px) {
-  .topbar > .currency-dd { display: none; }
+  .topbar > .currency-dd:not(.dd-account) { display: none; }
+  .dd-account.dd-admin .dd-account-name { display: none; }
   .mobile-currency { display: block; margin: 10px 0 4px; }
   .user-button .user-name, .user-button .user-chevron { display: none; }
 }
@@ -1365,6 +1366,50 @@ button.currency-select:focus-visible { outline: 0; border-color: hsl(var(--ring)
 .mobile-currency .currency-dd, .mobile-currency .currency-select { width: 100%; }
 .mobile-currency .currency-select .currency-chevron { margin-inline-start: auto; }
 @media (prefers-reduced-motion: reduce) { .currency-select .currency-chevron { transition: none; } }
+
+/* ===== One dropdown everywhere (components/dropdown.tsx): the account menus, the currency control, the filters and the
+   form dropdowns all open the currency control's menu, with the same chevron turn and a short fade-and-slide in and out.
+   The menu fits the screen: data-flip lines it up with the other side of its button, data-up opens it upwards. ===== */
+@keyframes dd-in { from { opacity: 0; transform: translateY(-6px) scale(.98); } }
+@keyframes dd-out { to { opacity: 0; transform: translateY(-6px) scale(.98); } }
+@keyframes dd-in-up { from { opacity: 0; transform: translateY(6px) scale(.98); } }
+@keyframes dd-out-up { to { opacity: 0; transform: translateY(6px) scale(.98); } }
+.dd-menu { max-height: min(320px, 60vh); overflow-y: auto; overscroll-behavior: contain; transform-origin: top center; animation: dd-in .16s cubic-bezier(.2, .8, .2, 1); }
+.dd-menu[data-closing] { animation: dd-out .12s ease-in forwards; pointer-events: none; }
+.dd-menu[data-up] { top: auto; bottom: calc(100% + 6px); transform-origin: bottom center; animation-name: dd-in-up; }
+.dd-menu[data-up][data-closing] { animation-name: dd-out-up; }
+.currency-dd-admin:not(.dd-field) .dd-menu[data-flip] { inset-inline-end: auto; inset-inline-start: 0; }
+.currency-dd-admin a.currency-option { text-decoration: none; }
+.dd .currency-chevron { flex: none; transition: transform .18s ease; }
+.dd [aria-expanded='true'] > .currency-chevron { transform: rotate(180deg); }
+
+/* A dropdown in a form or a filter bar: the same box as the fields next to it (border, height, radius, background, padding,
+   font), and a menu at least as wide as the field. */
+.dd-field { display: flex; width: 100%; min-width: 0; }
+.dd-field.dd-compact { width: auto; }
+button.dd-field-trigger { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-width: 0; color: hsl(var(--foreground)); font: inherit; font-size: calc(14px * var(--text-scale)); text-align: start; cursor: pointer; }
+.dd-compact button.dd-field-trigger { min-width: 168px; }
+.dd-field-trigger .dd-value { display: flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dd-field-trigger .currency-chevron { opacity: .7; }
+button.dd-field-trigger:disabled { opacity: .6; cursor: not-allowed; }
+.dd-field-trigger[aria-invalid='true'] { border-color: hsl(var(--destructive)); }
+.dd-field .dd-menu { inset-inline-start: 0; inset-inline-end: auto; min-width: 100%; }
+.dd-field .dd-menu[data-flip] { inset-inline-start: auto; inset-inline-end: 0; }
+.dd-field .currency-option-text strong { font-size: calc(14px * var(--text-scale)); font-weight: 600; }
+.modal-field .dd-field-trigger { min-height: 42px; }
+
+/* Focus on the admin fields: the soft ring of the currency control, the same on text fields and dropdowns (it replaced a
+   2px dark outline drawn 2px outside the box, which made a focused field look darker and bigger than its neighbours).
+   High contrast keeps its strong outline. */
+:root:not(.accessibility-contrast) :where(.app-shell) :is(.input-control, .select-control):focus-visible { outline: 0; border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / .25); }
+
+/* The admin account menu: the currency control's button with the person's name, and a menu with who is signed in. */
+.dd-account.dd-admin .dd-account-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.currency-dd-admin .dd-account-menu { min-width: 220px; }
+.currency-dd-admin .dd-menu-header .hc-user { display: grid; margin: 0 0 4px; padding: 6px 10px 8px; border-bottom: 1px solid hsl(var(--border)); font-size: calc(12px * var(--text-scale)); }
+.currency-dd-admin .dd-menu-header .hc-user span { color: hsl(var(--muted-foreground)); overflow-wrap: anywhere; }
+.currency-dd-admin .dd-menu-item svg { flex: none; color: hsl(var(--muted-foreground)); }
+@media (prefers-reduced-motion: reduce) { .dd-menu, .dd-menu[data-closing] { animation: none; } .dd .currency-chevron { transition: none; } }
 
 /* ===== 41. Admin light mode in Tariq's feel, soft (no glare): the same palette as the traveler light mode. Dark mode (section 36) is unchanged.
    The same soft tones as the traveler light mode (vite-plugins/passenger-css.ts): a grey-blue page (#e5ebf1), soft

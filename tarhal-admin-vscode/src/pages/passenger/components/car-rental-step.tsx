@@ -1,4 +1,5 @@
 import { CatalogPhoto } from '@/components/catalog-photo';
+import { Dropdown } from '@/components/dropdown';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { ArrowLeft, ArrowRight, CalendarDays, CarFront, Check, MapPin, UsersRound } from 'lucide-react';
 import { Money } from '@/components/money';
@@ -80,15 +81,14 @@ export default function CarRentalStep({ city, departure, returnDay = null, initi
 
       <form onSubmit={onSubmit} noValidate>
         <div className="rental-fields">
-          <label className="rental-field location-field">
-            <span className="field-label">{t('tpPickupLocation')}</span>
+          <div className="rental-field location-field">
+            <span className="field-label" id="car-location-label">{t('tpPickupLocation')}</span>
             <span className="rental-input-wrap">
               <MapPin size={17} aria-hidden="true" />
-              <select value={location} onChange={(event) => { setLocation(event.target.value); setError(null); }} data-testid="select-car-location" aria-label={t('tpPickupLocation')}>
-                {TRIP_CITIES.map((option) => <option value={option} key={option}>{cityLabel(t, option)}</option>)}
-              </select>
+              <Dropdown variant="inline" labelledBy="car-location-label" label={t('tpPickupLocation')} value={location} onChange={(value) => { setLocation(value); setError(null); }}
+                testId="select-car-location" options={TRIP_CITIES.map((option) => ({ value: option, label: cityLabel(t, option) }))} />
             </span>
-          </label>
+          </div>
           <label className="rental-field">
             <span className="field-label">{t('tpPickupDate')}</span>
             <span className="rental-input-wrap">

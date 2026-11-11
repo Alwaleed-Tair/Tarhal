@@ -1,14 +1,15 @@
+import { MenuButton } from '@/components/dropdown';
 import { BrandLogo } from '@/components/brand-logo';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Accessibility, BriefcaseBusiness, CarFront, ChevronDown, CircleUserRound, FileText, Gauge, Hotel, Languages, LogOut, Menu, Moon, PanelLeftClose, PanelLeftOpen, Plane, Search, Settings2, Sun, Users, X } from 'lucide-react';
+import { Accessibility, BriefcaseBusiness, CarFront, CircleUserRound, FileText, Gauge, Hotel, Languages, LogOut, Menu, Moon, PanelLeftClose, PanelLeftOpen, Plane, Search, Settings2, Sun, Users, X } from 'lucide-react';
 import { useT } from '@/i18n/use-i18n';
 import { CurrencySelect } from '@/components/currency-select';
 import { NotificationsMenu } from '@/components/notifications-menu';
-import { useAuth } from '@/store/authStore';
+import { canUseAdmin, useAuth } from '@/store/authStore';
+import { routes } from '@/config/routes';
 import { setSeniorMode, updateSettings, useDemoState } from '@/store/demoStore';
 import { brand } from '@/config/branding';
-import { useDismiss } from '@/hooks/use-dismiss';
 import { useSignOut } from '@/hooks/use-sign-out';
 import { toggleSidebar, useSidebarCollapsed } from '@/hooks/use-sidebar';
 
@@ -209,40 +210,21 @@ function GlobalSearch() {
 }
 
 function UserMenu() {
-  const [, setLocation] = useLocation();
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
   const t = useT();
   const signOut = useSignOut();
-  const name = useAuth().user?.name || t('admin');
-  useDismiss(menuRef, isOpen, () => setIsOpen(false));
-
+  const { user } = useAuth();
+  const name = user?.name || t('admin');
+  // The same account menu as on the traveler pages (components/dropdown.tsx MenuButton).
   return (
-    <div className="user-menu" ref={menuRef}>
-      <button
-        className="user-button"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-expanded={isOpen}
-        aria-label={name}
-        data-testid="button-user-menu"
-      >
-        <CircleUserRound size={17} />
-        <span className="user-name">{name}</span>
-        <ChevronDown size={15} className="user-chevron" />
-      </button>
-      {isOpen && (
-        <div className="user-dropdown">
-          <button
-            onClick={() => { setIsOpen(false); setLocation('/settings'); }}
-            data-testid="button-user-settings"
-          >
-            {t('settings')}
-          </button>
-          <button onClick={() => { setIsOpen(false); signOut(); }} data-testid="button-user-logout"><LogOut size={15} aria-hidden="true" />{t('logout')}</button>
-          <button onClick={() => setIsOpen(false)} data-testid="button-user-close">{t('close')}</button>
-        </div>
-      )}
-    </div>
+    <MenuButton variant="admin" testId="button-user-menu" menuTestId="admin-account-menu" icon={<CircleUserRound size={17} aria-hidden="true" />}
+      label={name} buttonLabel={`${t('accountMenu')}: ${name}`}
+      header={user ? <p className="hc-user"><strong>{user.name}</strong><span dir="ltr">{user.email}</span></p> : undefined}
+      items={[
+        { key: 'profile', label: t('tpProfile'), href: routes.passenger.profile, testId: 'button-user-profile' },
+        { key: 'bookings', label: t('tpNavBookings'), href: routes.passenger.bookings, testId: 'button-user-bookings' },
+        ...(user && canUseAdmin(user) ? [{ key: 'admin', label: t('adminDashboard'), href: routes.admin.dashboard, testId: 'button-user-admin' }] : []),
+        { key: 'logout', label: t('logout'), onSelect: signOut, icon: <LogOut size={15} aria-hidden="true" />, testId: 'button-user-logout' },
+      ]} />
   );
 }
 

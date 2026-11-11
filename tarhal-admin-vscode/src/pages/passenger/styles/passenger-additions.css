@@ -115,13 +115,6 @@ img { max-width: none; }
 .hc-currency select { appearance: none; padding: 0 2px; border: 0; color: inherit; background: transparent; font: inherit; cursor: pointer; }
 .hc-currency option { color: #203b55; background: #f7f8fc; }
 .hc-label { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.hc-account { position: relative; }
-.hc-menu {
-  position: absolute; z-index: 60; top: calc(100% + 8px); right: 0; min-width: 220px; display: grid; gap: 2px; padding: 8px;
-  border: 1px solid #e2e7ef; border-radius: 15px; color: #203b55; background: #f7f8fc; box-shadow: 0 21px 54px rgba(8, 27, 44, .35);
-}
-.hc-item { display: block; padding: 9px 12px; border: 0; border-radius: 10px; color: #203b55; background: transparent; font: inherit; font-size: 13px; font-weight: 700; text-align: start; text-decoration: none; cursor: pointer; }
-.hc-item:hover { background: #eef3f8; }
 .hc-user { display: grid; margin: 0 0 4px; padding: 6px 12px 8px; border-bottom: 1px solid #e2e7ef; font-size: 12px; }
 .hc-user span { color: #486983; overflow-wrap: anywhere; }
 .home-controls { position: absolute; z-index: 3; top: 44px; right: 90px; }
@@ -411,6 +404,33 @@ a.Panel-Note { text-decoration: underline; }
 .currency-option-text small { color: #486983; font-size: 11px; font-weight: 600; }
 .currency-check { color: #2b66a3; }
 @media (prefers-reduced-motion: reduce) { .currency-trigger .currency-chevron { transition: none; } }
+
+/* Every dropdown of the traveler pages in the currency menu's look (components/dropdown.tsx): the account menu and the car
+   pickup city. The fade-and-slide, data-up and the scroll for long lists come from index.css (.dd-menu). */
+.dd-menu[data-flip] { right: auto; left: 0; }
+.currency-dd a.currency-option { text-decoration: none; }
+.dd-account-menu { min-width: 220px; }
+.dd-account-menu .currency-option-text strong { font-weight: 700; }
+.dd-inline { display: flex; flex: 1; min-width: 0; }
+.dd-inline-trigger {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-width: 0; padding: 0;
+  border: 0; border-radius: 4px; color: var(--ink); background: transparent; font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 800; text-align: start; cursor: pointer;
+}
+.dd-inline-trigger .dd-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dd-inline-trigger:focus-visible { outline: 2px solid #2b66a3; outline-offset: 4px; }
+.dd-inline .dd-menu { top: calc(100% + 14px); right: auto; left: -26px; min-width: calc(100% + 26px); }
+.dd-inline .dd-menu[data-flip] { right: 0; left: auto; }
+@media (max-width: 640px) { .dd-inline-trigger { font-size: 12px; } }
+
+/* His flight search menus (trip type, passengers, cabin) and the city lists: the same timing as the other dropdowns, and the
+   chevron turns while a menu is open. */
+.option-popover.option-popover, .city-popover.city-popover { animation: dd-in .16s cubic-bezier(.2, .8, .2, 1) both; }
+.option-select > svg:last-child { transition: transform .18s ease; }
+.option-select[aria-expanded='true'] > svg:last-child { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) {
+  .option-popover.option-popover, .city-popover.city-popover { animation: none; }
+  .option-select > svg:last-child { transition: none; }
+}
 
 /* On the city photo the small "Discover Saudi Arabia" line keeps his light colour in light mode too (it sits on the photo). */
 .city-guide-hero .city-guide-hero-copy .city-guide-eyebrow { color: rgba(234, 242, 247, .86); text-shadow: 0 1px 4px rgba(0, 0, 0, .45); }

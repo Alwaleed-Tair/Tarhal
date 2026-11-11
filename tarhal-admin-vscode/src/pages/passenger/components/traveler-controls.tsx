@@ -1,8 +1,7 @@
-import { useCallback, useRef, useState } from 'react';
-import { ChevronDown, Languages, Moon, Sun, UserRound } from 'lucide-react';
-import { Link, useLocation } from 'wouter';
+import { Languages, Moon, Sun, UserRound } from 'lucide-react';
+import { useLocation } from 'wouter';
 import { routes } from '@/config/routes';
-import { useDismiss } from '@/hooks/use-dismiss';
+import { MenuButton } from '@/components/dropdown';
 import { useSignOut } from '@/hooks/use-sign-out';
 import { useT } from '@/i18n/use-i18n';
 import { withNext } from '@/lib/next-path';
@@ -22,10 +21,6 @@ export function HeaderControls({ auth = false }: { auth?: boolean }) {
   const { user } = useAuth();
   const signOut = useSignOut();
   const [location] = useLocation();
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const close = useCallback(() => setOpen(false), []);
-  useDismiss(ref, open, close);
   const isArabic = settings.language === 'ar';
   const isDark = settings.theme === 'dark';
   const next = location === routes.login || location === routes.register ? null : location;
@@ -45,29 +40,18 @@ export function HeaderControls({ auth = false }: { auth?: boolean }) {
         <span aria-hidden="true" className="hc-aa">A+</span><span className="hc-label">{t('largerText')}</span>
       </button>
       {!auth && <CurrencySelect variant="traveler" />}
-      {!auth && <div className="hc-account" ref={ref}>
-        <button type="button" className="hc-pill" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen((current) => !current)} data-testid="hc-account">
-          <UserRound size={14} aria-hidden="true" /><span className="hc-label">{user ? user.name : t('login')}</span><ChevronDown size={13} aria-hidden="true" />
-        </button>
-        {open && (
-          <div className="hc-menu" role="menu" data-testid="hc-menu">
-            {user ? (
-              <>
-                <p className="hc-user"><strong>{user.name}</strong><span dir="ltr">{user.email}</span></p>
-                <Link href={routes.passenger.bookings} role="menuitem" className="hc-item" onClick={close} data-testid="hc-my-bookings">{t('tpNavBookings')}</Link>
-                <Link href={routes.passenger.profile} role="menuitem" className="hc-item" onClick={close} data-testid="hc-profile">{t('tpProfile')}</Link>
-                {canUseAdmin(user) && <Link href={routes.admin.dashboard} role="menuitem" className="hc-item" onClick={close} data-testid="hc-admin">{t('adminDashboard')}</Link>}
-                <button type="button" role="menuitem" className="hc-item" onClick={() => { close(); signOut(); }} data-testid="hc-logout">{t('logout')}</button>
-              </>
-            ) : (
-              <>
-                <Link href={withNext(routes.login, next)} role="menuitem" className="hc-item" onClick={close} data-testid="hc-login">{t('login')}</Link>
-                <Link href={withNext(routes.register, next)} role="menuitem" className="hc-item" onClick={close} data-testid="hc-register">{t('register')}</Link>
-              </>
-            )}
-          </div>
-        )}
-      </div>}
+      {!auth && <MenuButton variant="traveler" testId="hc-account" menuTestId="hc-menu" icon={<UserRound size={14} aria-hidden="true" />}
+        label={user ? user.name : t('login')} buttonLabel={`${t('accountMenu')}: ${user ? user.name : t('login')}`}
+        header={user ? <p className="hc-user"><strong>{user.name}</strong><span dir="ltr">{user.email}</span></p> : undefined}
+        items={user ? [
+          { key: 'profile', label: t('tpProfile'), href: routes.passenger.profile, testId: 'hc-profile' },
+          { key: 'bookings', label: t('tpNavBookings'), href: routes.passenger.bookings, testId: 'hc-my-bookings' },
+          ...(canUseAdmin(user) ? [{ key: 'admin', label: t('adminDashboard'), href: routes.admin.dashboard, testId: 'hc-admin' }] : []),
+          { key: 'logout', label: t('logout'), onSelect: signOut, testId: 'hc-logout' },
+        ] : [
+          { key: 'login', label: t('login'), href: withNext(routes.login, next), testId: 'hc-login' },
+          { key: 'register', label: t('register'), href: withNext(routes.register, next), testId: 'hc-register' },
+        ]} />}
     </div>
   );
 }
