@@ -86,3 +86,13 @@ test('car filters combine inventory, location and vehicle requirements', () => {
   assert.equal(where.transmission, 'AUTOMATIC');
   for (const query of ['minSeats=0', 'minSeats=1.5', 'minYear=NaN', 'transmission=auto', 'city=a&city=b']) assert.throws(() => carFilters(new URLSearchParams(query)), FilterError);
 });
+
+test('car filters with pickup and return days leave out cars already rented on any of those days', () => {
+  const day = (offset: number) => new Date(Date.now() + offset * 86_400_000).toISOString().slice(0, 10);
+  const where = carFilters(new URLSearchParams(`city=Dammam&pickupDate=${day(10)}&returnDate=${day(13)}`));
+  assert.deepEqual(where.rentals, { none: { isActive: true, pickupDate: { lt: new Date(`${day(13)}T00:00:00.000Z`) }, returnDate: { gt: new Date(`${day(10)}T00:00:00.000Z`) } } });
+  assert.equal(carFilters(new URLSearchParams('city=Dammam')).rentals, undefined);
+  for (const query of [`pickupDate=${day(10)}`, `returnDate=${day(13)}`, `pickupDate=${day(13)}&returnDate=${day(10)}`, 'pickupDate=2020-01-01&returnDate=2020-01-03', `pickupDate=nope&returnDate=${day(3)}`]) {
+    assert.throws(() => carFilters(new URLSearchParams(query)), FilterError, query);
+  }
+});

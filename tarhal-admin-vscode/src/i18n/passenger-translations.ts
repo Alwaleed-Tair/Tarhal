@@ -114,7 +114,7 @@ export const passengerEn = {
   tpCarKicker: 'YOUR JOURNEY, IN ONE PLACE', tpCarTitle: 'Make the most of the road.', tpCarIntro: 'Add a car for your time in {city}.',
 
   tpPickupLocation: 'PICKUP LOCATION', tpPickupDate: 'PICKUP DATE', tpReturnDate: 'RETURN DATE',
-  tpChooseRide: 'CHOOSE YOUR RIDE', tpCarsIn: 'Available cars in {city}', tpPricePerDay: 'Price per day', tpNoCars: 'No cars are available in {city} yet.',
+  tpChooseRide: 'CHOOSE YOUR RIDE', tpCarsIn: 'Available cars in {city}', tpPricePerDay: 'Price per day', tpNoCars: 'No cars are available in {city} yet.', tpNoCarsDays: 'Every car in {city} is booked on those days. Try other days, or continue without a car.',
   tpSeatsCount: '{count} seats', tpManual: 'Manual', tpAutomatic: 'Automatic', tpDayShort: 'day', tpDay1: '{count} day', tpDays: '{count} days',
   tpCarEstimate: 'CAR ESTIMATE',
   tpErrRentalDates: 'Choose both rental dates to continue.', tpErrPickupPast: 'Pickup date cannot be in the past.',
@@ -249,7 +249,7 @@ export const passengerAr: Record<keyof typeof passengerEn, string> = {
   tpCarKicker: 'رحلتك في مكان واحد', tpCarTitle: 'استمتع بالطريق.', tpCarIntro: 'أضف سيارة تتنقل فيها في {city}.',
 
   tpPickupLocation: 'مكان الاستلام', tpPickupDate: 'تاريخ الاستلام', tpReturnDate: 'تاريخ الإرجاع',
-  tpChooseRide: 'اختر سيارتك', tpCarsIn: 'السيارات المتاحة في {city}', tpPricePerDay: 'السعر لليوم', tpNoCars: 'ما فيه سيارات متاحة في {city} للحين.',
+  tpChooseRide: 'اختر سيارتك', tpCarsIn: 'السيارات المتاحة في {city}', tpPricePerDay: 'السعر لليوم', tpNoCars: 'ما فيه سيارات متاحة في {city} للحين.', tpNoCarsDays: 'كل السيارات في {city} محجوزة في هالأيام. جرّب أيام ثانية، أو كمّل بدون سيارة.',
   tpSeatsCount: '{count} مقاعد', tpManual: 'يدوي', tpAutomatic: 'أوتوماتيك', tpDayShort: 'يوم', tpDay1: 'يوم واحد', tpDays: '{count} أيام',
   tpCarEstimate: 'تقدير السيارة',
   tpErrRentalDates: 'اختر تاريخي الاستئجار للمتابعة.', tpErrPickupPast: 'لا يمكن أن يكون تاريخ الاستلام في الماضي.',

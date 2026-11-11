@@ -26,6 +26,8 @@ export default function CarRentalStep({ city, departure, returnDay = null, initi
   // Round trip: the car goes back on the day of the flight home.
   const [returnDate, setReturnDate] = useState(initial?.returnDate ?? (returnDay && returnDay > departure ? returnDay : addDays(departure, 3)));
   const [cars, setCars] = useState<ResourceRow[] | null>(null);
+  // The city has cars, but every one is booked on the chosen days (so the message can say so).
+  const [allBooked, setAllBooked] = useState(false);
   const [loadError, setLoadError] = useState<TranslationKey | null>(null);
   const [carId, setCarId] = useState<string | null>(initial?.carId ?? null);
   const [error, setError] = useState<TranslationKey | null>(null);
@@ -36,11 +38,20 @@ export default function CarRentalStep({ city, departure, returnDay = null, initi
     setCars(null);
     setLoadError(null);
     setCarId((current) => (initial && location === initial.location ? current : null));
-    carService.list({ page: 1, pageSize: 6, city: location })
-      .then(({ rows }) => { if (live) setCars(rows); })
+    // Only cars that are free for the chosen days (when the days are valid; the form explains wrong days itself).
+    const days = pickup >= riyadhToday() && returnDate > pickup ? { pickupDate: pickup, returnDate } : {};
+    setAllBooked(false);
+    carService.list({ page: 1, pageSize: 6, city: location, ...days })
+      .then(async ({ rows }) => {
+        if (rows.length === 0 && 'pickupDate' in days) {
+          const any = await carService.list({ page: 1, pageSize: 1, city: location }).catch(() => null);
+          if (live) setAllBooked(Boolean(any && any.rows.length));
+        }
+        if (live) setCars(rows);
+      })
       .catch((err) => { if (live) setLoadError(errorKey(err)); });
     return () => { live = false; };
-  }, [location, attempt]);
+  }, [location, pickup, returnDate, attempt]);
 
   const selectedCar = cars?.find((car) => String(car.apiId) === carId) ?? null;
   const rentalDays = useMemo(() => Math.max(1, Math.ceil((Date.parse(`${returnDate}T12:00:00Z`) - Date.parse(`${pickup}T12:00:00Z`)) / 86_400_000)), [pickup, returnDate]);
@@ -103,7 +114,7 @@ export default function CarRentalStep({ city, departure, returnDay = null, initi
 
         {loadError && <div className="passenger-state" role="alert"><p>{t(loadError)}</p><button type="button" className="back-button" onClick={() => setAttempt((n) => n + 1)}>{t('retry')}</button></div>}
         {!loadError && !cars && <p className="passenger-state" role="status">{t('loading')}</p>}
-        {cars && cars.length === 0 && <p className="step-intro" data-testid="text-no-cars">{t('tpNoCars', { city: cityLabel(t, location) })}</p>}
+        {cars && cars.length === 0 && <p className="step-intro" data-testid="text-no-cars">{t(allBooked ? 'tpNoCarsDays' : 'tpNoCars', { city: cityLabel(t, location) })}</p>}
 
         {cars && cars.length > 0 && (
           <div className="car-options" role="radiogroup" aria-label={t('tpChooseRide')}>

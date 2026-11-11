@@ -26,7 +26,7 @@ const toRow = (r: Raw): ResourceRow => {
 /** Car fields an admin can set. Prices are SAR. */
 export type CarInput = { make: string; model: string; year: number; seats: number; category: string; transmission: Transmission; city: string; pricePerDay: number; insurancePricePerDay: number; isAvailable: boolean; imageUrl?: string };
 /** What GET /api/cars accepts (lib/catalog-filters.ts). Any other query parameter is answered with 400. */
-export type CarQuery = { page: number; pageSize: number; city?: string; make?: string; category?: string; transmission?: string; minSeats?: string; minYear?: string; minPrice?: string; maxPrice?: string };
+export type CarQuery = { page: number; pageSize: number; city?: string; make?: string; category?: string; transmission?: string; minSeats?: string; minYear?: string; minPrice?: string; maxPrice?: string; pickupDate?: string; returnDate?: string };
 
 export const carService = {
   /** POST /api/admin/cars and PATCH /api/admin/cars/:id (400 with the field name, 404 unknown car). The page reloads after a save. */
@@ -46,7 +46,8 @@ export const carService = {
     assertSuccess(data);
     return { rows: toList(data).map(toRow), pagination: data.pagination };
   },
-  /** One page from GET /api/cars, filtered by the API: the traveler car step. Only available cars. */
+  /** One page from GET /api/cars, filtered by the API: the traveler car step. Only available cars, and with pickupDate and
+   *  returnDate only cars that are free on those days. */
   async list(params: CarQuery) {
     const { data } = await api.get<Paginated<Raw>>('/cars', { params });
     assertSuccess(data);

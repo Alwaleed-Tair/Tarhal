@@ -197,6 +197,7 @@ Filters: `city`, `roomType`, `minPrice`, `maxPrice`, `minRating` (1–5). Sorted
 
 ### `GET /api/cars`
 Filters: `city`, `make`, `category`, `transmission` (`AUTOMATIC` | `MANUAL`), `minSeats`, `minYear`, `minPrice`, `maxPrice`. **Only available cars**; admins see all cars with `GET /api/admin/cars`.
+`pickupDate` + `returnDate` (`YYYY-MM-DD`, sent together, the same rules as `POST /api/car-rentals`): only cars with no active rental on any of those days, so every car listed can be booked for them. Wrong or half-sent dates: `400`.
 
 ---
 
