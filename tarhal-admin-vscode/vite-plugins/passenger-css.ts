@@ -115,12 +115,14 @@ export function lightColor(token: string, role: Role, inGradient = false): strin
   if (!inGradient && isAccent(token)) return null;
   // Faint white overlays (glass chips, pills, hairlines) would vanish on a pale page: the same faint touch in navy.
   if (l >= 0.85 && c.a < 0.5) return hsla(210, 0.45, 0.2, Math.min(0.14, c.a * 1.2 + 0.02));
-  // His light panels (#f7f8fc, #f8f9fc) become white, like the admin's cards.
-  if (l >= 0.97) return c.r === 255 && c.g === 255 && c.b === 255 ? null : hsla(0, 0, 1, c.a);
+  // Soft light mode (no glare): his light panels (#f7f8fc, #f8f9fc) and plain white panels become a soft off-white
+  // (#f4f6f9), the same tone as the admin's light panels. Faint white (alpha < .5) was handled above.
+  if (l >= 0.97) return hsla(214, 0.33, 0.97, c.a);
   if (l >= 0.5) return null; // Other light colours stay.
-  // His translucent dark glass becomes a white panel; his solid dark page colours become the admin's pale page tone.
-  if (c.a < 1) return hsla(h, Math.min(s, 0.3), 0.99, Math.max(c.a, 0.86));
-  return hsla(h, Math.min(s, 0.38), 0.93 + (1 - l) * 0.03, c.a);
+  // His translucent dark glass becomes a calm off-white panel; his solid dark page colours become a soft grey-blue page
+  // tone (about #e5ebf1), the same as the admin's light page.
+  if (c.a < 1) return hsla(h, Math.min(s, 0.3), 0.965, Math.max(c.a, 0.86));
+  return hsla(h, Math.min(s, 0.3), 0.915 + (1 - l) * 0.025, c.a);
 }
 
 const COLOR_TOKEN = /#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)|\b(?:white|black)\b/g;
