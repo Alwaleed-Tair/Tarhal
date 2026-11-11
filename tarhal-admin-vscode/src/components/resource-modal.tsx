@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { Dropdown } from '@/components/dropdown';
 import { Plus, Trash2 } from 'lucide-react';
 import { Field, SelectField } from '@/components/form-fields';
 import { SarSymbol } from '@/components/money';
@@ -183,14 +184,12 @@ export function ResourceModal({ kind, mode, initialKey, rows, airlines, onClose,
         </div>
         <form className="modal-form" onSubmit={save} noValidate aria-busy={submitting}>
           {mode !== 'add' && (
-            <label className="modal-field">
-              <span>{t('chooseRecord')}</span>
-              <select className="select-control" value={selectedKey} onChange={(event) => chooseRecord(event.target.value)} aria-invalid={Boolean(fieldErrors.selectedId)} disabled={submitting} data-testid={`select-${mode}-${kind}-record`}>
-                <option value="">{t('selectRecord')}</option>
-                {rows.map((row) => <option value={rowKey(row)} key={rowKey(row)}>{translateValue(row.id, lang)}</option>)}
-              </select>
+            <div className="modal-field">
+              <span id={`record-label-${mode}-${kind}`}>{t('chooseRecord')}</span>
+              <Dropdown variant="field" labelledBy={`record-label-${mode}-${kind}`} label={t('chooseRecord')} value={selectedKey} onChange={chooseRecord} invalid={Boolean(fieldErrors.selectedId)} disabled={submitting}
+                testId={`select-${mode}-${kind}-record`} options={[{ value: '', label: t('selectRecord') }, ...rows.map((row) => ({ value: rowKey(row), label: translateValue(row.id, lang) }))]} />
               {fieldErrors.selectedId && <small className="field-error" role="alert">{fieldErrors.selectedId}</small>}
-            </label>
+            </div>
           )}
 
           {mode !== 'remove' && kind === 'flight' && <>

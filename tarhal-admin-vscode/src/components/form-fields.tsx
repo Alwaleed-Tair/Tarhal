@@ -1,4 +1,5 @@
 import { useId, type ReactNode } from 'react';
+import { Dropdown } from '@/components/dropdown';
 
 type FieldProps = {
   label: ReactNode;
@@ -25,18 +26,21 @@ export function Field({ label, value, onChange, type = 'text', inputMode, list, 
   );
 }
 
-/** One labelled dropdown of the admin forms. `placeholder` adds an empty first choice. */
+/**
+ * One labelled dropdown of the admin forms, in the look of the fields next to it and the currency control's menu
+ * (components/dropdown.tsx). `placeholder` adds an empty first choice.
+ */
 export function SelectField({ label, value, onChange, options, getLabel, placeholder, required = false, error, testId, disabled }: FieldProps & { options: string[]; getLabel: (value: string) => string; placeholder?: string }) {
   const id = useId();
+  const labelId = `${id}-label`;
   const noteId = error ? `${id}-note` : undefined;
+  const choices = [...(placeholder !== undefined ? [{ value: '', label: placeholder }] : []), ...options.map((option) => ({ value: option, label: getLabel(option) }))];
   return (
-    <label className="modal-field">
-      <Label label={label} required={required} />
-      <select className="select-control" value={value} onChange={(event) => onChange(event.target.value)} aria-required={required} aria-invalid={Boolean(error)} aria-describedby={noteId} data-testid={testId} disabled={disabled}>
-        {placeholder !== undefined && <option value="">{placeholder}</option>}
-        {options.map((option) => <option key={option} value={option}>{getLabel(option)}</option>)}
-      </select>
+    <div className="modal-field">
+      <span id={labelId}><Label label={label} required={required} /></span>
+      <Dropdown variant="field" labelledBy={labelId} label={typeof label === 'string' ? label : ''} value={value} onChange={onChange} options={choices.map((o) => ({ ...o, text: o.label }))}
+        invalid={Boolean(error)} describedBy={noteId} testId={testId} disabled={disabled} />
       {error && <small id={noteId} className="field-error" role="alert">{error}</small>}
-    </label>
+    </div>
   );
 }

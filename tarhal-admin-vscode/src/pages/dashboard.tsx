@@ -1,4 +1,5 @@
 import { lazy, Suspense, useMemo, useState, type ComponentProps } from 'react';
+import { Dropdown } from '@/components/dropdown';
 import type { Booking, Service, ServiceFilter } from '@/data/demoData';
 import type { TranslationKey } from '@/i18n/translations';
 import { DataTable, type Column } from '@/components/data-table';
@@ -80,9 +81,8 @@ export default function Dashboard() {
           subtitle={t('dashboardSubtitle')}
           badges={offline ? <ContextBadge tone="warning">{t('demoBadge')}</ContextBadge> : undefined}
           actions={
-            <select className="select-control" value={service} onChange={(event) => setService(event.target.value as ServiceFilter)} aria-label={t('filterByService')} data-testid="select-dashboard-service">
-              <option value="all">{t('allServices')}</option><option value="flight">{t('flights')}</option><option value="hotel">{t('hotels')}</option><option value="car">{t('cars')}</option>
-            </select>
+            <Dropdown variant="field" className="dd-compact" value={service} onChange={(value) => setService(value as ServiceFilter)} label={t('filterByService')} testId="select-dashboard-service"
+              options={[{ value: 'all', label: t('allServices') }, { value: 'flight', label: t('flights') }, { value: 'hotel', label: t('hotels') }, { value: 'car', label: t('cars') }]} />
           }
         />
         {status === 'error' ? <div className="section-card"><ErrorState onRetry={reload} error={error} /></div> : <>

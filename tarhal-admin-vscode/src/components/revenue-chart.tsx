@@ -1,4 +1,5 @@
 import { useMemo, useState, type CSSProperties } from 'react';
+import { Dropdown } from '@/components/dropdown';
 import type { Booking, MonthlyRevenue, RevenueKey, ServiceFilter } from '@/data/demoData';
 import { isoToRiyadhLocal } from '@/i18n/format';
 import { Money, MoneyShort } from '@/components/money';
@@ -94,11 +95,9 @@ export default function RevenueChart({ service, bookings, loading, offline, show
             <strong key={total} className="value-pop"><Money sar={total} /></strong>
           </div>
         )}
-        <select className="select-control period-select" value={period} aria-label={t('period')} data-testid="chart-period"
-          onChange={(event) => { setPeriod(event.target.value as Period); setActiveIndex(null); }}>
-          {PERIODS.map(({ value, label }) => <option key={value} value={value}>{t(label)}</option>)}
-          {allowCustomRange && <option value="custom">{t('customRange')}</option>}
-        </select>
+        <Dropdown variant="field" className="dd-compact period-select" value={period} label={t('period')} testId="chart-period"
+          onChange={(value) => { setPeriod(value as Period); setActiveIndex(null); }}
+          options={[...PERIODS.map(({ value, label }) => ({ value, label: t(label) })), ...(allowCustomRange ? [{ value: 'custom', label: t('customRange') }] : [])]} />
         {custom && (
           <div className="custom-range" data-testid="chart-custom-range">
             <label>{t('rangeFrom')}<input type="date" className="input-control" dir="ltr" value={range.from} aria-invalid={!rangeValid} onChange={(event) => { setRange((current) => ({ ...current, from: event.target.value })); setActiveIndex(null); }} data-testid="chart-range-from" /></label>

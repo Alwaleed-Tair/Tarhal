@@ -1,4 +1,5 @@
 import { lazy, Suspense, useState } from 'react';
+import { Dropdown } from '@/components/dropdown';
 import type { ServiceFilter } from '@/data/demoData';
 import { ErrorState } from '@/components/error-state';
 import { ContextBadge, PageHeader } from '@/components/page-header';
@@ -25,12 +26,8 @@ export default function Revenue() {
             {offline && <ContextBadge tone="warning">{t('demoBadge')}</ContextBadge>}
           </>}
           actions={
-            <select className="select-control" value={service} onChange={(event) => setService(event.target.value as ServiceFilter)} aria-label={t('filterByService')} data-testid="select-revenue-service">
-              <option value="all">{t('allServices')}</option>
-              <option value="flight">{t('flights')}</option>
-              <option value="hotel">{t('hotels')}</option>
-              <option value="car">{t('cars')}</option>
-            </select>
+            <Dropdown variant="field" className="dd-compact" value={service} onChange={(value) => setService(value as ServiceFilter)} label={t('filterByService')} testId="select-revenue-service"
+              options={[{ value: 'all', label: t('allServices') }, { value: 'flight', label: t('flights') }, { value: 'hotel', label: t('hotels') }, { value: 'car', label: t('cars') }]} />
           }
         />
         <section className="chart-panel">
