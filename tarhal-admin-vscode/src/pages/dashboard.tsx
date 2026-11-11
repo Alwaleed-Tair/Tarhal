@@ -13,12 +13,10 @@ import { StatusBadge } from '@/components/status-badge';
 import { useAdminBookings, useAdminFlights, useCatalogSummary } from '@/hooks/use-admin-bookings';
 import { isoToRiyadhLocal } from '@/i18n/format';
 import { useFormat, useT } from '@/i18n/use-i18n';
-import { bookingDays, bookingMetrics, flightMetrics, monthlyMetrics, shortId } from '@/lib/booking-stats';
+import { bookingMetrics, dailyMetrics, flightMetrics, meaningfulTrend, shortId } from '@/lib/booking-stats';
 
 const TYPE_LABEL: Record<Service, TranslationKey> = { flight: 'flightSingular', hotel: 'hotelSingular', car: 'carSingular' };
 const RevenueChart = lazy(() => import('@/components/revenue-chart'));
-/** A trend line over fewer days than this says nothing. */
-const MIN_TREND_DAYS = 3;
 
 type Box = ComponentProps<typeof StatCard>;
 
@@ -33,8 +31,9 @@ export default function Dashboard() {
   const offline = bookingsOffline || flightsOffline || hotels.offline || cars.offline;
   const flightTotals = useMemo(() => flightMetrics(flights), [flights]);
   const metrics = useMemo(() => bookingMetrics(bookings, service), [bookings, service]);
-  const trends = useMemo(() => monthlyMetrics(bookings, new Date().getFullYear(), service), [bookings, service]);
-  const showTrend = useMemo(() => bookingDays(bookings, service) >= MIN_TREND_DAYS, [bookings, service]);
+  // Daily values of the last 14 days. A card shows its line only when it means something (lib/booking-stats.ts meaningfulTrend);
+  // otherwise there is no line and the number has the space.
+  const trends = useMemo(() => dailyMetrics(bookings, service), [bookings, service]);
   const loading = status === 'loading';
   // A service with no bookings from the API is labelled, never shown as zero. This follows the data, so it changes by itself when other bookings appear.
   const noData = !offline && (service === 'hotel' || service === 'car') && !bookings.some((row) => row.type === service);
@@ -48,9 +47,9 @@ export default function Dashboard() {
   const flightBox = stateOf(flightsStatus), hotelBox = stateOf(hotels.status), carBox = stateOf(cars.status);
   const cancelledHint = <>{t('cancelled')}: {count(metrics.cancelled)}</>;
   const paidHint = <>{t('paidSoFar')}: {money(metrics.paid)}</>;
-  const bookingsBox = (label: TranslationKey): Box => ({ label: t(label), value: metrics.bookings, render: count, series: showTrend ? trends.bookings : undefined, hint: cancelledHint, ...bookingBox });
-  const valueBox = (label: TranslationKey): Box => ({ label: t(label), value: metrics.revenue, render: money, series: showTrend ? trends.revenue : undefined, hint: paidHint, ...bookingBox });
-  const customersBox = (label: TranslationKey, hint?: Box['hint']): Box => ({ label: t(label), value: metrics.users, render: count, series: showTrend ? trends.users : undefined, hint, ...bookingBox });
+  const bookingsBox = (label: TranslationKey): Box => ({ label: t(label), value: metrics.bookings, render: count, series: meaningfulTrend(trends.bookings, trends.activeDays), hint: cancelledHint, ...bookingBox });
+  const valueBox = (label: TranslationKey): Box => ({ label: t(label), value: metrics.revenue, render: money, series: meaningfulTrend(trends.revenue, trends.activeDays), hint: paidHint, ...bookingBox });
+  const customersBox = (label: TranslationKey, hint?: Box['hint']): Box => ({ label: t(label), value: metrics.users, render: count, series: meaningfulTrend(trends.users, trends.activeDays), hint, ...bookingBox });
   const flightsBox: Box = { label: t('totalFlights'), value: flightTotals.flights, render: count, ...flightBox };
   const hotelsBox: Box = { label: t('hotels'), value: hotels.data.total, render: count, ...hotelBox };
   const carsBox: Box = { label: t('availableCars'), value: cars.data.total, render: count, ...carBox };

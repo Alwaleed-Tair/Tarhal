@@ -50,7 +50,7 @@ export const translations = {
     // Admin flight form, "no data" labels and API-backed listing filters.
     sectionFlight: 'Flight', sectionSchedule: 'Schedule', sectionPrice: 'Price', noFlightsYet: 'No flights yet. Add the first one to get started.', noCustomersYet: 'No customers yet. They appear here after their first booking.', noHotelsYet: 'No hotels to show yet.', noCarsYet: 'No available cars to show yet.',
     customRange: 'Custom range', rangeFrom: 'From', rangeTo: 'To', rangeInvalid: 'The start date must be on or before the end date.',
-    bookingDate: 'Date', noBookingsYet: 'No bookings yet. New bookings will appear here.', noRevenueInPeriod: 'No revenue in this period yet.', vsLastMonth: '{change} vs last month',
+    bookingDate: 'Date', noBookingsYet: 'No bookings yet. New bookings will appear here.', noRevenueInPeriod: 'No revenue in this period yet.', vsLastMonth: '{change} vs last month', vsLastWeek: '{change} vs the 7 days before',
     collapseSidebar: 'Collapse sidebar', expandSidebar: 'Expand sidebar', jumpToPage: 'Go to page…',
     allCustomers: 'All customers', allFlightCustomers: 'All flight customers', filterByService: 'Filter by service',
     flightBookings: 'Flight bookings', flightBookedValue: 'Flight booked value', flightCustomers: 'Flight customers with active bookings', hotelBookings: 'Hotel bookings', hotelBookedValue: 'Hotel booked value', carBookings: 'Car bookings', carBookedValue: 'Car booked value', averagePricePerNight: 'Average price per night', averagePricePerDay: 'Average price per day',
@@ -196,7 +196,7 @@ export const translations = {
     // Admin flight form, "no data" labels and API-backed listing filters.
     sectionFlight: 'الرحلة', sectionSchedule: 'المواعيد', sectionPrice: 'السعر', noFlightsYet: 'لا توجد رحلات بعد. أضف أول رحلة للبدء.', noCustomersYet: 'لا يوجد عملاء بعد. سيظهرون هنا بعد أول حجز.', noHotelsYet: 'لا توجد فنادق للعرض بعد.', noCarsYet: 'لا توجد سيارات متاحة للعرض بعد.',
     customRange: 'نطاق مخصص', rangeFrom: 'من', rangeTo: 'إلى', rangeInvalid: 'يجب أن يكون تاريخ البداية في تاريخ النهاية أو قبله.',
-    bookingDate: 'التاريخ', noBookingsYet: 'لا توجد حجوزات بعد. ستظهر الحجوزات الجديدة هنا.', noRevenueInPeriod: 'لا توجد إيرادات في هذه الفترة بعد.', vsLastMonth: '{change} مقارنة بالشهر الماضي',
+    bookingDate: 'التاريخ', noBookingsYet: 'لا توجد حجوزات بعد. ستظهر الحجوزات الجديدة هنا.', noRevenueInPeriod: 'لا توجد إيرادات في هذه الفترة بعد.', vsLastMonth: '{change} مقارنة بالشهر الماضي', vsLastWeek: '{change} مقارنة بالأيام السبعة السابقة',
     collapseSidebar: 'طي الشريط الجانبي', expandSidebar: 'توسيع الشريط الجانبي', jumpToPage: 'انتقل إلى صفحة…',
     allCustomers: 'كل العملاء', allFlightCustomers: 'كل عملاء الرحلات', filterByService: 'تصفية حسب الخدمة',
     flightBookings: 'حجوزات الرحلات', flightBookedValue: 'قيمة حجوزات الرحلات', flightCustomers: 'عملاء الرحلات بحجوزات نشطة', hotelBookings: 'حجوزات الفنادق', hotelBookedValue: 'قيمة حجوزات الفنادق', carBookings: 'حجوزات السيارات', carBookedValue: 'قيمة حجوزات السيارات', averagePricePerNight: 'متوسط سعر الليلة', averagePricePerDay: 'متوسط سعر اليوم',
