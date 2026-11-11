@@ -386,3 +386,9 @@ a.Panel-Note { text-decoration: underline; }
 @keyframes tp-place-reveal { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .city-guide-place-reveal.city-guide-place-reveal { animation: none; } .city-guide-place-toggle .city-guide-place-image { transition: none; } }
 @media (max-width: 480px) { .city-guide-place-reveal a { gap: 4px; padding: 6px 9px; font-size: 11px; } .city-guide-place-reveal strong { font-size: 14px; } }
+
+/* Flight page orbit in Arabic: his rings and plane circle sit at "start: 54%" and are centred with
+   translate(-50%). In Arabic, start is the right edge, so the centring shift must point the other way,
+   or each piece moves by half its own width and the rings drift off the plane circle. */
+.hero-art-reserved .hero-orbit-ring.hero-orbit-ring:dir(rtl),
+.hero-art-reserved .hero-orbit-globe.hero-orbit-globe:dir(rtl) { transform: translate(50%, -50%); }
