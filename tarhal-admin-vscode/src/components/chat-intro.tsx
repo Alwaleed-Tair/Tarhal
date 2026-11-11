@@ -13,42 +13,61 @@ const markDone = () => { try { localStorage.setItem(STORAGE_KEY, '1'); } catch {
 const launcher = () => [...document.querySelectorAll<HTMLButtonElement>('.chat-launcher')].find((el) => el.getClientRects().length > 0) ?? null;
 const ADMIN_PATHS = new Set<string>(Object.values(routes.admin as Record<string, string>));
 
-// Shown at most once per visit (it hides by itself); never again after the visitor closes it or opens the chat.
+// Shown once per visitor (remembered in localStorage as soon as it has been shown), and only once in this visit when
+// storage is blocked.
 let shownThisVisit = false;
 
-/**
- * Would the bubble cover any of the page's content? Text, pictures, form controls and painted boxes (cards, panels) count;
- * the page's own background, the rail and the bubble itself do not.
- */
-function coversContent(r: DOMRect): boolean {
-  const app = document.querySelector('.passenger-app');
-  if (!app) return true;
-  const hit = (x: DOMRect) => x.width > 0 && x.height > 0 && r.left < x.right && r.right > x.left && r.top < x.bottom && r.bottom > x.top;
-  for (const el of app.querySelectorAll<HTMLElement>('*')) {
-    if (el.closest('.sidebar, .chat-intro, .sr-only')) continue;
-    const box = el.getBoundingClientRect();
-    if (!hit(box)) continue;
+// What the visitor may be about to press: the header controls, the rail, and anything clickable on the page.
+const CONTROLS = 'a[href], button, input, select, textarea, label, summary, [role="button"], [role="radio"], [role="tab"], [role="option"], [role="link"], [tabindex]:not([tabindex="-1"])';
+
+/** How many controls (with an 8px margin around the bubble) a box at this place would sit on. */
+function controlsUnder(r: DOMRect): number {
+  const m = 8, top = r.top - m, bottom = r.bottom + m, left = r.left - m, right = r.right + m;
+  let n = 0;
+  for (const el of document.querySelectorAll<HTMLElement>(CONTROLS)) {
+    if (el.closest('.chat-intro, .chat-launcher, .sr-only')) continue;
+    const x = el.getBoundingClientRect();
+    if (!x.width || !x.height || x.left >= right || x.right <= left || x.top >= bottom || x.bottom <= top) continue;
     const cs = getComputedStyle(el);
-    if (cs.visibility === 'hidden' || cs.display === 'none' || Number(cs.opacity) === 0) continue;
-    if (/^(img|svg|input|button|select|textarea|video|canvas)$/i.test(el.tagName)) return true;
-    for (const node of el.childNodes) {
-      if (node.nodeType !== Node.TEXT_NODE || !node.textContent?.trim()) continue;
-      const range = document.createRange(); range.selectNodeContents(node);
-      if ([...range.getClientRects()].some(hit)) return true;
-    }
-    const painted = !/rgba\(\d+, \d+, \d+, 0\)|transparent/.test(cs.backgroundColor) || cs.backgroundImage !== 'none' || cs.boxShadow !== 'none' || parseFloat(cs.borderTopWidth) > 0;
-    const isPageBackground = box.width >= innerWidth * 0.8 && box.height >= innerHeight * 0.8;
-    if (painted && !isPageBackground) return true;
+    if (cs.visibility !== 'hidden' && cs.display !== 'none') n++;
   }
-  return false;
+  return n;
+}
+
+/**
+ * Put the bubble beside the camel, moved up in small steps when its place would sit on a control, never off screen.
+ * The lowest place with no control under it wins; if there is none, the place with the fewest.
+ */
+function place(el: HTMLElement) {
+  // Measured with transitions off: with "reduce motion" the site gives every property a tiny transition, so a new
+  // position would only apply on the next frame and the measurement would read the old one.
+  const transition = el.style.transition;
+  el.style.transition = 'none';
+  el.style.bottom = '';
+  const base = parseFloat(getComputedStyle(el).bottom) || 0;
+  let best = { lift: 0, n: Infinity };
+  let lastTop = Infinity;
+  // At most 60 steps (720px), and stop when a step no longer moves it, so this always ends.
+  for (let lift = 0; lift <= 720; lift += 12) {
+    el.style.bottom = `${base + lift}px`;
+    const r = el.getBoundingClientRect();
+    if (r.top < 8 || r.top >= lastTop) break;
+    lastTop = r.top;
+    const n = controlsUnder(r);
+    if (n < best.n) best = { lift, n };
+    if (n === 0) break;
+  }
+  el.style.bottom = `${base + best.lift}px`;
+  el.style.transition = transition;
 }
 
 /**
  * A small bubble beside the camel chat button on traveler pages: says this is the chat assistant and invites people to use
  * it. Look only, in the style of the chat window; it does not touch the chat's code: clicking it presses the camel button,
  * and it watches that button's aria-expanded to know when the chat is open.
- * Not on /login, /register or the admin pages, and never while the chat is open. It never covers the page's content: it is
- * measured before it appears and skips a page where it would, and if the visitor scrolls content under it, it goes away.
+ * Shown once per visitor on any traveler page, but not on /login, /register or the admin pages, and never while the chat is
+ * open. It may briefly cover a little content (it hides by itself and has a close button), but it keeps clear of the header
+ * controls, the rail and anything clickable: it moves up from beside the camel until nothing clickable is under it.
  */
 export function ChatIntro() {
   const t = useT();
@@ -82,19 +101,20 @@ export function ChatIntro() {
     return () => window.clearTimeout(show);
   }, [allowed, location]);
 
-  // Before it is visible: does it cover anything the visitor can use? Then not on this page.
+  // Before it is visible: find its place, then show it and remember that this visitor has seen it.
   useLayoutEffect(() => {
     if (!shown || measured || !box.current) return;
-    if (coversContent(box.current.getBoundingClientRect())) { setShown(false); return; }
+    place(box.current);
     shownThisVisit = true;
+    markDone();
     setMeasured(true);
   }, [shown, measured]);
 
   useEffect(() => {
     if (!shown || !measured) return;
     const hide = window.setTimeout(() => setShown(false), HIDE_AFTER_MS);
-    // Content scrolled (or resized) under it: it goes away rather than cover it.
-    const check = () => { if (box.current && coversContent(box.current.getBoundingClientRect())) setShown(false); };
+    // Scrolled or resized: if something clickable is now under it, it moves to a free place.
+    const check = () => { if (box.current && controlsUnder(box.current.getBoundingClientRect())) place(box.current); };
     window.addEventListener('scroll', check, { passive: true });
     window.addEventListener('resize', check);
     return () => { window.clearTimeout(hide); window.removeEventListener('scroll', check); window.removeEventListener('resize', check); };
