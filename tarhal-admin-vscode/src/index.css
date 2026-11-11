@@ -1393,3 +1393,10 @@ button.currency-select:focus-visible { outline: 0; border-color: hsl(var(--ring)
 :root:not(.dark):not(.accessibility-contrast) :where(.app-shell) .data-table td { color: #2a4560; }
 :root:not(.dark):not(.accessibility-contrast) .route-fallback { background: #e5ebf1; }
 
+/* ===== 42. Admin tables on laptop screens (up to 1440px): a little less side padding in every cell, so status pills,
+   short IDs and the Edit / Remove buttons stay inside their own column and headers break between words, not inside one. ===== */
+@media (max-width: 1440px) {
+  :where(.app-shell) .data-table :is(th, td) { padding-inline: 12px; }
+  :where(.app-shell) .row-actions .button { padding-inline: 9px; }
+}
+:where(.app-shell) .data-table th { overflow-wrap: normal; word-break: normal; hyphens: manual; }

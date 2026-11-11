@@ -214,9 +214,10 @@ function RowActions({ kind, row, t, can, onEdit, onRemove }: Pick<ColumnOptions,
 /** Columns of the three tables, from the real fields of each model. The header and the cells come from this one list. */
 function resourceColumns({ kind, t, lang, format, can, onEdit, onRemove }: ColumnOptions): Column<ResourceRow>[] {
   const hasActions = can.edit || can.remove;
-  // With an Actions column the other columns give up 16% of the width. Without any button there is no such column.
-  const share = (full: number) => `${hasActions ? (full * 84) / 100 : full}%`;
-  const actions: Column<ResourceRow> = { key: 'actions', width: '16%', header: t('actions'), align: 'end', cell: (row) => <RowActions kind={kind} row={row} t={t} can={can} onEdit={onEdit} onRemove={onRemove} /> };
+  // With an Actions column the other columns give up 22% of the width (Edit and Remove side by side need about 175px).
+  // Without any button there is no such column.
+  const share = (full: number) => `${hasActions ? (full * 78) / 100 : full}%`;
+  const actions: Column<ResourceRow> = { key: 'actions', width: '22%', header: t('actions'), align: 'end', cell: (row) => <RowActions kind={kind} row={row} t={t} can={can} onEdit={onEdit} onRemove={onRemove} /> };
   const text = (value: string | undefined): ReactNode => (value ? translateValue(value, lang) : '—');
   const price = (width: string, header: string): Column<ResourceRow> => ({ key: 'price', width, header, align: 'end', cell: (row) => <Money sar={row.price} /> });
 
@@ -241,11 +242,11 @@ function resourceColumns({ kind, t, lang, format, can, onEdit, onRemove }: Colum
         price(share(20), t('nightlyPrice')),
       ]
     : [
-        { key: 'name', width: share(27), header: t('colCar'), cell: (row) => <span>{text(row.make)} {text(row.model)} <Ltr>{row.year ? String(row.year) : ''}</Ltr></span> },
-        { key: 'city', width: share(14), header: t('city'), cell: (row) => text(row.city) },
-        { key: 'type', width: share(24), header: t('colType'), cell: (row) => <span>{row.category ? translateCarCategory(row.category, lang) : '—'} · {t(row.transmission === 'MANUAL' ? 'manual' : 'automatic')}</span> },
-        { key: 'seats', width: share(8), header: t('colSeats'), align: 'center', cell: (row) => format.number(row.seats ?? 0) },
-        { key: 'availability', width: share(12), header: t('availability'), align: 'center', cell: (row) => <span className={`status status-pill status-${row.isAvailable === false ? 'limited' : 'available'}`} data-testid={`car-availability-${row.apiId}`}>{t(row.isAvailable === false ? 'unavailableCar' : 'availableCar')}</span> },
+        { key: 'name', width: share(24), header: t('colCar'), cell: (row) => <span>{text(row.make)} {text(row.model)} <Ltr>{row.year ? String(row.year) : ''}</Ltr></span> },
+        { key: 'city', width: share(12), header: t('city'), cell: (row) => text(row.city) },
+        { key: 'type', width: share(21), header: t('colType'), cell: (row) => <span>{row.category ? translateCarCategory(row.category, lang) : '—'} · {t(row.transmission === 'MANUAL' ? 'manual' : 'automatic')}</span> },
+        { key: 'seats', width: share(9), header: t('colSeats'), align: 'center', cell: (row) => format.number(row.seats ?? 0) },
+        { key: 'availability', width: share(19), header: t('availability'), align: 'center', cell: (row) => <span className={`status status-pill status-${row.isAvailable === false ? 'limited' : 'available'}`} data-testid={`car-availability-${row.apiId}`}>{t(row.isAvailable === false ? 'unavailableCar' : 'availableCar')}</span> },
         price(share(15), t('dailyPrice')),
       ];
   if (hasActions) columns.push(actions);

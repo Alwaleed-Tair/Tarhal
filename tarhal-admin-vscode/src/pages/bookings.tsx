@@ -95,7 +95,7 @@ export default function Bookings() {
   }
 
   // Live data: Mark paid and Cancel buttons (PATCH /api/admin/bookings/:id). Demo data (server offline): the old status dropdown.
-  const widths = ['14%', '10%', '15%', '17%', '11%', '11%'];
+  const widths = ['14%', '12%', '13%', '14%', '11%', '14%'];
   const columns: Column<Booking>[] = [
     { key: 'type', width: widths[0], header: t('type'), cell: (row) => <span className="flex flex-col"><span>{t(TYPE_LABEL[row.type])}</span>{row.detail && <span className="cell-sub" dir="auto">{bookedDetail(row.detail, language)}</span>}</span> },
     { key: 'id', width: widths[1], header: t('bookingId'), cell: (row) => <span title={row.id}><Ltr>{shortId(row.id)}</Ltr></span> },
