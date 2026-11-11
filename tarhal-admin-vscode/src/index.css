@@ -672,7 +672,7 @@ html.accessibility-large { font-size: 125%; }
 
 
 /* ===== 28. Saudi Riyal symbol (official shape, inherits the surrounding text color). Same height as the digits, sitting on the baseline. ===== */
-.sar-symbol { display: inline-block; height: .72em; width: auto; aspect-ratio: 1124.14 / 1256.39; vertical-align: baseline; flex: none; }
+.sar-symbol { display: inline-block; height: .9em; width: auto; aspect-ratio: 1124.14 / 1256.39; vertical-align: -0.1em; flex: none; }
 
 /* Responsive QA: let header controls wrap on mid-size screens */
 .page-heading { flex-wrap: wrap; }
