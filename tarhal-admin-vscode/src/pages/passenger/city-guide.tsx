@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from 'react';
-import { ArrowLeft, ExternalLink, Image as ImageIcon, MapPin } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { ArrowLeft, Image as ImageIcon } from 'lucide-react';
 import { Link, useParams } from 'wouter';
 import { routes } from '@/config/routes';
 import { BrandLogo } from '@/components/brand-logo';
@@ -10,9 +10,9 @@ import { HeaderControls } from './components/traveler-controls';
 import { AiCityGuide } from './components/ai-city-guide';
 import { cities } from './data/cities';
 import { useDemoState } from '@/store/demoStore';
-import { cityDescriptionAr, isPlaceholderDescription, isPlaceholderTitle, placeTitleAr } from './data/cities-ar';
+import { cityDescriptionAr, isPlaceholderDescription } from './data/cities-ar';
 import { cityLabel, regionLabel } from './trip';
-import { cityPlaces, hudhudLink } from './data/city-places';
+import { PlaceGrid } from './components/place-grid';
 
 function CityGuideLayout({ children }: { children: ReactNode }) {
   const t = useT();
@@ -48,7 +48,6 @@ export default function CityGuide() {
   const format = useFormat();
   const { language } = useDemoState().settings;
   const { slug } = useParams<{ slug: string }>();
-  const [openPlace, setOpenPlace] = useState<string | null>(null);
   const city = cities.find((item) => item.slug === slug);
   if (!city) {
     return (
@@ -92,45 +91,7 @@ export default function CityGuide() {
           <span>{t('tpPlacesCount', { count: format.number(places.length) })}</span>
         </div>
         {places.length > 0 ? (
-          <div className="city-guide-place-grid">
-            {places.map((place) => {
-              const located = cityPlaces[place.id];
-              const tariqTitle = isPlaceholderTitle(place.title) ? '' : (language === 'ar' && placeTitleAr[place.id]) || place.title;
-              const title = tariqTitle || (located ? (language === 'ar' ? located.nameAr : located.name) : '');
-              const photo = place.photo ? (
-                <img className="city-guide-place-image" src={place.photo} alt={title || name} loading="lazy" />
-              ) : (
-                <div className="city-guide-place-placeholder"><ImageIcon size={20} /><span>{t('tpAddPlacePhoto')}</span></div>
-              );
-              if (!located) {
-                return (
-                  <article className="city-guide-place-card" key={place.id}>
-                    {photo}
-                    {title && <div className="city-guide-place-title">{title}</div>}
-                  </article>
-                );
-              }
-              const open = openPlace === place.id;
-              return (
-                <article className="city-guide-place-card city-guide-place-located" key={place.id} data-open={open || undefined} data-testid={`place-${place.id}`}>
-                  <button className="city-guide-place-toggle" type="button" aria-expanded={open} onClick={() => setOpenPlace(open ? null : place.id)}>
-                    {photo}
-                    <span className="city-guide-place-title">{title}</span>
-                  </button>
-                  {open && (
-                    <div className="city-guide-place-reveal">
-                      <strong>{title}</strong>
-                      <a href={hudhudLink(located)} target="_blank" rel="noopener noreferrer" data-testid={`hudhud-${place.id}`}>
-                        <MapPin size={14} aria-hidden="true" /> {t('tpOpenInHudhud')}
-                        <ExternalLink size={12} aria-hidden="true" />
-                        <span className="sr-only"> {t('tpOpensNewTab')}</span>
-                      </a>
-                    </div>
-                  )}
-                </article>
-              );
-            })}
-          </div>
+          <PlaceGrid places={places} cityName={name} />
         ) : (
           <p className="city-guide-empty">{t('tpPlacesLater')}</p>
         )}
