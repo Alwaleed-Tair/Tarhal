@@ -1070,7 +1070,7 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 :where(.app-shell) .button-primary, :where(.app-shell) .radio-option.selected { background: hsl(216 86% 50%); color: #fff; }
 .button[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
 :where(:root:not(.dark) .app-shell) .data-table th { color: hsl(215 28% 32%); }
-:where(.app-shell) :is(.status-pending, .status-boarding, .status-limited), :where(.app-shell) .context-badge-warning { color: #8a5a00; }
+:where(.app-shell) :is(.status-pending, .status-boarding, .status-limited), :where(.app-shell) .context-badge-warning { color: #6b4500; }
 .dark :where(.app-shell) :is(.status-pending, .status-boarding, .status-limited), .dark :where(.app-shell) .context-badge-warning { color: #f0b84f; }
 :where(.app-shell) .status-cancelled { color: #a61b1b; }
 .dark :where(.app-shell) .status-cancelled { color: #ff9a94; }
@@ -1154,7 +1154,7 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 :root.dark:not(.accessibility-contrast) .app-shell .data-table td.cell-muted { color: hsl(var(--muted-foreground)); }
 :root.dark:not(.accessibility-contrast) .app-shell .bar-navy { background: #142845; }
 :root.dark:not(.accessibility-contrast) .app-shell .context-badge-success { color: #1f9d61; }
-:root.dark:not(.accessibility-contrast) .app-shell :is(.status-pending, .status-boarding, .status-limited, .context-badge-warning) { color: #8a5a00; }
+:root.dark:not(.accessibility-contrast) .app-shell :is(.status-pending, .status-boarding, .status-limited, .context-badge-warning) { color: #6b4500; }
 :root.dark:not(.accessibility-contrast) .app-shell .status-cancelled { color: #a61b1b; }
 :where(.app-shell) :is(h1, h2, .metric-value, .chart-total strong, .brand-name, .modal-header h2) { font-family: 'Manrope', var(--app-font-sans); }
 
@@ -1194,7 +1194,7 @@ html[data-admin-sidebar] .toast { border-radius: var(--adm-radius-sm, 10px); box
 :where(.app-shell) .metric-label { text-transform: uppercase; letter-spacing: .06em; font-size: calc(11.5px * var(--text-scale)); }
 :root.dark:not(.accessibility-contrast) :where(.app-shell) .metric-label { color: hsl(var(--muted-foreground)); opacity: 1; }
 /* Readable on light panels in both modes (WCAG AA): green status pills, red ghost buttons, page selects in dark mode. */
-:root:not(.accessibility-contrast) :where(.app-shell) :is(.status-confirmed, .status-active, .status-scheduled, .status-available) { color: #17734a; }
+:root:not(.accessibility-contrast) :where(.app-shell) :is(.status-confirmed, .status-active, .status-scheduled, .status-available) { color: #0f5e3a; }
 :root:not(.accessibility-contrast) :where(.app-shell) .button-ghost-danger { color: #b4231f; }
 /* The shell sets its own text colour: otherwise it inherits the page's light dark-mode text, unreadable on his light panels. */
 :root.dark:not(.accessibility-contrast) .app-shell { color: hsl(var(--foreground)); }
