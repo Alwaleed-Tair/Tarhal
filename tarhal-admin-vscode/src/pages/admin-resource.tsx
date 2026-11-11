@@ -1,3 +1,4 @@
+import { CatalogPhoto } from '@/components/catalog-photo';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { CatalogFilterBar } from '@/components/catalog-filter-bar';
@@ -235,14 +236,14 @@ function resourceColumns({ kind, t, lang, format, can, onEdit, onRemove }: Colum
   }
   const columns: Column<ResourceRow>[] = kind === 'hotel'
     ? [
-        { key: 'name', width: share(30), header: t('hotelName'), cell: (row) => text(row.id) },
+        { key: 'name', width: share(30), header: t('hotelName'), cell: (row) => <span className="row-thumb-cell"><CatalogPhoto className="row-thumb" src={row.imageUrl} kind="hotel" alt={t('photoHotel', { name: row.id })} sizes="48px" /><span>{text(row.id)}</span></span> },
         { key: 'city', width: share(18), header: t('city'), cell: (row) => text(row.city) },
         { key: 'room', width: share(20), header: t('roomType'), cell: (row) => text(row.roomType) },
         { key: 'rating', width: share(12), header: t('colRating'), align: 'center', cell: (row) => (row.rating === undefined ? '—' : format.rating(row.rating)) },
         price(share(20), t('nightlyPrice')),
       ]
     : [
-        { key: 'name', width: share(24), header: t('colCar'), cell: (row) => <span>{text(row.make)} {text(row.model)} <Ltr>{row.year ? String(row.year) : ''}</Ltr></span> },
+        { key: 'name', width: share(24), header: t('colCar'), cell: (row) => <span className="row-thumb-cell"><CatalogPhoto className="row-thumb" src={row.imageUrl} kind="car" alt={t('photoCar', { car: `${row.make ?? ''} ${row.model ?? ''}`.trim() })} sizes="48px" /><span>{text(row.make)} {text(row.model)} <Ltr>{row.year ? String(row.year) : ''}</Ltr></span></span> },
         { key: 'city', width: share(12), header: t('city'), cell: (row) => text(row.city) },
         { key: 'type', width: share(21), header: t('colType'), cell: (row) => <span>{row.category ? translateCarCategory(row.category, lang) : '—'} · {t(row.transmission === 'MANUAL' ? 'manual' : 'automatic')}</span> },
         { key: 'seats', width: share(9), header: t('colSeats'), align: 'center', cell: (row) => format.number(row.seats ?? 0) },
